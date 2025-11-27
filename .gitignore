@@ -9,17 +9,16 @@ wheels/
 .idea/
 
 
-# Main dataset folder (your ingestion script writes here)
 ml-models/dataset/
 
-# Ignore any "data" folders inside ml-models subprojects
 ml-models/*/data/*
 !ml-models/*/data/.gitkeep
 
-# Generic large folders commonly used for data
 **/Dataset/**
 **/Images/**
 
 *.zip
 *.tar
 *.tar.gz
+
+uv.lock

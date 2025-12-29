@@ -14,7 +14,7 @@ ml-models/dataset/
 ml-models/*/data/*
 !ml-models/*/data/.gitkeep
 
-**/Dataset/**
+ml-models/dataset/Dataset/**
 **/Images/**
 
 *.zip

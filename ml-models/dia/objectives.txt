@@ -1,0 +1,35 @@
+A. Expressive Intensity Indicators (from anxiety / depression theory) - Saturation Based
+    Measured by:
+    - Line pressure
+    - Stroke density
+    - Shading intensity
+    - Darkness distribution
+    Output example:
+    “High stroke pressure and dense shading detected”
+
+B. Spatial & Scale Indicators (from depression, withdrawal, self-esteem theory)
+    Measured by:
+    - Figure-to-canvas ratio
+    - Page usage %
+    - Center vs corner placement
+    - Confinement
+    Output example:
+    “Primary figure occupies 18% of canvas area”
+
+C. Structural Completeness Indicators (from self & development theory)
+    Measured by:
+    - Missing body parts
+    - Head–body proportion
+    - Limb detection confidence
+    - Symmetry
+    Output example:
+    “Hands not detected in human figure”
+
+D. Relational Representation Indicators (optional if family drawings exist)
+    Measured by:
+    - Distance between figures
+    - Relative size
+    - Grouping vs isolation
+    - Presence/absence
+    Output example:
+    “Self-figure positioned separately from others”

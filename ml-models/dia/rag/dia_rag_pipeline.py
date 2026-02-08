@@ -12,6 +12,14 @@ from prompts import SYSTEM_PROMPT, json_structure
 
 
 def _format_context(chunks) -> str:
+    if not chunks:
+        return ""
+
+    # Defensive check: ensure we received RetrievedChunk objects
+    for i, c in enumerate(chunks):
+        if not hasattr(c, "text") or not hasattr(c, "source") or not hasattr(c, "page"):
+            raise TypeError(f"Retriever returned unexpected item at index {i}: {type(c)} -> {c}")
+
     lines = []
     for c in chunks:
         lines.append(f"[Source: {c.source} p.{c.page}] {c.text}")

@@ -5,14 +5,14 @@ from typing import List
 from config import RagConfig
 from pdf_loader import load_pdfs_from_folder
 from text_splitter import SimpleTextSplitter
-from vector_store import ChromaVectorStore, GoogleEmbedder, RetrievedChunk
+from vector_store import ChromaVectorStore, LocalEmbedder, RetrievedChunk
 
 @dataclass
 class RagRetriever:
     config: RagConfig
 
     def __post_init__(self) -> None:
-        self._embedder = GoogleEmbedder(self.config.embedding_model)
+        self._embedder = LocalEmbedder()
         self._store = ChromaVectorStore(
             persist_dir=self.config.chroma_dir,
             collection_name="dia_literature",

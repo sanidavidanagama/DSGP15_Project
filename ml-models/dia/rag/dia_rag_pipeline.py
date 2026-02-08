@@ -2,10 +2,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-from .config import RagConfig
-from .rag_retriever import RagRetriever
-from .gemini_client import GeminiClient
-from .utils import read_image_bytes
+from config import RagConfig
+from rag_retriever import RagRetriever
+from gemini_client import GeminiClient
+from utils import read_image_bytes
 
 
 from prompts import SYSTEM_PROMPT, json_structure

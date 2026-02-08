@@ -17,10 +17,10 @@ class RagConfig:
     def from_env() -> "RagConfig":
         rag_dir = Path(__file__).resolve().parent
         data_dir = rag_dir / "data"
-        chroma_dir = data_dir / "chroma_db"
+        chroma_dir = rag_dir / "chroma_db"
 
         llm_model = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
-        embedding_model = os.getenv("GEMINI_MODEL", "text-embedding-004")
+        embedding_model = os.getenv("GEMINI_EMBEDDING_MODEL", "embedding-001")
         top_k = int(os.getenv("RAG_TOP_K", "6"))
 
         return RagConfig(

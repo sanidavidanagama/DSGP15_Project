@@ -1,35 +1,29 @@
-A. Expressive Intensity Indicators (from anxiety / depression theory) - Saturation Based
-    Measured by:
-    - Line pressure
-    - Stroke density
-    - Shading intensity
-    - Darkness distribution
-    Output example:
-    “High stroke pressure and dense shading detected”
+DIA - Drawing Indicator Analysis: Output Format
 
-B. Spatial & Scale Indicators (from depression, withdrawal, self-esteem theory)
-    Measured by:
-    - Figure-to-canvas ratio
-    - Page usage %
-    - Center vs corner placement
-    - Confinement
-    Output example:
-    “Primary figure occupies 18% of canvas area”
+1. Emotional Expression Indicators
+    - Line Pressure: Categorize as High, Normal, or Low.
+    - Shading Intensity: Categorize as Heavy, Moderate, or None.
+    - Overall Tone: Categorize as Dark, Balanced, or Light.
 
-C. Structural Completeness Indicators (from self & development theory)
-    Measured by:
-    - Missing body parts
-    - Head–body proportion
-    - Limb detection confidence
-    - Symmetry
-    Output example:
-    “Hands not detected in human figure”
+2. Space and Size Indicators
+    - Page Usage: Indicate as Small (<30%), Medium, or Large (>60%).
+    - Figure Size: Indicate as Small, Average, or Large.
+    - Placement: Specify as Center, Side, or Corner.
 
-D. Relational Representation Indicators (optional if family drawings exist)
-    Measured by:
-    - Distance between figures
-    - Relative size
-    - Grouping vs isolation
-    - Presence/absence
-    Output example:
-    “Self-figure positioned separately from others”
+3. Human Figure Structure
+    - Human Figure Present: Yes or No.
+    - Missing Body Parts: List any absent parts (None, Hands, Arms, Legs, Face).
+    - Facial Features: Present or Absent.
+
+4. Relational Representation (if multiple figures are present)
+    - Number of Figures: Specify (2, 3, Many).
+    - Distance Between Figures: Close, Moderate, or Far.
+    - Self Positioning: With others or Separate.
+
+INTERPRETATION GUIDELINES (Based on Child’s Description)
+
+- Use only the child’s own words to explain visual features.
+- Link observed drawing patterns to the child’s statements.
+- Do not add emotional interpretations not mentioned by the child.
+- If the child uses emotional language, reflect it gently.
+- If the child’s description is neutral, keep interpretation minimal.

@@ -1,5 +1,22 @@
 # Feature - Drawing Indicator Analysis (DIA)
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Conceptual Foundation](#conceptual-foundation)
+- [What Existing Literature Establishes](#what-existing-literature-establishes)
+    - [1. Psychological States Are Reflected Indirectly, Not Explicitly](#1-psychological-states-are-reflected-indirectly-not-explicitly)
+    - [2. Emotional States Are Expressed Through Drawing Dynamics](#2-emotional-states-are-expressed-through-drawing-dynamics)
+    - [3. Social and Family Perception Is Represented Symbolically](#3-social-and-family-perception-is-represented-symbolically)
+    - [4. Cognitive and Developmental Level Influences Drawing Structure](#4-cognitive-and-developmental-level-influences-drawing-structure)
+- [How These Indicators Are Traditionally Examined (Domain Practice)](#how-these-indicators-are-traditionally-examined-domain-practice)
+- [Role of AI and ML in This Feature](#role-of-ai-and-ml-in-this-feature)
+- [What AI Does NOT Do](#what-ai-does-not-do)
+- [Output of Feature 3](#output-of-feature-3)
+- [Configuration](#configuration)
+- [RAG Architecture](#rag-architecture)
+- [Summary](#summary)
+
 ## Overview
 
 Feature 3 is designed to bridge psychological drawing theory and computational analysis, without exceeding or violating established domain boundaries in child psychology and art therapy.
@@ -160,6 +177,38 @@ These outputs are designed to:
 
 They serve as **interpretive context**, not conclusions.
 
+---
+
+## Configuration
+
+To enable and run the Drawing Indicator Analysis feature, you must configure the `.env` file in the project root. This file should include the following environment variables (as required by the RAG pipeline and LLM client):
+
+```
+# Example .env entries
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-3-flash-preview
+ST_EMBED_MODEL=sentence-transformers/all-MiniLM-L6-v2
+RAG_TOP_K=6
+# Add any other relevant keys or configuration variables as needed
+```
+
+Ensure that all required API keys and paths are set correctly before running the pipeline.
+
+---
+
+## RAG Architecture
+
+This feature leverages a Retrieval-Augmented Generation (RAG) architecture to enhance indicator analysis and reporting. The RAG pipeline consists of the following components:
+
+- **Document Loader & Text Splitter:** Loads and splits reference documents (e.g., psychological literature, indicator definitions) for embedding and retrieval.
+- **Vector Store:** Uses ChromaDB to store and retrieve document embeddings efficiently.
+- **Retriever:** Finds the most relevant reference chunks based on user queries or analysis context.
+- **LLM Client:** Integrates with large language models (e.g., OpenAI, Gemini) to generate structured indicator reports, explanations, and context-aware outputs.
+- **Prompt Management:** Uses prompt templates to ensure outputs are grounded in established psychological theory and domain practice.
+
+The RAG pipeline ensures that all AI-generated outputs are supported by retrieved, explainable references, and that the LLM operates strictly within the boundaries of established domain knowledge.
+
+---
 
 ## Summary
 

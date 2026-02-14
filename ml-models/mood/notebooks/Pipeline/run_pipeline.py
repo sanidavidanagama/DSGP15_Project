@@ -13,8 +13,8 @@ pipeline = EmotionPipeline(
     fusion_model_path=FUSION_MODEL_PATH
 )
 
-image_path = r"C:\Users\USER\Desktop\test.jpg"
-text = "The child looks very happy"
+image_path = r"C:\Users\USER\PycharmProjects\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\example1.jpg"
+text = "The child is smiling"
 
 prediction = pipeline.predict(image_path, text)
 

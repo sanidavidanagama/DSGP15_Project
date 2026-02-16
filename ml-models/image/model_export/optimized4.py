@@ -617,24 +617,3 @@ class ChildDrawingPreprocessor:
             )
 
         return str(checkpoint_path)
-
-
-def preprocess_drawing(image_input: Union[str, Path, bytes, Image.Image, np.ndarray],
-                       target_width: int = 512,
-                       target_height: int = 362) -> np.ndarray:
-    """
-    Convenience function for quick preprocessing without class instantiation
-
-    WARNING: This creates a new preprocessor each time (slow!)
-    For production use, instantiate ChildDrawingPreprocessor once and reuse it.
-
-    Args:
-        image_input: Image to process
-        target_width: Output width
-        target_height: Output height
-
-    Returns:
-        Processed image as RGB NumPy array
-    """
-    preprocessor = ChildDrawingPreprocessor()
-    return preprocessor.process(image_input, target_width, target_height)

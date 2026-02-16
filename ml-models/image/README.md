@@ -15,7 +15,7 @@ Production-ready image preprocessing service for child drawings. Automatically d
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/sanidavidanagama/DSGP15_Project.git
 cd child-drawing-preprocessor
 
 # Install dependencies

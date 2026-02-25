@@ -22,3 +22,5 @@ ml-models/*/data/*
 *.tar.gz
 
 uv.lock
+
+*.env

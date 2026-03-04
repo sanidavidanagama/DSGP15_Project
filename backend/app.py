@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(
     title="INKIND API",
     description="API for INKIND project - DSGP group 15 of Informatics Institute of Technology affiliated with Robert Gordon University, Abeerdeen",
-    version="0.1.0",
+    version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )

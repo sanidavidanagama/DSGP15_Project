@@ -1,0 +1,29 @@
+DIA - Drawing Indicator Analysis: Output Format
+
+1. Emotional Expression Indicators
+    - Line Pressure: Categorize as High, Normal, or Low.
+    - Shading Intensity: Categorize as Heavy, Moderate, or None.
+    - Overall Tone: Categorize as Dark, Balanced, or Light.
+
+2. Space and Size Indicators
+    - Page Usage: Indicate as Small (<30%), Medium, or Large (>60%).
+    - Figure Size: Indicate as Small, Average, or Large.
+    - Placement: Specify as Center, Side, or Corner.
+
+3. Human Figure Structure
+    - Human Figure Present: Yes or No.
+    - Missing Body Parts: List any absent parts (None, Hands, Arms, Legs, Face).
+    - Facial Features: Present or Absent.
+
+4. Relational Representation (if multiple figures are present)
+    - Number of Figures: Specify (2, 3, Many).
+    - Distance Between Figures: Close, Moderate, or Far.
+    - Self Positioning: With others or Separate.
+
+INTERPRETATION GUIDELINES (Based on Child’s Description)
+
+- Use only the child’s own words to explain visual features.
+- Link observed drawing patterns to the child’s statements.
+- Do not add emotional interpretations not mentioned by the child.
+- If the child uses emotional language, reflect it gently.
+- If the child’s description is neutral, keep interpretation minimal.

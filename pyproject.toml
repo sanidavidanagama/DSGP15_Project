@@ -3,7 +3,7 @@ name = "dsgp-15-project"
 version = "0.1.0"
 description = "Deep learning project to analyze children's drawings for emotion recognition and creativity assessment."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "albumentations>=2.0.8",
     "chromadb>=1.4.1",
@@ -33,13 +33,11 @@ dependencies = [
     "shapely>=2.1.2",
     "tensorflow>=2.20.0",
     "tf-keras>=2.20.1",
-    "torch>=2.0.0,<2.2.0",
-    "torchvision>=0.15.0,<0.17.0",
-    "torchaudio>=2.0.0,<2.2.0",
+    "torch>=2.2.0",
+    "torchvision>=0.17.0",
+    "torchaudio>=2.2.0",
     "tqdm>=4.67.1",
-    "transformers[torch]>=4.57.3",
-    "ultralytics>=8.4.9",
-    "transformers>=4.57.3",
+    "transformers[torch]>=4.40.0",
     "ultralytics>=8.1,<9.0",
     "uvicorn>=0.38.0",
 ]

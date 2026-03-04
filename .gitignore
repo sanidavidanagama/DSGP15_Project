@@ -22,3 +22,5 @@ ml-models/dataset/Dataset/**
 *.tar.gz
 
 uv.lock
+
+*.env

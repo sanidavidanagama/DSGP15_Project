@@ -19,4 +19,9 @@ app.add_middleware(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)  
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)  
+    
+
+@app.post("/validate_image")
+async def validate_image():
+    return {"message": "Image validation endpoint"}

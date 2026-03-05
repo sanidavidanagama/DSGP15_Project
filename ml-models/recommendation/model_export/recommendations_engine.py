@@ -75,4 +75,44 @@ class RecommendationEngine:
 
         return patterns
 
+    def generate_recommendation(self, mood, data):
+
+        patterns = self.detect_patterns(data)
+
+        # Priority 1
+        if patterns.get("structural") == "Structural Omission":
+            category = "Developmental Monitoring Suggestion"
+
+        # Priority 2
+        elif (mood == "Sad" and
+              patterns.get("emotional") == "High Emotional Intensity"):
+            category = "Emotional Regulation Support"
+
+        # Priority 3
+        elif (mood == "Sad" and
+              patterns.get("spatial") == "Constrained Spatial Usage"):
+            category = "Confidence Building Support"
+
+        # Priority 4
+        elif patterns.get("relational") == "Relational Distance":
+            category = "Social Engagement Support"
+
+        # Positive Patterns
+        elif (mood == "Happy" and
+              patterns.get("emotional") == "Regulated Expression"):
+            category = "Positive Reinforcement"
+
+        elif (mood == "Happy" and
+              patterns.get("spatial") == "Confident Spatial Engagement"):
+            category = "Expressive Expansion Guidance"
+
+        else:
+            category = "Creative Encouragement"
+
+        return {
+            "DetectedPatterns": patterns,
+            "RecommendationCategory": category,
+            "RecommendationText": self.recommendation_texts[category]
+        }
+
 

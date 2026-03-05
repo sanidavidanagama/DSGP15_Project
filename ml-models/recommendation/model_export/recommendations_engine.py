@@ -1,4 +1,6 @@
+import textwrap
 class RecommendationEngine:
+
 
     def __init__(self):
 
@@ -119,7 +121,7 @@ class RecommendationEngine:
         return {
             "DetectedPatterns": patterns,
             "RecommendationCategory": category,
-            "RecommendationText": self.recommendation_texts[category]
+            "RecommendationText": self.recommendation_texts[category].replace("\n", " ").strip()
         }
 
 

@@ -4,37 +4,44 @@ class RecommendationEngine:
 
         self.recommendation_texts = {
             "Emotional Regulation Support":
-                """Observed graphic intensity (e.g., strong line pressure,
-                heavy shading, darker tonal balance) may reflect elevated
-                expressive energy. Supportive emotional regulation
-                activities may be beneficial.""",
+                """High line pressure, heavy shading, and darker tonal balance may
+                reflect emotionally intense expressive behaviour. Supportive
+                guidance may focus on calming activities and structured
+                emotional outlets (Koppitz, 1984; Machover, 1949).""",
 
             "Confidence Building Support":
-                """Reduced spatial usage or constrained placement may suggest
-                limited expressive expansion. Encouraging open-ended drawing
-                and reinforcement may support confidence.""",
+                """Small page usage and reduced figure size may indicate
+                constrained spatial engagement. Encouraging open-ended drawing
+                and positive reinforcement may support expressive confidence
+                (Buck, 1948; Koppitz, 1984).""",
 
             "Social Engagement Support":
-                """Relational distancing in drawings may indicate reduced
-                social representation. Collaborative creative activities
-                may enhance engagement.""",
+                """Greater distance between figures or separate self-positioning
+                may reflect relational distancing. Collaborative activities and
+                guided social interaction may support engagement
+                (Machover, 1949; Malchiodi, 1998).""",
 
             "Developmental Monitoring Suggestion":
-                """Omission of structural elements may reflect developmental
-                simplification. Longitudinal observation is recommended.""",
+                """Missing body parts or absent facial features may reflect
+                developmental or expressive simplification. Observation over
+                time is recommended rather than immediate concern
+                (Koppitz, 1968).""",
 
             "Positive Reinforcement":
-                """Balanced structural and expressive indicators suggest
-                adaptive representation. Reinforcing positive expression
-                is encouraged.""",
+                """Balanced tone and organized structure may indicate regulated
+                expression. Reinforcing positive expressive behaviour is
+                recommended (Malchiodi, 2005).""",
 
             "Expressive Expansion Guidance":
-                """Confident spatial engagement may reflect strong expressive
-                presence. Encouraging narrative expansion is beneficial.""",
+                """Large page usage and confident spatial engagement may indicate
+                strong expressive presence. Encouraging narrative expansion
+                and creative exploration is beneficial (Betts, 1995).""",
 
             "Creative Encouragement":
-                """Absence of strong constraints suggests thematic exploration.
-                Encouraging imaginative creativity is recommended."""
+                """Absence of strong emotional or spatial constraints may
+                indicate thematic exploration. Encouraging imaginative
+                storytelling and symbolic creativity can enhance development
+                (Machover, 1949)."""
         }
 
     def detect_patterns(self, data):

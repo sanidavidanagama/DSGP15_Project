@@ -37,3 +37,42 @@ class RecommendationEngine:
                 Encouraging imaginative creativity is recommended."""
         }
 
+    def detect_patterns(self, data):
+
+        patterns = {}
+
+        # Emotional Indicators
+        if (data["LinePressure"] == "High" and
+                data["ShadingIntensity"] == "Heavy" and
+                data["OverallTone"] == "Dark"):
+            patterns["emotional"] = "High Emotional Intensity"
+
+        elif (data["LinePressure"] == "Low" and
+              data["ShadingIntensity"] == "None" and
+              data["OverallTone"] == "Light"):
+            patterns["emotional"] = "Low Expressive Energy"
+
+        elif data["LinePressure"] == "Normal":
+            patterns["emotional"] = "Regulated Expression"
+
+        # Spatial Indicators
+        if (data["PageUsage"] == "Small" and
+                data["Placement"] in ["Corner", "Side"]):
+            patterns["spatial"] = "Constrained Spatial Usage"
+
+        elif (data["PageUsage"] == "Large" and
+              data["Placement"] == "Center"):
+            patterns["spatial"] = "Confident Spatial Engagement"
+
+        # Structural Indicators
+        if data["MissingBodyParts"] != "None":
+            patterns["structural"] = "Structural Omission"
+
+        # Relational Indicators
+        if data["NumberOfFigures"] > 1:
+            if data["DistanceBetweenFigures"] == "Far":
+                patterns["relational"] = "Relational Distance"
+
+        return patterns
+
+

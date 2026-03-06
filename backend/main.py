@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import image
+from app.routers import job
 
 app = FastAPI(
     title="INKIND API",
@@ -18,7 +19,9 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+
 app.include_router(image.router)
+app.include_router(job.router)
 
 if __name__ == "__main__":
     import uvicorn

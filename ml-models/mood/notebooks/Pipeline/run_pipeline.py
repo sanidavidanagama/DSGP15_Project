@@ -1,21 +1,22 @@
 from emotion_pipeline import EmotionPipeline
+from pathlib import Path
 
-BERT_MODEL_DIR = r"C:\Users\USER\PycharmProjects\DSGP15_Project\ml-models\mood\notebooks\DistilBERT\saved_emotion_bert"
+# Current script folder
+CURRENT_DIR = Path(__file__).parent
 
-RESNET_MODEL_PATH = r"C:\Users\USER\PycharmProjects\DSGP15_Project\ml-models\mood\notebooks\ResNet50\resnet50_emotion_model_cpu_optimized.pth"
+# Paths relative to the current file
+BERT_MODEL_DIR = CURRENT_DIR / "data" / "saved_emotion_bert"
+RESNET_MODEL_PATH = CURRENT_DIR / "data" / "resnet50_emotion_model_cpu_optimized.pth"
+FUSION_MODEL_PATH = CURRENT_DIR / "data" / "fusion_model.pth"
+IMAGE_PATH = Path(__file__).parent.parent.parent.parent / "dataset" / "Dataset" / "Images" / "Emotion" / "test" / "example1.jpg"
 
-FUSION_MODEL_PATH = r"C:\Users\USER\PycharmProjects\DSGP15_Project\ml-models\mood\notebooks\Fusion\fusion_model.pth"
-
-
+# Initialize pipeline
 pipeline = EmotionPipeline(
     bert_model_dir=BERT_MODEL_DIR,
     resnet_model_path=RESNET_MODEL_PATH,
     fusion_model_path=FUSION_MODEL_PATH
 )
 
-image_path = r"C:\Users\USER\PycharmProjects\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\example1.jpg"
 text = "The child is smiling"
-
-prediction = pipeline.predict(image_path, text)
-
+prediction = pipeline.predict(IMAGE_PATH, text)
 print("Predicted Emotion:", prediction)

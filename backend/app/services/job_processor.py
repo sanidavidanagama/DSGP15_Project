@@ -1,9 +1,5 @@
-# TODO: Update job status to "processing"
-# TODO: Run the mood and dia ML pipelines in parallel (using threading or concurrency)
-# TODO: Wait for both results, then call the recommendations model.
-# TODO: Update job status to "done" and save the result in the database.
-
 from sqlalchemy.orm import Session
+from app.database.crud_job import update_job_status_and_result
 
 def process_job(job_id: str, image_path: str, description: str, db: Session):
     """
@@ -14,5 +10,12 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
         description (str): User-provided description
         db (Session): SQLAlchemy DB session
     """
-    # Implementation for 5.2+ will go here
+    # Update job status to 'processing', clear processed_image_path and result
+    update_job_status_and_result(db, job_id, status="processing", result=None, processed_image_path=None)
+
+    # TODO: Run the image processor, save processed image
+    # TODO: Run the mood and dia ML pipelines in parallel (using threading or concurrency)
+    # TODO: Wait for both results, then call the recommendations model.
+    # TODO: Update job status to "done" and save the result in the database.
+
     pass

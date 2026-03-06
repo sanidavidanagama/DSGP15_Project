@@ -26,3 +26,4 @@ uv.lock
 *.env
 
 ml-models/mood/notebooks/Pipeline/data/*
+backend/app/ml/mood_model/data/*

@@ -1,7 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
-
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 from config import RagConfig
 from rag_retriever import RagRetriever
 from gemini_client import GeminiClient
@@ -26,11 +28,13 @@ def _format_context(chunks) -> str:
     return "\n\n".join(lines)
 
 
-@dataclass
-class DIARagPipeline:
-    config: RagConfig
 
-    def __post_init__(self) -> None:
+class DIARagPipeline:
+    def __init__(self) -> None:
+        # Load root backend .env
+        root_env = Path(__file__).resolve().parents[2] / ".env"
+        load_dotenv(root_env)
+        self.config = RagConfig.from_env()
         self.retriever = RagRetriever(self.config)
         self.llm = GeminiClient(self.config.llm_model)
 

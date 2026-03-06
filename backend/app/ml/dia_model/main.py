@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -9,12 +10,10 @@ from dia_rag_pipeline import DIARagPipeline
 
 
 def main() -> None:
-    load_dotenv()
-    # uv run ml-models/dia/rag/main.py C:\Users\sanid\PycharmProjects\DSGP\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\Happiness\101-1B-267-F-H.jpg "I love my friends very, very much. I love my teacher too"
-    # uv run ml-models/dia/rag/main.py C:\Users\sanid\PycharmProjects\DSGP\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\Sadness\101-1E-497-M-S.jpg "I am so sorry I have never seen dinosaurs because they are all dead"
-    # uv run ml-models/dia/rag/main.py C:\Users\sanid\PycharmProjects\DSGP\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\Sadness\101-4E-565-M-S.jpg "Getting a bad grade is cause for sadness for me"
+    # Load root backend .env
+    root_env = Path(__file__).resolve().parents[2] / ".env"
+    load_dotenv(root_env)
 
-    # to run: python ml-models/dia/rag/main.py /path/to/image.jpg "child description here"
     if len(sys.argv) < 3:
         print('Usage: python main.py "<image_path>" "<child_text_description>"')
         sys.exit(1)

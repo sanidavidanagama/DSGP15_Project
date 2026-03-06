@@ -24,3 +24,5 @@ ml-models/dataset/Dataset/**
 uv.lock
 
 *.env
+
+ml-models/mood/notebooks/Pipeline/data

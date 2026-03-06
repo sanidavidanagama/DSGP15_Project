@@ -1,7 +1,10 @@
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import image
 from app.routers import job
+from app.core.config import settings
+
 
 app = FastAPI(
     title="INKIND API",
@@ -11,9 +14,11 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+
+# Use settings for CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.parse_allowed_origins(settings.ALLOWED_ORIGINS),
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,

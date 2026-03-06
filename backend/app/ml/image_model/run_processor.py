@@ -7,7 +7,7 @@ python run_preprocessor.py path/to/image.jpg
 
 import sys
 from PIL import Image
-from backend.app.ml.image_model.processor import ChildDrawingPreprocessor
+from processor import ChildDrawingPreprocessor
 
 
 def main(image_path):

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import image
 
 app = FastAPI(
     title="INKIND API",
@@ -17,11 +18,9 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+app.include_router(image.router)
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)  
-    
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
-@app.post("/validate_image")
-async def validate_image():
-    return {"message": "Image validation endpoint"}

@@ -32,3 +32,5 @@ backend/uploads/*
 backend/backend/uploads/*
 
 *.db
+
+backend/app/ml/dia_model/chroma_db/*

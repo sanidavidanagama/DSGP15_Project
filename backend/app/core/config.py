@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     RAG_TOP_K: Optional[int] = None
     TF_ENABLE_ONEDNN_OPTS: Optional[int] = None
     PROCESSED_IMAGE_DIR: str = "backend/uploads/processed/"
+    EMOTION_BERT_MODEL_DIR: str
+    EMOTION_RESNET_MODEL_PATH: str
+    EMOTION_FUSION_MODEL_PATH: str
 
     @field_validator("ALLOWED_ORIGINS")
     def parse_allowed_origins(cls, v: str) -> List[str]:

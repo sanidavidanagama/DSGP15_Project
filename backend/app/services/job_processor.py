@@ -18,7 +18,7 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
 
     # Run the image processor, save processed image
     processed_image_path = run_image_processor(image_path)
-    if processed_image_path is not None:
+    if processed_image_path != None:
         update_job_status_and_result(db, job_id, status="image_processed", processed_image_path=processed_image_path)
 
         # Run the emotion model in a thread (TODO: Add dia model threading and aggregation)
@@ -31,6 +31,8 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
         emotion_thread.start()
         emotion_thread.join()  # Wait for emotion model to finish
         update_job_status_and_result(db, job_id, status="emotion_processed", result=emotion_result)
+        print("Predicted emotion: ", emotion_result)
+        pass
     else:
         update_job_status_and_result(db, job_id, status="failed", result={"error": "Image processing failed"})
     

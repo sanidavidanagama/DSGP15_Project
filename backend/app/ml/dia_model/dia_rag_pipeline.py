@@ -30,11 +30,8 @@ def _format_context(chunks) -> str:
 
 
 class DIARagPipeline:
-    def __init__(self, api_key: str) -> None:
-        # Load root backend .env
-        root_env = Path(__file__).resolve().parents[2] / ".env"
-        load_dotenv(root_env)
-        self.config = RagConfig.from_env()
+    def __init__(self, config: RagConfig, api_key: str) -> None:
+        self.config = config
         self.retriever = RagRetriever(self.config)
         self.llm = GeminiClient(self.config.llm_model, api_key=api_key)
 

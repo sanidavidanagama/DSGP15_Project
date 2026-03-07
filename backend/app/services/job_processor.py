@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from app.database.crud_job import update_job_status_and_result
 from app.services.image_service import run_image_processor
+from app.services.emotion_service import run_emotion_pipeline
+import threading
 
 def process_job(job_id: str, image_path: str, description: str, db: Session):
     """
@@ -16,11 +18,21 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
 
     # Run the image processor, save processed image
     processed_image_path = run_image_processor(image_path)
-    if processed_image_path != None:
+    if processed_image_path is not None:
         update_job_status_and_result(db, job_id, status="image_processed", processed_image_path=processed_image_path)
-    
-    # TODO: Run the mood and dia ML pipelines in parallel (using threading or concurrency)
-    # TODO: Wait for both results, then call the recommendations model.
-    # TODO: Update job status to "done" and save the result in the database.
 
-    pass
+        # Run the emotion model in a thread (TODO: Add dia model threading and aggregation)
+        emotion_result = {}
+        def emotion_task():
+            nonlocal emotion_result
+            emotion_result = run_emotion_pipeline(processed_image_path, description)
+
+        emotion_thread = threading.Thread(target=emotion_task)
+        emotion_thread.start()
+        emotion_thread.join()  # Wait for emotion model to finish
+        update_job_status_and_result(db, job_id, status="emotion_processed", result=emotion_result)
+    else:
+        update_job_status_and_result(db, job_id, status="failed", result={"error": "Image processing failed"})
+    
+    # TODO: Update job status/result in DB after both models are run
+    # TODO: Add dia model threading and aggregation

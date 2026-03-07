@@ -7,7 +7,7 @@ from app.ml.image_model.processor import ChildDrawingPreprocessor
 import os
 from app.core.config import settings
 
-RAW_IMAGE_DIR = settings.PROCESSED_IMAGE_DIR
+RAW_IMAGE_DIR = settings.RAW_IMAGE_DIR
 
 os.makedirs(RAW_IMAGE_DIR, exist_ok=True)
 

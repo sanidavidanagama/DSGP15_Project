@@ -12,7 +12,8 @@ class Settings(BaseSettings):
     ST_EMBED_MODEL: Optional[str] = None
     RAG_TOP_K: Optional[int] = None
     TF_ENABLE_ONEDNN_OPTS: Optional[int] = None
-    PROCESSED_IMAGE_DIR: str = "backend/uploads/processed/"
+    PROCESSED_IMAGE_DIR: str = "uploads/processed/"
+    RAW_IMAGE_DIR: str = "uploads/raw/"
     EMOTION_BERT_MODEL_DIR: str
     EMOTION_RESNET_MODEL_PATH: str
     EMOTION_FUSION_MODEL_PATH: str

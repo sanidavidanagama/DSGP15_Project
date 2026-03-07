@@ -1,9 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
-import os
-from pathlib import Path
-from dotenv import load_dotenv
+
 from config import RagConfig
 from rag_retriever import RagRetriever
 from gemini_client import GeminiClient
@@ -28,12 +26,13 @@ def _format_context(chunks) -> str:
     return "\n\n".join(lines)
 
 
-
+@dataclass
 class DIARagPipeline:
-    def __init__(self, config: RagConfig, api_key: str) -> None:
-        self.config = config
+    config: RagConfig
+
+    def __post_init__(self) -> None:
         self.retriever = RagRetriever(self.config)
-        self.llm = GeminiClient(self.config.llm_model, api_key=api_key)
+        self.llm = GeminiClient(self.config.llm_model)
 
     def run(self, image_path: str, child_description: str) -> str:
         self.retriever.build_or_update_index()

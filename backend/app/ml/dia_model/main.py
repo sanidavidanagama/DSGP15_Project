@@ -1,9 +1,20 @@
+from __future__ import annotations
+import os
 import sys
-from dia_rag_pipeline import DIARagPipeline
+
+from dotenv import load_dotenv
+
 from config import RagConfig
-from app.core.config import settings
+from dia_rag_pipeline import DIARagPipeline
+
 
 def main() -> None:
+    load_dotenv()
+    # uv run ml-models/dia/rag/main.py C:\Users\sanid\PycharmProjects\DSGP\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\Happiness\101-1B-267-F-H.jpg "I love my friends very, very much. I love my teacher too"
+    # uv run ml-models/dia/rag/main.py C:\Users\sanid\PycharmProjects\DSGP\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\Sadness\101-1E-497-M-S.jpg "I am so sorry I have never seen dinosaurs because they are all dead"
+    # uv run ml-models/dia/rag/main.py C:\Users\sanid\PycharmProjects\DSGP\DSGP15_Project\ml-models\dataset\Dataset\Images\Emotion\test\Sadness\101-4E-565-M-S.jpg "Getting a bad grade is cause for sadness for me"
+
+    # to run: python ml-models/dia/rag/main.py /path/to/image.jpg "child description here"
     if len(sys.argv) < 3:
         print('Usage: python main.py "<image_path>" "<child_text_description>"')
         sys.exit(1)
@@ -11,17 +22,12 @@ def main() -> None:
     image_path = sys.argv[1]
     child_description = sys.argv[2]
 
-    dirs = RagConfig.default_dirs()
-    rag_config = RagConfig(
-        rag_dir=dirs["rag_dir"],
-        data_dir=dirs["data_dir"],
-        chroma_dir=dirs["chroma_dir"],
-        llm_model=settings.GEMINI_MODEL,
-        top_k=settings.RAG_TOP_K or 6,
-    )
-    pipeline = DIARagPipeline(rag_config, settings.GOOGLE_API_KEY)
+    cfg = RagConfig.from_env()
+    pipeline = DIARagPipeline(cfg)
+
     json_output = pipeline.run(image_path=image_path, child_description=child_description)
     print(json_output)
+
 
 if __name__ == "__main__":
     main()

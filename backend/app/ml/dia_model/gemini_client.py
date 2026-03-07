@@ -5,7 +5,6 @@ from typing import Optional
 @dataclass
 class GeminiClient:
     model_name: str
-    api_key: str
 
     def __post_init__(self) -> None:
         try:
@@ -15,10 +14,8 @@ class GeminiClient:
                 "Missing dependency 'google-genai'. Install it with: pip install google-genai"
             ) from e
 
-        if not self.api_key:
-            raise ValueError("GOOGLE_API_KEY must be provided.")
         self._genai = genai
-        self._client = genai.Client(api_key=self.api_key)
+        self._client = genai.Client()
 
     def generate_json(self, system_prompt: str, user_prompt: str, image_bytes: bytes, image_mime: str) -> str:
         resp = self._client.models.generate_content(

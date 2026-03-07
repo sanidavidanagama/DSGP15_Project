@@ -37,7 +37,7 @@ class ChromaVectorStore:
     Minimal Chroma wrapper: add documents + similarity search.
     Requires: uv add chromadb
     """
-    def __init__(self, persist_dir: Path, collection_name: str, embedder: LocalEmbedder()): # type: ignore
+    def __init__(self, persist_dir: Path, collection_name: str, embedder: LocalEmbedder()):
         ensure_dir(persist_dir)
         self.persist_dir = persist_dir
         self.collection_name = collection_name

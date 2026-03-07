@@ -9,7 +9,19 @@ import threading
 # Import DIARagPipeline from the correct path
 
 from app.ml.dia_model.dia_rag_pipeline import DIARagPipeline
+
 from app.ml.dia_model.config import RagConfig
+
+# Helper to build RagConfig using global backend settings
+def build_rag_config_from_settings():
+    dirs = RagConfig.default_dirs()
+    return RagConfig(
+        rag_dir=dirs["rag_dir"],
+        data_dir=dirs["data_dir"],
+        chroma_dir=dirs["chroma_dir"],
+        llm_model=settings.GEMINI_MODEL,  # from .env via core/config.py
+        top_k=settings.RAG_TOP_K or 6,    # from .env via core/config.py
+    )
 
 def process_job(job_id: str, image_path: str, description: str, db: Session):
     """
@@ -38,16 +50,9 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
 
         def dia_task():
             nonlocal dia_result
-            # Build RagConfig from global settings
-            dirs = RagConfig.default_dirs()
-            rag_config = RagConfig(
-                rag_dir=dirs["rag_dir"],
-                data_dir=dirs["data_dir"],
-                chroma_dir=dirs["chroma_dir"],
-                llm_model=settings.GEMINI_MODEL,
-                top_k=settings.RAG_TOP_K or 6,
-            )
-            api_key = settings.GOOGLE_API_KEY
+            # Build RagConfig and get API key from global backend settings
+            rag_config = build_rag_config_from_settings()
+            api_key = settings.GOOGLE_API_KEY  # from .env via core/config.py
             pipeline = DIARagPipeline(rag_config, api_key)
             dia_result = pipeline.run(processed_image_path, description)
 

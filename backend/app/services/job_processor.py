@@ -5,6 +5,7 @@ from app.services.image_service import run_image_processor
 from app.services.emotion_service import run_emotion_pipeline
 from app.core.config import settings
 import threading
+import json
 
 # Import DIARagPipeline from the correct path
 
@@ -24,6 +25,40 @@ def build_rag_config_from_settings():
     )
 
 def process_job(job_id: str, image_path: str, description: str, db: Session):
+    update_job_status_and_result(db, job_id, status="processing", result=None, processed_image_path=None)
+
+    processed_image_path = run_image_processor(image_path)
+    if not processed_image_path:
+        update_job_status_and_result(db, job_id, status="failed", result={"error": "Image processing failed"})
+        return
+
+    update_job_status_and_result(db, job_id, status="image_processed", processed_image_path=processed_image_path)
+
+    emotion_result = {}
+    dia_result = {}
+
+    def emotion_task():
+        nonlocal emotion_result
+        emotion_result = run_emotion_pipeline(processed_image_path, description)
+
+    def dia_task():
+        nonlocal dia_result
+        rag_config = RagConfig.from_settings()  # automatically includes API key
+        pipeline = DIARagPipeline(rag_config)
+        dia_result = pipeline.run(processed_image_path, description)
+
+    # run in parallel
+    threads = [
+        threading.Thread(target=emotion_task),
+        threading.Thread(target=dia_task)
+    ]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    result = {"emotion": emotion_result, "dia": dia_result}
+    update_job_status_and_result(db, job_id, status="emotions_and_dia_processed", result=result)
     """
     Main job processing function. To be called in background after job creation.
     Args:
@@ -50,11 +85,15 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
 
         def dia_task():
             nonlocal dia_result
-            # Build RagConfig and get API key from global backend settings
-            rag_config = build_rag_config_from_settings()
-            api_key = settings.GOOGLE_API_KEY  # from .env via core/config.py
-            pipeline = DIARagPipeline(rag_config, api_key)
-            dia_result = pipeline.run(processed_image_path, description)
+            rag_config = RagConfig.from_settings()
+            pipeline = DIARagPipeline(rag_config)
+            raw_result = pipeline.run(processed_image_path, description)
+
+            # Convert JSON string -> dict
+            try:
+                dia_result = json.loads(raw_result)
+            except json.JSONDecodeError:
+                dia_result = {"error": "Invalid JSON returned by DIA", "raw": raw_result}
 
         # Start both threads
         emotion_thread = threading.Thread(target=emotion_task)

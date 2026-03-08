@@ -5,7 +5,7 @@ import sys
 from dotenv import load_dotenv
 
 from config import RagConfig
-from dia_rag_pipeline import DIARagPipeline
+from dia_rag_pipeline import DrawingIndicatorAnalyser
 
 
 def main() -> None:
@@ -23,7 +23,7 @@ def main() -> None:
     child_description = sys.argv[2]
 
     cfg = RagConfig.from_env()
-    pipeline = DIARagPipeline(cfg)
+    pipeline = DrawingIndicatorAnalyser(cfg)
 
     json_output = pipeline.run(image_path=image_path, child_description=child_description)
     print(json_output)

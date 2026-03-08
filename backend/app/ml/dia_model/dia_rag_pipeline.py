@@ -27,7 +27,7 @@ def _format_context(chunks) -> str:
 
 
 @dataclass
-class DIARagPipeline:
+class DrawingIndicatorAnalyser:
     config: RagConfig
 
     def __post_init__(self):

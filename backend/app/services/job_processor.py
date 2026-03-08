@@ -10,7 +10,7 @@ import json
 # Import DIARagPipeline from the correct path
 
 
-from app.ml.dia_model.dia_rag_pipeline import DIARagPipeline
+from app.ml.dia_model.dia_rag_pipeline import DrawingIndicatorAnalyser
 from app.ml.dia_model.config import RagConfig
 
 # Recommendation engine imports
@@ -42,7 +42,7 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
     def dia_task():
         nonlocal dia_result
         rag_config = RagConfig.from_settings()
-        pipeline = DIARagPipeline(rag_config)
+        pipeline = DrawingIndicatorAnalyser(rag_config)
         raw_result = pipeline.run(processed_image_path, description)
         # Convert JSON string -> dict
         try:

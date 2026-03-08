@@ -2,10 +2,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-from config import RagConfig
-from pdf_loader import load_pdfs_from_folder
-from text_splitter import SimpleTextSplitter
-from vector_store import ChromaVectorStore, LocalEmbedder, RetrievedChunk
+from app.ml.dia_model.config import RagConfig
+from app.ml.dia_model.pdf_loader import load_pdfs_from_folder
+from app.ml.dia_model.text_splitter import SimpleTextSplitter
+from app.ml.dia_model.vector_store import ChromaVectorStore, LocalEmbedder, RetrievedChunk
 
 @dataclass
 class RagRetriever:

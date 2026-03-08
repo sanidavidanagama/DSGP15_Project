@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from typing import Optional
 
 @dataclass
+@dataclass
 class GeminiClient:
     model_name: str
+    api_key: str
 
     def __post_init__(self) -> None:
         try:
@@ -15,7 +17,7 @@ class GeminiClient:
             ) from e
 
         self._genai = genai
-        self._client = genai.Client()
+        self._client = genai.Client(api_key=self.api_key)
 
     def generate_json(self, system_prompt: str, user_prompt: str, image_bytes: bytes, image_mime: str) -> str:
         resp = self._client.models.generate_content(

@@ -1,8 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
-from pdf_loader import DocChunk
-from utils import normalize_whitespaces
+from app.ml.dia_model.pdf_loader import DocChunk
+from app.ml.dia_model.utils import normalize_whitespaces
 
 @dataclass
 class SplitChunk:

@@ -43,4 +43,5 @@ dependencies = [
     "sqlalchemy>=2.0.48",
     "segment-anything>=1.0",
     "pydantic-settings>=2.13.1",
+    "streamlit>=1.55.0",
 ]

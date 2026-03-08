@@ -10,19 +10,8 @@ import json
 # Import DIARagPipeline from the correct path
 
 from app.ml.dia_model.dia_rag_pipeline import DIARagPipeline
-
 from app.ml.dia_model.config import RagConfig
-
-# Helper to build RagConfig using global backend settings
-def build_rag_config_from_settings():
-    dirs = RagConfig.default_dirs()
-    return RagConfig(
-        rag_dir=dirs["rag_dir"],
-        data_dir=dirs["data_dir"],
-        chroma_dir=dirs["chroma_dir"],
-        llm_model=settings.GEMINI_MODEL,  # from .env via core/config.py
-        top_k=settings.RAG_TOP_K or 6,    # from .env via core/config.py
-    )
+from app.utils.rag_config_builder import build_rag_config_from_settings
 
 def process_job(job_id: str, image_path: str, description: str, db: Session):
     update_job_status_and_result(db, job_id, status="processing", result=None, processed_image_path=None)

@@ -9,13 +9,20 @@ import json
 
 # Import DIARagPipeline from the correct path
 
+
 from app.ml.dia_model.dia_rag_pipeline import DIARagPipeline
 from app.ml.dia_model.config import RagConfig
 from app.utils.rag_config_builder import build_rag_config_from_settings
 
+# Recommendation engine imports
+from app.ml.recommendation_model.recommendations_engine import RecommendationEngine
+from app.utils.recommendation_input_builder import RecommendationInputBuilder
+
 def process_job(job_id: str, image_path: str, description: str, db: Session):
+    # Clear status at start
     update_job_status_and_result(db, job_id, status="processing", result=None, processed_image_path=None)
 
+    # Run image processor
     processed_image_path = run_image_processor(image_path)
     if not processed_image_path:
         update_job_status_and_result(db, job_id, status="failed", result={"error": "Image processing failed"})
@@ -23,20 +30,28 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
 
     update_job_status_and_result(db, job_id, status="image_processed", processed_image_path=processed_image_path)
 
+    # Prepare results containers
     emotion_result = {}
     dia_result = {}
+    recommendation_result = {}
 
+    # Threaded tasks
     def emotion_task():
         nonlocal emotion_result
         emotion_result = run_emotion_pipeline(processed_image_path, description)
 
     def dia_task():
         nonlocal dia_result
-        rag_config = RagConfig.from_settings()  # automatically includes API key
+        rag_config = RagConfig.from_settings()
         pipeline = DIARagPipeline(rag_config)
-        dia_result = pipeline.run(processed_image_path, description)
+        raw_result = pipeline.run(processed_image_path, description)
+        # Convert JSON string -> dict
+        try:
+            dia_result = json.loads(raw_result)
+        except json.JSONDecodeError:
+            dia_result = {"error": "Invalid JSON returned by DIA", "raw": raw_result}
 
-    # run in parallel
+    # Run emotion and DIA in parallel first
     threads = [
         threading.Thread(target=emotion_task),
         threading.Thread(target=dia_task)
@@ -46,58 +61,22 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
     for t in threads:
         t.join()
 
-    result = {"emotion": emotion_result, "dia": dia_result}
-    update_job_status_and_result(db, job_id, status="emotions_and_dia_processed", result=result)
-    """
-    Main job processing function. To be called in background after job creation.
-    Args:
-        job_id (str): The job's unique ID
-        image_path (str): Path to the uploaded image
-        description (str): User-provided description
-        db (Session): SQLAlchemy DB session
-    """
-    # Update job status to 'processing', clear processed_image_path and result
-    update_job_status_and_result(db, job_id, status="processing", result=None, processed_image_path=None)
+    # Now run recommendation engine (can be threaded if needed, but depends on emotion/dia)
+    def recommendation_task():
+        nonlocal recommendation_result
+        engine = RecommendationEngine()
+        mood, data = RecommendationInputBuilder.build(emotion_result, dia_result)
+        recommendation_result = engine.generate_recommendation(mood, data)
 
-    # Run the image processor, save processed image
-    processed_image_path = run_image_processor(image_path)
-    if processed_image_path is not None:
-        update_job_status_and_result(db, job_id, status="image_processed", processed_image_path=processed_image_path)
+    rec_thread = threading.Thread(target=recommendation_task)
+    rec_thread.start()
+    rec_thread.join()
 
-        # Prepare threading for emotion and dia models
-        emotion_result = {}
-        dia_result = {}
-
-        def emotion_task():
-            nonlocal emotion_result
-            emotion_result = run_emotion_pipeline(processed_image_path, description)
-
-        def dia_task():
-            nonlocal dia_result
-            rag_config = RagConfig.from_settings()
-            pipeline = DIARagPipeline(rag_config)
-            raw_result = pipeline.run(processed_image_path, description)
-
-            # Convert JSON string -> dict
-            try:
-                dia_result = json.loads(raw_result)
-            except json.JSONDecodeError:
-                dia_result = {"error": "Invalid JSON returned by DIA", "raw": raw_result}
-
-        # Start both threads
-        emotion_thread = threading.Thread(target=emotion_task)
-        dia_thread = threading.Thread(target=dia_task)
-        emotion_thread.start()
-        dia_thread.start()
-        emotion_thread.join()
-        dia_thread.join()
-
-        # Aggregate results
-        result = {
-            "emotion": emotion_result,
-            "dia": dia_result
-        }
-        update_job_status_and_result(db, job_id, status="emotions_and_dia_processed", result=result)
-        
-    else:
-        update_job_status_and_result(db, job_id, status="failed", result={"error": "Image processing failed"})
+    # Aggregate results
+    result = {
+        "emotion": emotion_result,
+        "dia": dia_result,
+        "recommendation": recommendation_result
+    }
+    update_job_status_and_result(db, job_id, status="done", result=result)
+    

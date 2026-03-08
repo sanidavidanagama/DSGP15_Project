@@ -40,4 +40,4 @@ class SimpleTextSplitter:
                 if end == len(raw):
                     break
                 start = max(0, end - self.overlap)
-            return out
+        return out

@@ -2,11 +2,11 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from app.schemas.job import JobResult
 from app.database.database import SessionLocal
 from app.database.crud_job import create_job, get_job_by_job_id
 from app.services.image_service import save_upload_image
 from app.services.job_processor import process_job
+from app.schemas.job import JobStatusResponse
 import threading
 import uuid
 
@@ -36,15 +36,16 @@ async def upload_image_with_description(
 
 
 
-@router.get("/job_status/{job_id}")
+@router.get("/job_status/{job_id}", response_model=JobStatusResponse)
 async def get_job_status(job_id: str, db: Session = Depends(get_db)):
     job = get_job_by_job_id(db, job_id)
+
     if not job:
-        return {"status": "not_found", "detail": "Job not found"}
-    # Return job status and details directly from the database
+        raise HTTPException(status_code=404, detail="Job not found")
+
     return {
         "job_id": job.job_id,
         "status": job.status,
-        "processed_image_path": job.processed_image_path,
-        "result": job.result,
+        "raw_image_path": job.image_path,
+        "result": job.result
     }

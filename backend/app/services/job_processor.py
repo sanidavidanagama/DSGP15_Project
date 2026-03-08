@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database.crud_job import update_job_status_and_result
-from app.services.image_service import run_image_processor
+from app.services.image_service import run_image_processor, build_image_metadata
 
 from app.services.emotion_service import run_emotion_pipeline
 from app.core.config import settings
@@ -12,7 +12,6 @@ import json
 
 from app.ml.dia_model.dia_rag_pipeline import DIARagPipeline
 from app.ml.dia_model.config import RagConfig
-from app.utils.rag_config_builder import build_rag_config_from_settings
 
 # Recommendation engine imports
 from app.ml.recommendation_model.recommendations_engine import RecommendationEngine
@@ -73,7 +72,10 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
     rec_thread.join()
 
     # Aggregate results
+    image_metadata = build_image_metadata(processed_image_path)
+
     result = {
+        "image": image_metadata,
         "emotion": emotion_result,
         "dia": dia_result,
         "recommendation": recommendation_result

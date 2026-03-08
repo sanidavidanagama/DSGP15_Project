@@ -1,14 +1,18 @@
-from typing import List, Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
-class ImageResult(BaseModel):
-    raw: str  # file path or URL
-    processed: str  # file path or URL
-    caption: str
 
-class MoodResult(BaseModel):
-    mood: str
-    mood_probability: float
+class ImageMetadata(BaseModel):
+    processed_image_path: str
+    created_at: str
+    file_type: str
+    size: int
+    dimensions: str
+
+
+class EmotionResult(BaseModel):
+    emotion: str
+
 
 class DiaResult(BaseModel):
     line_pressure: str
@@ -23,20 +27,29 @@ class DiaResult(BaseModel):
     number_of_figures: str
     distance_between_figures: str
     self_positioning: str
-    intepretaton: List[str]
+    interpretation: List[str]
+
 
 class DetectedPatterns(BaseModel):
     emotional: str
     spatial: str
-    structural: str
 
-class RecommendationsResult(BaseModel):
-    detected_patterns: DetectedPatterns
-    recommendation_category: str
-    recommendation_text: str
 
-class JobResult(BaseModel):
-    image: ImageResult
-    mood: MoodResult
-    dia: DiaResult
-    recommendations: RecommendationsResult
+class RecommendationResult(BaseModel):
+    DetectedPatterns: DetectedPatterns
+    RecommendationCategory: str
+    RecommendationText: str
+
+
+class ResultBundle(BaseModel):
+    image: Optional[ImageMetadata] = None
+    emotion: Optional[EmotionResult] = None
+    dia: Optional[DiaResult] = None
+    recommendation: Optional[RecommendationResult] = None
+
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: str
+    raw_image_path: Optional[str] = None
+    result: Optional[ResultBundle] = None

@@ -1,7 +1,7 @@
 import os
 from uuid import uuid4
 from fastapi import UploadFile
-
+from datetime import datetime
 from PIL import Image
 from app.ml.image_model.processor import ChildDrawingPreprocessor
 import os
@@ -42,5 +42,17 @@ def run_image_processor(image_path: str):
         print(f"Image processing failed: {e}")
         return None
     
+def build_image_metadata(processed_image_path):
+    file_size = os.path.getsize(processed_image_path)
 
+    with Image.open(processed_image_path) as img:
+        width, height = img.size
+
+    return {
+        "processed_image_path": processed_image_path,
+        "created_at": datetime.utcnow().isoformat(),
+        "file_type": processed_image_path.split(".")[-1],
+        "size": file_size,
+        "dimensions": f"{width}x{height}"
+    }
 

@@ -1,6 +1,9 @@
 from typing import Optional, List
 from pydantic import BaseModel
 
+class UploadJobResponse(BaseModel):
+    job_id: str
+    message: str
 
 class ImageMetadata(BaseModel):
     processed_image_path: str

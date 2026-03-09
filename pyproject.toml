@@ -42,4 +42,5 @@ dependencies = [
     "uvicorn>=0.38.0",
     "sqlalchemy>=2.0.48",
     "segment-anything>=1.0",
+    "streamlit>=1.55.0",
 ]

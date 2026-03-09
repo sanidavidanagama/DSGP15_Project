@@ -1,29 +1,33 @@
+# app/ml/dia_model/config.py
 from dataclasses import dataclass
 from pathlib import Path
-import os
 
 @dataclass(frozen=True)
 class RagConfig:
     rag_dir: Path
     data_dir: Path
     chroma_dir: Path
-
     llm_model: str
     top_k: int
+    api_key: str
 
     @staticmethod
-    def from_env() -> "RagConfig":
-        rag_dir = Path(__file__).resolve().parent
-        data_dir = rag_dir / "data"
-        chroma_dir = rag_dir / "chroma_db"
+    def from_settings():
+        """Build RagConfig using FastAPI Pydantic settings"""
+        from app.core.config import settings
 
-        llm_model = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
-        top_k = int(os.getenv("RAG_TOP_K", "6"))
+        base_dir = Path(__file__).resolve().parent
+        dirs = {
+            "rag_dir": base_dir,
+            "data_dir": base_dir / "data",
+            "chroma_dir": base_dir / "chroma_db",
+        }
 
         return RagConfig(
-            rag_dir=rag_dir,
-            data_dir=data_dir,
-            chroma_dir=chroma_dir,
-            llm_model=llm_model,
-            top_k=top_k,
+            rag_dir=dirs["rag_dir"],
+            data_dir=dirs["data_dir"],
+            chroma_dir=dirs["chroma_dir"],
+            llm_model=settings.GEMINI_MODEL,
+            top_k=settings.RAG_TOP_K,
+            api_key=settings.GOOGLE_API_KEY,
         )

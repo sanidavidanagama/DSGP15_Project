@@ -3,11 +3,12 @@ from dataclasses import dataclass
 from typing import Optional
 
 @dataclass
+@dataclass
 class GeminiClient:
     model_name: str
+    api_key: str
 
     def __post_init__(self) -> None:
-        import os
         try:
             from google import genai
         except Exception as e:
@@ -15,11 +16,8 @@ class GeminiClient:
                 "Missing dependency 'google-genai'. Install it with: pip install google-genai"
             ) from e
 
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("GOOGLE_API_KEY not set in environment.")
         self._genai = genai
-        self._client = genai.Client(api_key=api_key)
+        self._client = genai.Client(api_key=self.api_key)
 
     def generate_json(self, system_prompt: str, user_prompt: str, image_bytes: bytes, image_mime: str) -> str:
         resp = self._client.models.generate_content(

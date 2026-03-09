@@ -7,8 +7,8 @@ from sympy.multipledispatch.dispatcher import source
 from torch.nn.functional import embedding
 from sentence_transformers import SentenceTransformer
 
-from utils import ensure_dir
-from text_splitter import SplitChunk
+from app.ml.dia_model.utils import ensure_dir
+from app.ml.dia_model.text_splitter import SplitChunk
 
 @dataclass
 class RetrievedChunk:

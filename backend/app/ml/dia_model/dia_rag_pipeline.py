@@ -1,16 +1,14 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
-import os
-from pathlib import Path
-from dotenv import load_dotenv
-from config import RagConfig
-from rag_retriever import RagRetriever
-from gemini_client import GeminiClient
-from utils import read_image_bytes
+
+from app.ml.dia_model.config import RagConfig
+from app.ml.dia_model.rag_retriever import RagRetriever
+from app.ml.dia_model.gemini_client import GeminiClient
+from app.ml.dia_model.utils import read_image_bytes
 
 
-from prompts import SYSTEM_PROMPT, json_structure
+from app.ml.dia_model.prompts import SYSTEM_PROMPT, json_structure
 
 
 def _format_context(chunks) -> str:
@@ -28,15 +26,13 @@ def _format_context(chunks) -> str:
     return "\n\n".join(lines)
 
 
+@dataclass
+class DrawingIndicatorAnalyser:
+    config: RagConfig
 
-class DIARagPipeline:
-    def __init__(self) -> None:
-        # Load root backend .env
-        root_env = Path(__file__).resolve().parents[2] / ".env"
-        load_dotenv(root_env)
-        self.config = RagConfig.from_env()
+    def __post_init__(self):
         self.retriever = RagRetriever(self.config)
-        self.llm = GeminiClient(self.config.llm_model)
+        self.llm = GeminiClient(self.config.llm_model, api_key=self.config.api_key)
 
     def run(self, image_path: str, child_description: str) -> str:
         self.retriever.build_or_update_index()

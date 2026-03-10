@@ -15,6 +15,9 @@ class ImageMetadata(BaseModel):
 
 class EmotionResult(BaseModel):
     emotion: str
+    predicted_mood: Optional[str] = None
+    happy_score: Optional[float] = None
+    probabilities: Optional[dict[str, float]] = None
 
 
 class DiaResult(BaseModel):

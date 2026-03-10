@@ -81,6 +81,15 @@ class EmotionPipeline:
 
         self.label_map = {0: "happy", 1: "sad"}
 
+    @staticmethod
+    def _score_to_mood(happy_score: float) -> str:
+        # Thresholds are based on a 0-100 happy score.
+        if happy_score < 40.0:
+            return "sad"
+        if happy_score < 60.0:
+            return "neutral"
+        return "happy"
+
     # -------------------------
     # Extract Text Features
     # -------------------------
@@ -127,3 +136,33 @@ class EmotionPipeline:
             pred_idx = torch.argmax(output, dim=1).item()
 
         return self.label_map[pred_idx]
+
+    def predict_proba(self, image_path, text):
+
+        img_feat = self.extract_image_features(image_path)
+        txt_feat = self.extract_text_features(text)
+
+        with torch.no_grad():
+            logits = self.fusion_model(img_feat, txt_feat)
+            probs = torch.softmax(logits, dim=1).squeeze(0)
+
+        return {
+            "happy": float(probs[0].item()),
+            "sad": float(probs[1].item())
+        }
+
+    def predict_with_thresholds(self, image_path, text):
+        class_probabilities = self.predict_proba(image_path, text)
+        happy_probability = class_probabilities["happy"]
+        happy_score = happy_probability * 100.0
+        mood = self._score_to_mood(happy_score)
+
+        return {
+            "emotion": mood,
+            "predicted_mood": mood,
+            "happy_score": round(happy_score, 2),
+            "probabilities": {
+                "happy": round(class_probabilities["happy"], 4),
+                "sad": round(class_probabilities["sad"], 4)
+            }
+        }

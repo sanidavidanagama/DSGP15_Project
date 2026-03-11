@@ -80,6 +80,9 @@ class EmotionPipeline:
         ])
 
         self.label_map = {0: "happy", 1: "sad"}
+        # Temperature for softening confidence scores
+        # Higher temperature = softer probabilities, more uncertainty
+        self.temperature = 2.0
 
     @staticmethod
     def _score_to_mood(happy_score: float) -> str:
@@ -137,14 +140,29 @@ class EmotionPipeline:
 
         return self.label_map[pred_idx]
 
-    def predict_proba(self, image_path, text):
+    def get_raw_logits(self, image_path, text):
+        """Debug method: returns raw logits from fusion model."""
+        img_feat = self.extract_image_features(image_path)
+        txt_feat = self.extract_text_features(text)
+
+        with torch.no_grad():
+            logits = self.fusion_model(img_feat, txt_feat).squeeze(0)
+
+        return {
+            "logit_happy": float(logits[0].item()),
+            "logit_sad": float(logits[1].item())
+        }
+
+    def predict_proba(self, image_path, text, temperature=None):
 
         img_feat = self.extract_image_features(image_path)
         txt_feat = self.extract_text_features(text)
 
         with torch.no_grad():
             logits = self.fusion_model(img_feat, txt_feat)
-            probs = torch.softmax(logits, dim=1).squeeze(0)
+            # Apply temperature scaling for softer probabilities
+            temp = temperature if temperature is not None else self.temperature
+            probs = torch.softmax(logits / temp, dim=1).squeeze(0)
 
         return {
             "happy": float(probs[0].item()),

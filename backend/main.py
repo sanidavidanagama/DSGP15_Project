@@ -2,9 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import image
 from app.routers import job
+from app.routers import class_router
 from app.core.config import settings
 
 from app.database.database import engine, Base
+import app.models.class_model
 
 
 app = FastAPI(
@@ -28,6 +30,7 @@ app.add_middleware(
 
 app.include_router(image.router)
 app.include_router(job.router)
+app.include_router(class_router.router)
 
 
 if __name__ == "__main__":

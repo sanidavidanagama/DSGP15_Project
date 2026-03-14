@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from app.models.student import Student
-from backend.app.schemas.student import StudentCreate, StudentUpdate
+from app.schemas.student import StudentCreate, StudentUpdate
 
 
 def create_student(db: Session, class_id: int, data: StudentCreate) -> Student:

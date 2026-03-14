@@ -12,7 +12,9 @@ from app.database.crud_student import (
     update_student,
 )
 from app.database.database import SessionLocal
-from backend.app.schemas.student import StudentCreate, StudentResponse, StudentUpdate
+from app.schemas.student import StudentCreate, StudentResponse, StudentUpdate
+
+
 
 router = APIRouter(tags=["Students"])
 

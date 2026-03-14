@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import image
 from app.routers import job
 from app.routers import class_router
-from backend.app.routers import student
+from app.routers import student
 from app.core.config import settings
 
 from app.database.database import engine, Base

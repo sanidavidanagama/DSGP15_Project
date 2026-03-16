@@ -9,8 +9,22 @@ from app.services.job_processor import process_job
 from app.schemas.job import JobStatusResponse, UploadJobResponse
 import threading
 import uuid
+from pathlib import Path
 
 router = APIRouter()
+
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _to_absolute_path(path_value: str | None) -> str | None:
+    if not path_value:
+        return None
+
+    path_obj = Path(path_value)
+    if path_obj.is_absolute():
+        return str(path_obj)
+
+    return str((BACKEND_ROOT / path_obj).resolve())
 
 def get_db():
     db = SessionLocal()
@@ -52,9 +66,18 @@ async def get_job_status(job_id: str, db: Session = Depends(get_db)):
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
+    result = job.result or None
+
+    if isinstance(result, dict):
+        image_result = result.get("image")
+        if isinstance(image_result, dict):
+            image_result["processed_image_path"] = _to_absolute_path(
+                image_result.get("processed_image_path")
+            )
+
     return {
         "job_id": job.job_id,
         "status": job.status,
-        "raw_image_path": job.image_path,
-        "result": job.result
+        "raw_image_path": _to_absolute_path(job.image_path),
+        "result": result
     }

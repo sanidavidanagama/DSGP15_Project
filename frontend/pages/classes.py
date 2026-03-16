@@ -1,6 +1,5 @@
 import streamlit as st
 
-
 def classes_page():
 
     st.title("My Classes")
@@ -18,21 +17,13 @@ def classes_page():
     for i, cls in enumerate(classes):
 
         with cols[i % 3]:
-
-            st.markdown("<div class='card'>", unsafe_allow_html=True)
-
-            st.subheader(cls["name"])
-            st.write(cls["grade"])
-
-            st.divider()
-
-            st.write(f"👥 {cls['students']} students")
-            st.write(f"📅 {cls['days']}")
-
-            if st.button("Open", key=cls["name"]):
-
+            st.markdown('<div class="class-card-container">', unsafe_allow_html=True)
+            if st.button(
+                f"{cls['name']}\n\n{cls['grade']}\n\n👥 {cls['students']} students • 📅 {cls['days']}",
+                key=f"view_{cls['name']}",
+                use_container_width=True
+            ):
                 st.session_state.selected_class = cls
                 st.session_state.page = "class_detail"
                 st.rerun()
-
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)

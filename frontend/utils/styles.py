@@ -11,13 +11,19 @@ def apply_styles():
     }
 
     .card{
-        background:#e0f2fe;
-        border:1px solid #60a5fa;
-        padding:25px;
+        background:#f8fafc;
+        border:1px solid rgba(96, 165, 250, 0.5);
+        padding:20px;
         border-radius:16px;
-        margin-bottom:20px;
+        margin-bottom:18px;
         color:#1e293b;
-        box-shadow:0 6px 16px rgba(0,0,0,0.06);
+        box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        transition:transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow:0 8px 20px rgba(0,0,0,0.12);
     }
 
     .upload-box{
@@ -41,20 +47,63 @@ def apply_styles():
     }
 
     div.stButton > button{
-        background:#2563eb;
-        color:white;
-        border-radius:10px;
+        background:#f8fafc;
+        color:#1e293b;
+        border:1px solid rgba(96, 165, 250, 0.5);
+        border-radius:16px;
         padding:10px 22px;
         border:none;
         font-weight:600;
     }
 
     div.stButton > button:hover{
-        background:#1d4ed8;
+        background:#e0f2fe;
+    }
+
+    .class-card-container button{
+        background:#f8fafc;
+        color:#1e293b;
+        border:1px solid rgba(96, 165, 250, 0.5);
+        border-radius:16px;
+        padding:30px;
+        border:none;
+        font-weight:600;
+        font-size:18px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        transition:transform 0.15s ease, box-shadow 0.15s ease;
+        margin-bottom:24px;
+        height:240px;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
+        text-align:left;
+        white-space:normal;
+        overflow:hidden;
+    }
+
+    .class-card-container button::first-line{
+        font-size:24px;
+        font-weight:700;
+    }
+
+    .class-card-container button:hover{
+        background:#f8fafc;
+        transform: translateY(-2px);
+        box-shadow:0 8px 20px rgba(0,0,0,0.12);
     }
 
     h1,h2,h3{
         color:#1e293b;
+    }
+
+    .stForm{
+        background:#f8fafc;
+        border:1px solid rgba(96, 165, 250, 0.5);
+        padding:20px;
+        border-radius:16px;
+        margin-bottom:18px;
+        color:#1e293b;
+        box-shadow:0 4px 12px rgba(0,0,0,0.08);
     }
 
     </style>

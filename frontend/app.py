@@ -31,8 +31,6 @@ if "auth" not in st.session_state:
 
 if "page" not in st.session_state:
     st.session_state.page = "Dashboard"
-if "sidebar_radio" not in st.session_state:
-    st.session_state.sidebar_radio = "Dashboard"
 
 # -------------------------
 # Login screen

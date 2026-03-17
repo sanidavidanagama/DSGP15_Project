@@ -37,6 +37,72 @@ def apply_styles():
         color: var(--ink-text);
     }
 
+    /* ── Sidebar ──────────────────────────────────────── */
+
+    /* Hide auto-generated Streamlit multi-page nav */
+    [data-testid="stSidebarNav"] {
+        display: none !important;
+    }
+
+    /* Dark sidebar background */
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"] > div:first-child {
+        background-color: #1e1e2e !important;
+    }
+
+    /* Sidebar dividers */
+    section[data-testid="stSidebar"] hr {
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        margin: 8px 0 !important;
+    }
+
+    /* Nav buttons – transparent, left-aligned, muted */
+    section[data-testid="stSidebar"] div.stButton > button {
+        background: transparent !important;
+        color: #9090aa !important;
+        border: none !important;
+        border-radius: 8px !important;
+        text-align: left !important;
+        padding: 10px 14px !important;
+        font-weight: 500 !important;
+        font-size: 0.95rem !important;
+        transition: background 0.15s ease, color 0.15s ease;
+        box-shadow: none !important;
+    }
+
+    section[data-testid="stSidebar"] div.stButton > button:hover,
+    section[data-testid="stSidebar"] div.stButton > button:focus {
+        background: rgba(255, 255, 255, 0.07) !important;
+        color: #d0d0e8 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Active nav item */
+    .nav-item-active {
+        padding: 10px 14px 10px 11px;
+        color: #60c4e8;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border-left: 3px solid #60c4e8;
+        background: rgba(96, 196, 232, 0.10);
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 4px;
+    }
+
+    /* Teacher info labels */
+    .sidebar-label {
+        color: #6a6a8a;
+        font-size: 0.8rem;
+        margin: 4px 0 2px;
+    }
+
+    .sidebar-email {
+        color: #5eadd4;
+        font-size: 0.88rem;
+        margin: 0 0 12px;
+    }
+
     /* -- Suppress Streamlit's white widget pill backgrounds -- */
     .stTextInput > div > div,
     .stTextArea > div > div,

@@ -1,9 +1,10 @@
 from pathlib import Path
+import time
 
 import streamlit as st
 from PIL import Image
 
-from services.analysis_api import AnalysisApiError, upload_job, validate_image, poll_job_status
+from services.analysis_api import AnalysisApiError, upload_job, validate_image, get_job_status
 
 
 def _resolve_image_path(path_value: str | None) -> str | None:
@@ -48,6 +49,237 @@ def _normalize_result_paths(status_response: dict) -> dict:
     return status_response
 
 
+def _render_hero(title: str, subtitle: str, chips: list[str]) -> None:
+    chips_html = "".join(f"<span class='analysis-chip'>{chip}</span>" for chip in chips)
+    st.markdown(
+        f"""
+        <div class='analysis-hero'>
+            <h2 style='margin:0'>{title}</h2>
+            <p class='analysis-subtitle'>{subtitle}</p>
+            <div class='analysis-chip-row'>{chips_html}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _safe_text(value: object, fallback: str = "N/A") -> str:
+    if value is None:
+        return fallback
+    text = str(value).strip()
+    return text if text else fallback
+
+
+def _to_float(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _clamp_percentage(value: float) -> float:
+    return max(0.0, min(100.0, value))
+
+
+def _render_mood_stack(left_label: str, left_pct: float, right_label: str, right_pct: float) -> None:
+    st.markdown(
+        f"""
+        <div class='analysis-mood-stack'>
+            <div class='analysis-mood-positive' style='width:{left_pct:.2f}%'></div>
+            <div class='analysis-mood-support' style='width:{right_pct:.2f}%'></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    col_left, col_right = st.columns(2)
+    with col_left:
+        st.caption(f"{left_label}: {left_pct:.1f}%")
+    with col_right:
+        st.caption(f"{right_label}: {right_pct:.1f}%")
+
+
+def _render_kv_grid(items: list[tuple[str, object]]) -> None:
+    html_items = []
+    for key, value in items:
+        html_items.append(
+            "<div class='analysis-kv-item'>"
+            f"<div class='analysis-kv-key'>{key}</div>"
+            f"<div class='analysis-kv-value'>{_safe_text(value)}</div>"
+            "</div>"
+        )
+
+    st.markdown(
+        f"<div class='analysis-kv'>{''.join(html_items)}</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _normalize_score(raw_score: float) -> float:
+    # Support score formats in either [0, 1] or [0, 100].
+    if raw_score > 1.0:
+        return _clamp_percentage(raw_score)
+    return _clamp_percentage(raw_score * 100.0)
+
+
+def _compute_happy_sad_split(emotion_data: dict) -> tuple[float, float] | None:
+    probabilities = emotion_data.get("probabilities")
+
+    happy_raw = None
+    sad_raw = None
+    if isinstance(probabilities, dict):
+        happy_raw = _to_float(probabilities.get("happy"))
+        sad_raw = _to_float(probabilities.get("sad"))
+
+    if happy_raw is None:
+        happy_score = _to_float(emotion_data.get("happy_score"))
+        if happy_score is not None:
+            happy_raw = happy_score
+
+    if happy_raw is None and sad_raw is None:
+        return None
+
+    if happy_raw is not None and sad_raw is None:
+        happy_pct = _normalize_score(happy_raw)
+        sad_pct = _clamp_percentage(100.0 - happy_pct)
+        return happy_pct, sad_pct
+
+    if happy_raw is None and sad_raw is not None:
+        sad_pct = _normalize_score(sad_raw)
+        happy_pct = _clamp_percentage(100.0 - sad_pct)
+        return happy_pct, sad_pct
+
+    happy_pct = _normalize_score(happy_raw or 0.0)
+    sad_pct = _normalize_score(sad_raw or 0.0)
+
+    total = happy_pct + sad_pct
+    if total <= 0:
+        return None
+
+    happy_norm = _clamp_percentage((happy_pct / total) * 100.0)
+    sad_norm = _clamp_percentage(100.0 - happy_norm)
+    return happy_norm, sad_norm
+
+
+def _format_processing_duration(duration_seconds: object) -> str:
+    duration = _to_float(duration_seconds)
+    if duration is None:
+        return "N/A"
+    if duration < 60:
+        return f"{duration:.1f}s"
+    minutes = int(duration // 60)
+    seconds = duration % 60
+    return f"{minutes}m {seconds:.1f}s"
+
+
+def _loading_step_state(status: str, image_processed_elapsed: float) -> tuple[set[str], str]:
+    if status == "processing":
+        return set(), "processing"
+
+    if status == "image_processed":
+        if image_processed_elapsed < 3:
+            return {"processing", "image_processed"}, "predicting_mood"
+        if image_processed_elapsed < 6:
+            return {"processing", "image_processed", "predicting_mood"}, "drawing_insights"
+        return {
+            "processing",
+            "image_processed",
+            "predicting_mood",
+            "drawing_insights",
+        }, "suggesting_recommendations"
+
+    if status == "mood_predicted":
+        return {"processing", "image_processed", "predicting_mood"}, "drawing_insights"
+
+    if status == "drawing_insights_ready":
+        return {"processing", "image_processed", "drawing_insights"}, "predicting_mood"
+
+    if status == "analysis_ready":
+        return {
+            "processing",
+            "image_processed",
+            "predicting_mood",
+            "drawing_insights",
+        }, "suggesting_recommendations"
+
+    if status == "recommendation_ready":
+        return {
+            "processing",
+            "image_processed",
+            "predicting_mood",
+            "drawing_insights",
+            "suggesting_recommendations",
+        }, "done"
+
+    if status == "done":
+        return {
+            "processing",
+            "image_processed",
+            "predicting_mood",
+            "drawing_insights",
+            "suggesting_recommendations",
+            "done",
+        }, "done"
+
+    return set(), "processing"
+
+
+def _calculate_progress_percentage(status: str, image_processed_elapsed: float, started_at: float) -> int:
+    elapsed = max(0.0, time.time() - started_at)
+
+    if status == "processing":
+        return min(28, int(8 + elapsed * 2.4))
+
+    if status == "image_processed":
+        return min(58, int(34 + image_processed_elapsed * 6.5))
+
+    if status == "mood_predicted":
+        return 68
+
+    if status == "drawing_insights_ready":
+        return 74
+
+    if status == "analysis_ready":
+        return 84
+
+    if status == "recommendation_ready":
+        return 94
+
+    if status == "done":
+        return 100
+
+    return min(20, int(6 + elapsed * 1.8))
+
+
+def _render_loading_timeline(status: str, image_processed_elapsed: float) -> None:
+    steps = [
+        ("processing", "Getting your image ready", "We are checking and preparing your drawing."),
+        ("image_processed", "Image is ready", "Your drawing has been cleaned up for a clearer read."),
+        ("predicting_mood", "Understanding mood", "We are identifying the overall mood in the drawing."),
+        ("drawing_insights", "Reviewing drawing details", "We are looking at key visual signs in the drawing."),
+        ("suggesting_recommendations", "Preparing guidance", "We are creating personalized support suggestions."),
+        ("done", "Finishing up", "Your report is being prepared for display."),
+    ]
+
+    done_steps, active_step = _loading_step_state(status, image_processed_elapsed)
+
+    for step_id, title, caption in steps:
+        css_class = "analysis-step"
+        if step_id in done_steps:
+            css_class += " done"
+        elif step_id == active_step:
+            css_class += " active"
+
+        st.markdown(
+            f"""
+            <div class='{css_class}'>
+                <p class='analysis-step-title'>{title}</p>
+                <p class='analysis-step-caption'>{caption}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
 def analysis():
 
     if "analysis_page" not in st.session_state:
@@ -63,24 +295,41 @@ def analysis():
         results_page()
 
 def upload_page():
+    _render_hero(
+        "Drawing Analysis Workspace",
+        "Upload a child's drawing and generate an integrated report combining mood signals, drawing indicators, and actionable recommendations.",
+        ["Guided Workflow", "Parallel AI Analysis", "Teacher-Friendly Output"],
+    )
 
-    st.title("Upload Drawing")
+    col_left, col_right = st.columns([1.35, 1], gap="large")
 
-    st.markdown("<div class='upload-box'>Upload Child Drawing</div>", unsafe_allow_html=True)
+    with col_left:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<h3 class='analysis-section-title'>Upload Child Drawing</h3>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='upload-box'>Drop a drawing here or browse from your device<br/><small>Supported: PNG, JPG, JPEG, WEBP, BMP</small></div>",
+            unsafe_allow_html=True,
+        )
 
-    image = st.file_uploader("Drawing Image", type=["png", "jpg", "jpeg", "webp", "bmp"])
-    description = st.text_area("Drawing Description")
+        image = st.file_uploader(
+            "Drawing Image",
+            type=["png", "jpg", "jpeg", "webp", "bmp"],
+            help="Use clear and complete photos/scans for better analysis quality.",
+        )
 
-    if image:
+        description = st.text_area(
+            "Context Notes",
+            placeholder="Optional: classroom context, observed behavior, prompt used for drawing, or anything relevant.",
+            height=120,
+        )
 
-        st.image(image, width=300)
-
-        if st.button("Start Analysis"):
-
-            image_bytes = image.getvalue()
+        start_disabled = image is None
+        if st.button("Start Full Analysis", type="primary", disabled=start_disabled):
+            image_bytes = image.getvalue() if image else b""
 
             if not image_bytes:
                 st.error("Uploaded file is empty. Please choose a valid image.")
+                st.markdown("</div>", unsafe_allow_html=True)
                 return
 
             with st.spinner("Validating image..."):
@@ -92,15 +341,17 @@ def upload_page():
                     )
                 except AnalysisApiError as exc:
                     st.error(f"Image validation failed: {exc}")
+                    st.markdown("</div>", unsafe_allow_html=True)
                     return
 
             if not validation_response.get("valid", False):
                 st.error(validation_response.get("message", "Image was rejected by backend."))
+                st.markdown("</div>", unsafe_allow_html=True)
                 return
 
             st.success(validation_response.get("message", "Image accepted."))
 
-            with st.spinner("Submitting job..."):
+            with st.spinner("Submitting analysis job..."):
                 try:
                     job_id = upload_job(
                         image_name=image.name,
@@ -110,26 +361,49 @@ def upload_page():
                     )
                 except AnalysisApiError as exc:
                     st.error(f"Failed to start analysis job: {exc}")
+                    st.markdown("</div>", unsafe_allow_html=True)
                     return
 
             st.session_state.raw_image_bytes = image_bytes
             st.session_state.raw_image_name = image.name
             st.session_state.job_id = job_id
             st.session_state.description = description
+            st.session_state.analysis_started_at = time.time()
+            st.session_state.image_processed_at = None
 
             st.session_state.analysis_page = "loading"
             st.rerun()
 
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col_right:
+        st.markdown("<div class='analysis-list-card'>", unsafe_allow_html=True)
+        st.markdown("<h3 class='analysis-section-title'>What Happens Next</h3>", unsafe_allow_html=True)
+        st.caption("Your upload passes through the following stages automatically.")
+        st.markdown("1. Image preprocessing and quality checks")
+        st.markdown("2. Mood prediction from processed drawing")
+        st.markdown("3. Drawing indicator interpretation")
+        st.markdown("4. Recommendation synthesis")
+        st.markdown("5. Structured report generation")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        if image:
+            st.markdown("<div class='analysis-list-card' style='margin-top:12px'>", unsafe_allow_html=True)
+            st.markdown("<h3 class='analysis-section-title'>Preview</h3>", unsafe_allow_html=True)
+            st.image(image, use_container_width=True)
+            st.caption(_safe_text(image.name))
+            st.markdown("</div>", unsafe_allow_html=True)
+
 def loading_page():
-
-    st.title("Analyzing Drawing")
-
-    st.markdown(
-        "<div class='loading-box'>Analyzing drawing... Please wait</div>",
-        unsafe_allow_html=True
+    _render_hero(
+        "Analysis In Progress",
+        "We are reviewing your drawing and preparing your report.",
+        ["Progress Updates", "Working in the Background", "Your Report Is Coming Soon"],
     )
 
     job_id = st.session_state.get("job_id")
+    if "analysis_started_at" not in st.session_state:
+        st.session_state.analysis_started_at = time.time()
 
     if not job_id:
         st.error("No active job found. Please upload an image first.")
@@ -138,17 +412,35 @@ def loading_page():
             st.rerun()
         return
 
-    with st.spinner("Waiting for backend results..."):
-        try:
-            status_response = poll_job_status(job_id)
-        except AnalysisApiError as exc:
-            st.error(f"Could not fetch job status: {exc}")
-            if st.button("Back to Upload"):
-                st.session_state.analysis_page = "upload"
-                st.rerun()
-            return
+    try:
+        status_response = get_job_status(job_id)
+    except AnalysisApiError as exc:
+        st.error(f"Could not fetch job status: {exc}")
+        if st.button("Back to Upload"):
+            st.session_state.analysis_page = "upload"
+            st.rerun()
+        return
 
     status = status_response.get("status")
+    if status == "image_processed" and st.session_state.get("image_processed_at") is None:
+        st.session_state.image_processed_at = time.time()
+
+    image_processed_at = st.session_state.get("image_processed_at")
+    image_processed_elapsed = 0.0
+    if image_processed_at is not None:
+        image_processed_elapsed = max(0.0, time.time() - image_processed_at)
+
+    progress_percentage = _calculate_progress_percentage(
+        _safe_text(status, fallback="processing"),
+        image_processed_elapsed,
+        st.session_state.analysis_started_at,
+    )
+
+    st.markdown("<div class='loading-box'>", unsafe_allow_html=True)
+    st.subheader("Current Progress")
+    st.progress(progress_percentage / 100.0, text=f"{progress_percentage}% complete")
+    _render_loading_timeline(_safe_text(status, fallback="processing"), image_processed_elapsed)
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if status == "failed":
         failure_message = "Processing failed."
@@ -162,16 +454,27 @@ def loading_page():
             st.rerun()
         return
 
+    if status != "done":
+        time.sleep(1.2)
+        st.rerun()
+        return
+
     status_response = _normalize_result_paths(status_response)
 
     st.session_state.results = status_response.get("result", {})
     st.session_state.raw_image_path = status_response.get("raw_image_path")
+    st.session_state.analysis_started_at_backend = status_response.get("analysis_started_at")
+    st.session_state.analysis_finished_at_backend = status_response.get("analysis_finished_at")
+    st.session_state.analysis_duration_seconds = status_response.get("analysis_duration_seconds")
     st.session_state.analysis_page = "results"
     st.rerun()
 
 def results_page():
-
-    st.title("Emotion Analysis Results")
+    _render_hero(
+        "Integrated Analysis Report",
+        "Review emotional signals, drawing indicators, and evidence-based recommendations in one view.",
+        ["Image Insights", "Mood Summary", "Drawing Indicators", "Recommendation"],
+    )
 
     data = st.session_state.get("results", {})
 
@@ -186,20 +489,48 @@ def results_page():
     emotion_data = data.get("emotion") or {}
     dia = data.get("dia") or {}
     rec = data.get("recommendation") or {}
+    analysis_started_at = st.session_state.get("analysis_started_at_backend")
+    analysis_finished_at = st.session_state.get("analysis_finished_at_backend")
+    analysis_duration_seconds = st.session_state.get("analysis_duration_seconds")
 
-    # images
+    happy_sad = _compute_happy_sad_split(emotion_data)
+    if happy_sad:
+        happy_pct, sad_pct = happy_sad
+        mood_value = "Happy" if happy_pct >= sad_pct else "Sad"
+    else:
+        mood_value = emotion_data.get("predicted_mood") or emotion_data.get("emotion") or "N/A"
+
+    top_metrics = st.columns(3)
+    with top_metrics[0]:
+        st.markdown(
+            f"<div class='analysis-metric'><div class='analysis-metric-label'>Predicted Mood</div><div class='analysis-metric-value'>{_safe_text(mood_value)}</div></div>",
+            unsafe_allow_html=True,
+        )
+
+    with top_metrics[1]:
+        st.markdown(
+            f"<div class='analysis-metric'><div class='analysis-metric-label'>Analysis Duration</div><div class='analysis-metric-value'>{_format_processing_duration(analysis_duration_seconds)}</div></div>",
+            unsafe_allow_html=True,
+        )
+
+    with top_metrics[2]:
+        st.markdown(
+            f"<div class='analysis-metric'><div class='analysis-metric-label'>Recommendation Category</div><div class='analysis-metric-value'>{_safe_text(rec.get('RecommendationCategory'))}</div></div>",
+            unsafe_allow_html=True,
+        )
+
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Raw Image")
+        st.subheader("Raw Drawing")
         if st.session_state.get("raw_image_bytes"):
-            st.image(st.session_state.raw_image_bytes)
+            st.image(st.session_state.raw_image_bytes, use_container_width=True)
         elif st.session_state.get("raw_image_path"):
             raw_image_path = st.session_state.raw_image_path
             if raw_image_path:
                 try:
                     with Image.open(raw_image_path) as raw_img:
-                        st.image(raw_img.copy())
+                        st.image(raw_img.copy(), use_container_width=True)
                 except Exception:
                     st.write("Raw image file could not be opened.")
             else:
@@ -208,66 +539,69 @@ def results_page():
             st.write("Raw image not available.")
 
     with col2:
-        st.subheader("Processed Image")
+        st.subheader("Processed Drawing")
         processed_image_path = image_data.get("processed_image_path")
         if processed_image_path:
             try:
                 with Image.open(processed_image_path) as processed_img:
-                    st.image(processed_img.copy())
+                    st.image(processed_img.copy(), use_container_width=True)
             except Exception:
                 st.write("Processed image file could not be opened.")
         else:
             st.write("Processed image not available.")
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-
-    st.subheader("Image Metadata")
-    st.write("File Type:", image_data.get("file_type", "N/A"))
-    st.write("Size (bytes):", image_data.get("size", "N/A"))
-    st.write("Dimensions:", image_data.get("dimensions", "N/A"))
-    st.write("Processed At:", image_data.get("created_at", "N/A"))
-
     st.subheader("Mood Detection")
-    mood_value = emotion_data.get("predicted_mood") or emotion_data.get("emotion") or "N/A"
-    st.write("Mood:", mood_value)
+    st.write(f"Predicted Mood: {_safe_text(mood_value)}")
+    if happy_sad:
+        happy_pct, sad_pct = happy_sad
+        _render_mood_stack("Happy", happy_pct, "Sad", sad_pct)
+        st.caption(f"Happy {happy_pct:.1f}% | Sad {sad_pct:.1f}%")
 
-    happy_score = emotion_data.get("happy_score")
-    if isinstance(happy_score, (int, float)):
-        st.write("Happy Score:", round(float(happy_score), 3))
-        st.progress(min(max(float(happy_score), 0.0), 1.0))
-
-    probabilities = emotion_data.get("probabilities")
-    if isinstance(probabilities, dict) and probabilities:
-        st.write("Emotion Probabilities:")
-        st.json(probabilities)
+    time_cols = st.columns(2)
+    with time_cols[0]:
+        st.caption(f"Started: {_safe_text(analysis_started_at)}")
+    with time_cols[1]:
+        st.caption(f"Finished: {_safe_text(analysis_finished_at)}")
 
     st.subheader("Drawing Analysis")
-    st.write("Line Pressure:", dia.get("line_pressure", "N/A"))
-    st.write("Shading Intensity:", dia.get("shading_intensity", "N/A"))
-    st.write("Overall Tone:", dia.get("overall_tone", "N/A"))
-    st.write("Page Usage:", dia.get("page_usage", "N/A"))
-    st.write("Figure Size:", dia.get("figure_size", "N/A"))
-    st.write("Placement:", dia.get("placement", "N/A"))
-    st.write("Human Figure:", dia.get("human_figure_present", "N/A"))
-    st.write("Missing Body Parts:", dia.get("missing_body_parts", "N/A"))
-    st.write("Facial Features:", dia.get("facial_features", "N/A"))
-    st.write("Number of Figures:", dia.get("number_of_figures", "N/A"))
-    st.write("Distance Between Figures:", dia.get("distance_between_figures", "N/A"))
-    st.write("Self Positioning:", dia.get("self_positioning", "N/A"))
+    _render_kv_grid(
+        [
+            ("Line Pressure", dia.get("line_pressure")),
+            ("Shading Intensity", dia.get("shading_intensity")),
+            ("Overall Tone", dia.get("overall_tone")),
+            ("Page Usage", dia.get("page_usage")),
+            ("Figure Size", dia.get("figure_size")),
+            ("Placement", dia.get("placement")),
+            ("Human Figure", dia.get("human_figure_present")),
+            ("Missing Body Parts", dia.get("missing_body_parts")),
+            ("Facial Features", dia.get("facial_features")),
+            ("Number of Figures", dia.get("number_of_figures")),
+            ("Distance Between Figures", dia.get("distance_between_figures")),
+            ("Self Positioning", dia.get("self_positioning")),
+        ]
+    )
 
     st.subheader("Interpretation")
-
-    for item in dia.get("interpretation", []):
-        st.write("•", item)
+    interpretation = dia.get("interpretation", [])
+    if isinstance(interpretation, list) and interpretation:
+        for item in interpretation:
+            st.markdown(f"- {_safe_text(item)}")
+    else:
+        st.caption("No interpretation details were provided by the backend.")
 
     detected_patterns = rec.get("DetectedPatterns") or {}
 
     st.subheader("Detected Patterns")
-    st.write("Emotional:", detected_patterns.get("emotional", "N/A"))
-    st.write("Spatial:", detected_patterns.get("spatial", "N/A"))
+    pattern_cols = st.columns(2)
+    with pattern_cols[0]:
+        st.caption("Emotional")
+        st.write(_safe_text(detected_patterns.get("emotional")))
+    with pattern_cols[1]:
+        st.caption("Spatial")
+        st.write(_safe_text(detected_patterns.get("spatial")))
 
     st.subheader("Recommendation")
-    st.write("Category:", rec.get("RecommendationCategory", "N/A"))
+    st.write("Category:", _safe_text(rec.get("RecommendationCategory")))
     st.info(rec.get("RecommendationText", "No recommendation text available."))
 
     if st.button("Analyze Another Drawing"):
@@ -276,8 +610,11 @@ def results_page():
         st.session_state.pop("job_id", None)
         st.session_state.pop("raw_image_bytes", None)
         st.session_state.pop("raw_image_path", None)
+        st.session_state.pop("analysis_started_at", None)
+        st.session_state.pop("image_processed_at", None)
+        st.session_state.pop("analysis_started_at_backend", None)
+        st.session_state.pop("analysis_finished_at_backend", None)
+        st.session_state.pop("analysis_duration_seconds", None)
         st.rerun()
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 

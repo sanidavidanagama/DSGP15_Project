@@ -75,22 +75,26 @@ def upload_job(image_name: str, image_bytes: bytes, content_type: str | None, de
     return str(job_id)
 
 
+def get_job_status(job_id: str) -> dict[str, Any]:
+    try:
+        response = requests.get(
+            f"{BACKEND_BASE_URL}/job_status/{job_id}",
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
+    except requests.RequestException as exc:
+        raise AnalysisApiError(f"Failed while fetching job status: {exc}") from exc
+
+    if response.status_code >= 400:
+        raise AnalysisApiError(_parse_error_message(response))
+
+    return response.json()
+
+
 def poll_job_status(job_id: str, timeout_seconds: int = POLL_TIMEOUT_SECONDS) -> dict[str, Any]:
     start = time.time()
 
     while time.time() - start < timeout_seconds:
-        try:
-            response = requests.get(
-                f"{BACKEND_BASE_URL}/job_status/{job_id}",
-                timeout=REQUEST_TIMEOUT_SECONDS,
-            )
-        except requests.RequestException as exc:
-            raise AnalysisApiError(f"Failed while polling job status: {exc}") from exc
-
-        if response.status_code >= 400:
-            raise AnalysisApiError(_parse_error_message(response))
-
-        payload = response.json()
+        payload = get_job_status(job_id)
         status = payload.get("status")
 
         if status in {"done", "failed"}:

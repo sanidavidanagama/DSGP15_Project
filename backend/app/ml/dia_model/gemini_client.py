@@ -1,8 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
+import logging
 
-@dataclass
+logger = logging.getLogger(__name__)
+
 @dataclass
 class GeminiClient:
     model_name: str
@@ -20,14 +21,43 @@ class GeminiClient:
         self._client = genai.Client(api_key=self.api_key)
 
     def generate_json(self, system_prompt: str, user_prompt: str, image_bytes: bytes, image_mime: str) -> str:
-        resp = self._client.models.generate_content(
-            model=self.model_name,
-            contents=[
-                system_prompt,
-                self._genai.types.Part.from_bytes(data=image_bytes, mime_type=image_mime),
-                user_prompt,
-            ],
+        compact_user_prompt = (
+            user_prompt
+            + "\n\nReturn compact JSON in one object only. Do not add extra keys, comments, or markdown."
         )
+        parts = [
+            system_prompt,
+            self._genai.types.Part.from_bytes(data=image_bytes, mime_type=image_mime),
+            compact_user_prompt,
+        ]
 
-        text = (resp.text or "").strip()
+        def _call(max_tokens: int, force_json: bool) -> str:
+            config = self._genai.types.GenerateContentConfig(
+                temperature=0.1,
+                max_output_tokens=max_tokens,
+                response_mime_type="application/json" if force_json else None,
+            )
+            resp = self._client.models.generate_content(
+                model=self.model_name,
+                contents=parts,
+                config=config,
+            )
+            return (resp.text or "").strip()
+
+        # First pass: strict JSON, bounded tokens for speed.
+        try:
+            text = _call(max_tokens=900, force_json=True)
+        except Exception as exc:
+            logger.warning("Gemini request failed on first attempt: %s", exc)
+            text = ""
+
+        # Single retry only to avoid quota exhaustion.
+        if not text or not text.endswith("}"):
+            logger.warning("Gemini JSON output appears incomplete; retrying once with larger token budget.")
+            try:
+                text = _call(max_tokens=1600, force_json=True)
+            except Exception as exc:
+                logger.warning("Gemini retry failed: %s", exc)
+                text = ""
+
         return text

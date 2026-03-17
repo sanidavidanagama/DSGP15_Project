@@ -1,10 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import List
 from pathlib import Path
 
-from sympy.multipledispatch.dispatcher import source
-from torch.nn.functional import embedding
 from sentence_transformers import SentenceTransformer
 
 from app.ml.dia_model.utils import ensure_dir
@@ -19,8 +17,15 @@ class RetrievedChunk:
     score: float
 
 class LocalEmbedder:
+    _model_cache: dict[str, SentenceTransformer] = {}
+
     def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
-        self.model = SentenceTransformer(model_name)
+        self.model_name = model_name
+        cached = self._model_cache.get(model_name)
+        if cached is None:
+            cached = SentenceTransformer(model_name)
+            self._model_cache[model_name] = cached
+        self.model = cached
 
     def embed_texts(self, texts: list[str]) -> list[list[float]]:
         embeddings = self.model.encode(
@@ -37,7 +42,7 @@ class ChromaVectorStore:
     Minimal Chroma wrapper: add documents + similarity search.
     Requires: uv add chromadb
     """
-    def __init__(self, persist_dir: Path, collection_name: str, embedder: LocalEmbedder()):
+    def __init__(self, persist_dir: Path, collection_name: str, embedder: LocalEmbedder):
         ensure_dir(persist_dir)
         self.persist_dir = persist_dir
         self.collection_name = collection_name
@@ -52,6 +57,13 @@ class ChromaVectorStore:
 
         self._chroma = chromadb.PersistentClient(path=str(persist_dir))
         self._col = self._chroma.get_or_create_collection(name=collection_name)
+
+    def reset_collection(self) -> None:
+        try:
+            self._chroma.delete_collection(name=self.collection_name)
+        except Exception:
+            pass
+        self._col = self._chroma.get_or_create_collection(name=self.collection_name)
 
     def count(self) -> int:
         return self._col.count()

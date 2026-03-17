@@ -10,6 +10,7 @@ from app.schemas.job import JobStatusResponse, UploadJobResponse
 import threading
 import uuid
 from pathlib import Path
+from datetime import timezone
 
 router = APIRouter()
 
@@ -75,9 +76,26 @@ async def get_job_status(job_id: str, db: Session = Depends(get_db)):
                 image_result.get("processed_image_path")
             )
 
+    started_at = job.created_at
+    finished_at = job.updated_at if job.status == "done" else None
+
+    def _to_iso(value):
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.isoformat()
+
+    analysis_duration_seconds = None
+    if started_at is not None and finished_at is not None:
+        analysis_duration_seconds = max(0.0, (finished_at - started_at).total_seconds())
+
     return {
         "job_id": job.job_id,
         "status": job.status,
         "raw_image_path": _to_absolute_path(job.image_path),
+        "analysis_started_at": _to_iso(started_at),
+        "analysis_finished_at": _to_iso(finished_at),
+        "analysis_duration_seconds": analysis_duration_seconds,
         "result": result
     }

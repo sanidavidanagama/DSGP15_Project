@@ -2,6 +2,9 @@ import streamlit as st
 
 def sidebar():
 
+    def set_page():
+        st.session_state.page = st.session_state.sidebar_radio
+
     st.sidebar.markdown("## 💙 INKIND")
     st.sidebar.write("Teacher Portal")
 
@@ -11,7 +14,9 @@ def sidebar():
             "Dashboard",
             "My Classes",
             "New Analysis"
-        ]
+        ],
+        key="sidebar_radio",
+        on_change=set_page
     )
 
     st.sidebar.markdown("---")

@@ -267,5 +267,15 @@ def apply_styles():
         }
     }
 
+    .stForm{
+        background:#f8fafc;
+        border:1px solid rgba(96, 165, 250, 0.5);
+        padding:20px;
+        border-radius:16px;
+        margin-bottom:18px;
+        color:#1e293b;
+        box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    }
+
     </style>
     """, unsafe_allow_html=True)

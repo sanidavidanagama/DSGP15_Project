@@ -5,9 +5,11 @@ from components.sidebar import sidebar
 
 from pages.dashboard import dashboard
 from pages.classes import classes_page
+from pages.class_detail import class_detail_page
 from pages.analysis import analysis
 
 from utils.styles import apply_styles
+
 
 st.set_page_config(
     page_title="INKIND",
@@ -16,22 +18,50 @@ st.set_page_config(
 
 apply_styles()
 
+# -------------------------
+# Auth session
+# -------------------------
+
 if "auth" not in st.session_state:
     st.session_state.auth = False
+
+# -------------------------
+# Page session
+# -------------------------
+
+if "page" not in st.session_state:
+    st.session_state.page = "Dashboard"
+if "sidebar_radio" not in st.session_state:
+    st.session_state.sidebar_radio = "Dashboard"
+
+# -------------------------
+# Login screen
+# -------------------------
 
 if not st.session_state.auth:
 
     login()
 
+# -------------------------
+# Main App
+# -------------------------
+
 else:
 
-    page = sidebar()
+    sidebar()
 
-    if page == "Dashboard":
+    # -------------------------
+    # Page Routing
+    # -------------------------
+
+    if st.session_state.page == "Dashboard":
         dashboard()
 
-    if page == "My Classes":
+    elif st.session_state.page == "My Classes":
         classes_page()
 
-    if page == "New Analysis":
+    elif st.session_state.page == "class_detail":
+        class_detail_page()
+
+    elif st.session_state.page == "New Analysis":
         analysis()

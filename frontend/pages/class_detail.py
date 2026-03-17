@@ -1,5 +1,14 @@
 import streamlit as st
 
+from services.class_api import ClassApiError, get_students_by_class
+
+
+def _safe_text(value: object, fallback: str = "N/A") -> str:
+    if value is None:
+        return fallback
+    text = str(value).strip()
+    return text if text else fallback
+
 def class_detail_page():
 
     cls = st.session_state.get("selected_class")
@@ -8,8 +17,21 @@ def class_detail_page():
         st.warning("No class selected")
         return
 
-    st.title(cls["name"])
-    st.write(cls["grade"])
+    st.title(_safe_text(cls.get("class_name")))
+    st.write(_safe_text(cls.get("grade_age_group")))
+
+    schedule_days = cls.get("schedule_days") or []
+    if schedule_days:
+        chips = " ".join(f"`{_safe_text(day)}`" for day in schedule_days)
+        st.caption(f"Schedule: {chips}")
+
+    class_id = cls.get("id")
+    students = []
+    if isinstance(class_id, int):
+        try:
+            students = get_students_by_class(class_id)
+        except ClassApiError as exc:
+            st.warning(f"Could not load students from backend: {exc}")
 
     st.divider()
 
@@ -20,7 +42,7 @@ def class_detail_page():
             f"""
             <div class='card'>
                 <div style='font-size:18px;font-weight:600;'>Total Students</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{cls['students']}</div>
+                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{len(students)}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -31,7 +53,7 @@ def class_detail_page():
             """
             <div class='card'>
                 <div style='font-size:18px;font-weight:600;'>Average Analyses</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>13</div>
+                <div style='font-size:36px;font-weight:700;margin-top:12px;'>N/A</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -42,7 +64,7 @@ def class_detail_page():
             """
             <div class='card'>
                 <div style='font-size:18px;font-weight:600;'>Active Today</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>2</div>
+                <div style='font-size:36px;font-weight:700;margin-top:12px;'>N/A</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -52,28 +74,22 @@ def class_detail_page():
 
     search = st.text_input("Search students")
 
-    students = [
-        {"name": "Emma Watson", "emotion": "Happy", "analyses": 12, "time": "2 hours ago"},
-        {"name": "Liam Chen", "emotion": "Calm", "analyses": 15, "time": "1 day ago"},
-        {"name": "Sophia Ahmed", "emotion": "Excited", "analyses": 9, "time": "3 days ago"},
-        {"name": "Noah Silva", "emotion": "Happy", "analyses": 7, "time": "1 week ago"},
-        {"name": "Ava Brown", "emotion": "Curious", "analyses": 5, "time": "2 days ago"},
-        {"name": "Ethan Lee", "emotion": "Calm", "analyses": 4, "time": "3 days ago"},
-    ]
-
     if search:
-        students = [s for s in students if search.lower() in s["name"].lower()]
+        students = [s for s in students if search.lower() in _safe_text(s.get("name"), fallback="").lower()]
 
     st.subheader("Students")
 
+    if not students:
+        st.caption("No students found for this class yet.")
+
     for student in students:
-        with st.expander(f"{student['name']} — {student['emotion']}"):
+        with st.expander(f"{_safe_text(student.get('name'))} — {_safe_text(student.get('age_group'))}"):
             st.markdown(
                 f"""
                 <div class='card'>
-                    <div style='margin-bottom:10px; font-weight:600;'>Last active: {student['time']}</div>
-                    <div style='margin-bottom:10px; font-weight:600;'>Analyses: {student['analyses']}</div>
-                    <div style='color:#475569;'>You can add more student-specific insights here as needed.</div>
+                    <div style='margin-bottom:10px; font-weight:600;'>Student ID: {_safe_text(student.get('id'))}</div>
+                    <div style='margin-bottom:10px; font-weight:600;'>Age Group: {_safe_text(student.get('age_group'))}</div>
+                    <div style='color:#475569;'>Joined At: {_safe_text(student.get('joined_at'))}</div>
                 </div>
                 """,
                 unsafe_allow_html=True,

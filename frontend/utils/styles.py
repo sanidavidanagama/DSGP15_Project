@@ -333,6 +333,76 @@ def apply_styles():
         }
     }
 
+    /* -- Classes page -- */
+    .class-grid-wrapper {
+        margin-top: 6px;
+    }
+
+    .class-grid-card {
+        min-height: 218px;
+        border-radius: 18px;
+        padding: 18px;
+        border: 1px solid var(--ink-border);
+        background: rgba(237, 227, 208, 0.46);
+        box-shadow: var(--ink-soft-shadow);
+        margin-bottom: 10px;
+    }
+
+    .class-grid-title {
+        font-size: 1.08rem;
+        font-weight: 700;
+        color: var(--ink-title);
+        margin-bottom: 4px;
+    }
+
+    .class-grid-subtitle {
+        font-size: 0.86rem;
+        color: var(--ink-muted);
+        margin-bottom: 10px;
+    }
+
+    .class-chip-row {
+        margin-bottom: 10px;
+    }
+
+    .class-grid-description {
+        font-size: 0.9rem;
+        color: var(--ink-text);
+        margin: 0 0 12px;
+        min-height: 48px;
+    }
+
+    .class-grid-meta {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-teal-dark);
+        margin: 0;
+    }
+
+    .class-grid-add {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border: 1.5px dashed rgba(42, 127, 143, 0.45);
+        background: rgba(42, 127, 143, 0.08);
+    }
+
+    .class-grid-plus {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(42, 127, 143, 0.18);
+        color: var(--ink-teal-dark);
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
     .stForm{
         background:#f8fafc;
         border:1px solid rgba(96, 165, 250, 0.5);

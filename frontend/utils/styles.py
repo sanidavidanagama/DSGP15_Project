@@ -338,6 +338,43 @@ def apply_styles():
         margin-top: 6px;
     }
 
+    .class-click-wrap {
+        position: relative;
+        margin-bottom: 8px;
+    }
+
+    .class-click-wrap .stButton {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+    }
+
+    .class-click-wrap .stButton > button {
+        width: 100%;
+        height: 100%;
+        min-height: 218px;
+        opacity: 0;
+        background: transparent !important;
+        color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .class-click-wrap .stButton > button:hover,
+    .class-click-wrap .stButton > button:focus {
+        background: transparent !important;
+        color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .class-click-wrap:hover .class-grid-card {
+        border-color: rgba(42, 127, 143, 0.42);
+        box-shadow: 0 14px 30px rgba(60, 40, 20, 0.1);
+    }
+
     .class-grid-card {
         min-height: 218px;
         border-radius: 18px;
@@ -345,7 +382,8 @@ def apply_styles():
         border: 1px solid var(--ink-border);
         background: rgba(237, 227, 208, 0.46);
         box-shadow: var(--ink-soft-shadow);
-        margin-bottom: 10px;
+        margin-bottom: 0;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .class-grid-title {

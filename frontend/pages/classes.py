@@ -65,6 +65,7 @@ def _render_schedule_chips(schedule_days: list[str]) -> str:
 
 def _class_card(classroom: dict) -> None:
     schedule_html = _render_schedule_chips(classroom.get("schedule_days") or [])
+    st.markdown("<div class='class-click-wrap'>", unsafe_allow_html=True)
     st.markdown(
         f"""
         <div class='class-grid-card'>
@@ -79,13 +80,15 @@ def _class_card(classroom: dict) -> None:
     )
 
     class_id = classroom.get("id")
-    if st.button("Open Class", key=f"open_class_{class_id}", use_container_width=True):
+    if st.button("Open class", key=f"open_class_{class_id}", use_container_width=True):
         st.session_state.selected_class = classroom
         st.session_state.page = "class_detail"
         st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def _add_class_card() -> None:
+    st.markdown("<div class='class-click-wrap'>", unsafe_allow_html=True)
     st.markdown(
         """
         <div class='class-grid-card class-grid-add'>
@@ -97,9 +100,10 @@ def _add_class_card() -> None:
         unsafe_allow_html=True,
     )
 
-    if st.button("Add New Class", key="add_class_cta", use_container_width=True):
+    if st.button("Add new class", key="add_class_cta", use_container_width=True):
         st.session_state.page = "add_class"
         st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def classes_page():

@@ -64,6 +64,26 @@ def get_students_by_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -
     return payload
 
 
+def create_class(
+    class_name: str,
+    grade_age_group: str,
+    schedule_days: list[str],
+    description: str = "",
+    teacher_id: str = DEFAULT_TEACHER_ID,
+) -> dict[str, Any]:
+    payload = {
+        "class_name": class_name,
+        "grade_age_group": grade_age_group,
+        "schedule_days": schedule_days,
+        "description": description or None,
+    }
+    response = _request("POST", "/classes", teacher_id=teacher_id, json=payload)
+    data = response.json()
+    if not isinstance(data, dict):
+        raise ClassApiError("Unexpected response format from create class endpoint.")
+    return data
+
+
 def _parse_timestamp(value: Any) -> datetime | None:
     if not value:
         return None

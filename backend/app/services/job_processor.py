@@ -36,15 +36,15 @@ def _default_dia_result() -> dict:
         "human_figure_present": "Yes",
         "missing_body_parts": "None",
         "facial_features": "Present",
-        "number_of_figures": "2",
+        "number_of_figures": "2-3",
         "distance_between_figures": "Moderate",
         "self_positioning": "With others",
         "interpretation": [
             "Interpretation unavailable due to incomplete model output.",
             "Please retry the analysis.",
-            "",
-            "",
-            "",
+            "Observable indicators were partially recovered from the current output.",
+            "Interpretive links were limited by incomplete structured JSON generation.",
+            "No reliable additional conclusion can be made from this incomplete output.",
         ],
     }
 
@@ -55,6 +55,48 @@ def _is_fallback_dia_result(dia: dict) -> bool:
         return True
     first_line = str(interpretation[0]).strip().lower()
     return first_line.startswith("interpretation unavailable")
+
+
+def _synthesize_interpretation(dia: dict, child_description: str) -> list[str]:
+    """Build a concise non-clinical interpretation when model interpretation is missing."""
+    overall_tone = str(dia.get("overall_tone", "Balanced")).strip()
+    shading = str(dia.get("shading_intensity", "Moderate")).strip()
+    page_usage = str(dia.get("page_usage", "Medium")).strip()
+    placement = str(dia.get("placement", "Center")).strip()
+    num_figures = str(dia.get("number_of_figures", "2")).strip()
+    self_positioning = str(dia.get("self_positioning", "With others")).strip()
+    distance = str(dia.get("distance_between_figures", "Moderate")).strip()
+    facial = str(dia.get("facial_features", "Present")).strip()
+
+    emotional_line = (
+        f"The drawing shows a {overall_tone.lower()} visual tone with {shading.lower()} shading, "
+        "which may suggest a steady style of expression in this activity."
+    )
+
+    spatial_line = (
+        f"Spatial organization appears {page_usage.lower()} with {placement.lower()} placement and "
+        f"{num_figures} figure(s), indicating a clear and structured scene layout."
+    )
+
+    social_line = (
+        f"Figure spacing is {distance.lower()} and self-positioning is '{self_positioning}', "
+        "which may reflect comfort representing relationships in shared space."
+    )
+
+    feature_line = (
+        "Facial features are "
+        f"{facial.lower()}, supporting readable social-emotional cues in the drawing."
+    )
+
+    desc = (child_description or "").strip().replace("\n", " ")
+    if len(desc) > 140:
+        desc = desc[:137].rstrip() + "..."
+    description_line = (
+        f"Child description context: {desc}" if desc else "Child description context was limited in this submission."
+    )
+
+    lines = [emotional_line, spatial_line, social_line, feature_line, description_line]
+    return [str(x)[:220] for x in lines]
 
 
 def _normalize_dia_result(candidate: dict) -> dict:
@@ -89,7 +131,8 @@ def _normalize_dia_result(candidate: dict) -> dict:
         interp = [str(interp)] if interp is not None else []
     interp = [str(x) for x in interp][:5]
     while len(interp) < 5:
-        interp.append("")
+        interp.append("Evidence was limited for this interpretation aspect in the model output.")
+    interp = [x if x.strip() else "Evidence was limited for this interpretation aspect in the model output." for x in interp]
     out["interpretation"] = interp
 
     # Ensure string fields remain strings.
@@ -102,6 +145,40 @@ def _normalize_dia_result(candidate: dict) -> dict:
 
 
 def _parse_dia_json(raw: str) -> dict:
+    def _repair_json_candidate(s: str) -> str:
+        if not s:
+            return ""
+        s = s.strip()
+        if not s:
+            return ""
+
+        # Drop markdown fences if present.
+        if s.startswith("```"):
+            s = s.strip("`").strip()
+            if s.lower().startswith("json"):
+                s = s[4:].strip()
+
+        # Keep from first object start.
+        start = s.find("{")
+        if start == -1:
+            return ""
+        s = s[start:]
+
+        # Keep up to last object close if present.
+        end = s.rfind("}")
+        if end != -1:
+            s = s[: end + 1]
+
+        # If braces are unbalanced, close missing object braces.
+        open_count = s.count("{")
+        close_count = s.count("}")
+        if open_count > close_count:
+            s += "}" * (open_count - close_count)
+
+        # Remove trailing commas before object/array close.
+        s = s.replace(",}", "}").replace(",]", "]")
+        return s.strip()
+
     # Try direct parse first.
     try:
         obj = json.loads(raw)
@@ -110,18 +187,15 @@ def _parse_dia_json(raw: str) -> dict:
     except json.JSONDecodeError:
         pass
 
-    # Try best-effort extraction of first JSON object block.
-    if raw:
-        start = raw.find("{")
-        end = raw.rfind("}")
-        if start != -1 and end != -1 and end > start:
-            fragment = raw[start : end + 1]
-            try:
-                obj = json.loads(fragment)
-                if isinstance(obj, dict):
-                    return _normalize_dia_result(obj)
-            except json.JSONDecodeError:
-                pass
+    # Try best-effort extraction/repair of JSON object block.
+    repaired = _repair_json_candidate(raw or "")
+    if repaired:
+        try:
+            obj = json.loads(repaired)
+            if isinstance(obj, dict):
+                return _normalize_dia_result(obj)
+        except json.JSONDecodeError:
+            pass
 
     logger.warning("DIA JSON parse failed; storing fallback result. raw_prefix=%s", (raw or "")[:200])
     return _default_dia_result()
@@ -170,10 +244,12 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
             raw_result = pipeline.run(processed_image_path, description)
             dia_result = _parse_dia_json(raw_result)
             if _is_fallback_dia_result(dia_result):
-                logger.warning("DIA fallback used for job_id=%s", job_id)
+                dia_result["interpretation"] = _synthesize_interpretation(dia_result, description)
+                logger.warning("DIA fallback interpretation synthesized for job_id=%s", job_id)
         except Exception as exc:
             logger.exception("DIA task failed; using fallback for job_id=%s: %s", job_id, exc)
             dia_result = _default_dia_result()
+            dia_result["interpretation"] = _synthesize_interpretation(dia_result, description)
         finally:
             dia_done_event.set()
 

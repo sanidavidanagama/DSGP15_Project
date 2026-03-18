@@ -12,7 +12,7 @@ from app.ml.dia_model.utils import read_image_bytes
 from app.ml.dia_model.prompts import SYSTEM_PROMPT, json_structure
 
 logger = logging.getLogger(__name__)
-MAX_CONTEXT_CHARS = 7000
+MAX_CONTEXT_CHARS = 3500
 
 
 def _format_context(chunks) -> str:
@@ -43,7 +43,8 @@ class DrawingIndicatorAnalyser:
         self._cached_context: str | None = None
         self._retrieval_query = (
             "Drawing Indicator Analysis methods for interpreting children's drawings using observable features; "
-            "rules for cautious interpretation; linking child text description to features; non-clinical phrasing."
+            "rules for cautious interpretation; linking child text description to image features; "
+            "non-clinical phrasing; literature-supported psychological concern signals from color/tone/composition."
         )
 
     def run(self, image_path: str, child_description: str) -> str:
@@ -74,7 +75,10 @@ class DrawingIndicatorAnalyser:
         Output rules:
         - Output JSON only (no markdown, no backticks, no extra text).
         - Use only enumerated values for the categorical fields.
-        - Interpretation must be 3–5 short lines (fill unused lines with empty strings if needed).
+        - Count number_of_figures as individual visible drawing objects (for example sun, house, person, tree, animal), not only human figures.
+        - Interpretation must contain exactly 5 short non-empty lines.
+        - Each interpretation line must be grounded in the image and extracted indicators, and must follow retrieved literature when making interpretive links.
+        - Mention psychological concern signals only when supported by image evidence and literature; otherwise state that no strong concern is evident.
         """.strip()
 
         out = self.llm.generate_json(

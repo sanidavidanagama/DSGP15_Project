@@ -70,9 +70,9 @@ def _render_hero() -> None:
             <h2 style='margin:0'>My Classes</h2>
             <p class='analysis-subtitle'>Manage class groups, track student coverage, and jump into details quickly.</p>
             <div class='analysis-chip-row'>
-                <span class='analysis-chip'>Backend Synced</span>
-                <span class='analysis-chip'>Teacher Workspace</span>
-                <span class='analysis-chip'>Analysis-Aligned UI</span>
+                <span class='analysis-chip'>Class Overview</span>
+                <span class='analysis-chip'>Student Progress</span>
+                <span class='analysis-chip'>Quick Access</span>
             </div>
         </div>
         """,

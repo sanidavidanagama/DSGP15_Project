@@ -113,6 +113,35 @@ def apply_styles():
         border-radius: 10px !important;
     }
 
+    /* Keep form copy consistently readable on light surfaces. */
+    .stTextInput label,
+    .stTextArea label,
+    .stSelectbox label,
+    .stMultiSelect label,
+    .stNumberInput label,
+    .stDateInput label,
+    .stTimeInput label,
+    .stRadio label,
+    .stCheckbox label,
+    .stFileUploader label {
+        color: var(--ink-title) !important;
+    }
+
+    .stTextInput input,
+    .stTextArea textarea,
+    [data-baseweb="input"] input,
+    [data-baseweb="textarea"] textarea {
+        color: var(--ink-text) !important;
+    }
+
+    .stTextInput input::placeholder,
+    .stTextArea textarea::placeholder,
+    [data-baseweb="input"] input::placeholder,
+    [data-baseweb="textarea"] textarea::placeholder {
+        color: #7A6F63 !important;
+        opacity: 1 !important;
+    }
+
     /* Remove white backgrounds from Streamlit metric & info widgets */
     [data-testid="stMetric"],
     [data-testid="metric-container"] {
@@ -153,7 +182,7 @@ def apply_styles():
     /* -- Buttons -- */
     div.stButton > button {
         background: var(--ink-teal);
-        color: #F7F2EA;
+        color: #143944;
         border-radius: 12px;
         padding: 10px 24px;
         border: none;
@@ -165,7 +194,7 @@ def apply_styles():
     div.stButton > button:hover,
     div.stButton > button:focus {
         background: var(--ink-teal-dark) !important;
-        color: #F7F2EA !important;
+        color: #E3EFEF !important;
         border: none !important;
     }
 

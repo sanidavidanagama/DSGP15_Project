@@ -557,6 +557,132 @@ def apply_styles():
         margin-bottom: 2px;
     }
 
+    /* -- Student cards in class detail -- */
+    div[data-testid="stElementContainer"]:has(.student-click-wrap) {
+        margin-bottom: 0;
+    }
+
+    div[data-testid="stElementContainer"]:has(.student-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) {
+        margin-top: -184px !important;
+        height: 184px;
+        margin-bottom: 12px !important;
+        position: relative;
+        z-index: 3;
+    }
+
+    div[data-testid="stElementContainer"]:has(.student-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton {
+        height: 100%;
+    }
+
+    div[data-testid="stElementContainer"]:has(.student-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button {
+        width: 100%;
+        height: 100%;
+        min-height: 184px;
+        opacity: 0;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: transparent !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        cursor: pointer;
+    }
+
+    div[data-testid="stElementContainer"]:has(.student-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button:focus,
+    div[data-testid="stElementContainer"]:has(.student-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button:hover {
+        border: none !important;
+        outline: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: transparent !important;
+    }
+
+    .student-grid-card {
+        min-height: 184px;
+        border-radius: 18px;
+        padding: 14px;
+        border: 1px solid rgba(42, 127, 143, 0.22);
+        background: rgba(247, 242, 234, 0.78);
+        box-shadow: var(--ink-soft-shadow);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .student-click-wrap:hover .student-grid-card {
+        border-color: rgba(42, 127, 143, 0.42);
+        box-shadow: 0 14px 28px rgba(60, 40, 20, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .student-grid-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .student-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+        border: 1px solid rgba(42, 127, 143, 0.3);
+        background: rgba(42, 127, 143, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.9rem;
+        line-height: 1;
+    }
+
+    .student-head-copy {
+        min-width: 0;
+    }
+
+    .student-grid-name {
+        font-size: 1.08rem;
+        font-weight: 700;
+        color: var(--ink-title);
+        margin-bottom: 2px;
+    }
+
+    .student-grid-mood {
+        font-size: 0.96rem;
+        color: var(--ink-teal-dark);
+        font-weight: 600;
+    }
+
+    .student-grid-footer {
+        margin-top: 14px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(160, 130, 100, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .student-grid-time {
+        font-size: 0.9rem;
+        color: var(--ink-teal);
+        font-weight: 600;
+    }
+
+    .student-grid-analyses {
+        border: 1px solid rgba(42, 127, 143, 0.24);
+        background: rgba(42, 127, 143, 0.1);
+        color: var(--ink-teal-dark);
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 0.84rem;
+        font-weight: 700;
+    }
+
     @media (max-width: 768px) {
         div[data-testid="stElementContainer"]:has(.class-click-wrap) {
             margin-bottom: 0;
@@ -564,6 +690,32 @@ def apply_styles():
 
         div[data-testid="stElementContainer"]:has(.class-click-wrap)
         + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button {
+
+        div[data-testid="stElementContainer"]:has(.student-click-wrap)
+        + div[data-testid="stElementContainer"]:has(.stButton) {
+            margin-top: -170px !important;
+            height: 170px;
+            margin-bottom: 12px !important;
+        }
+
+        div[data-testid="stElementContainer"]:has(.student-click-wrap)
+        + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button {
+            min-height: 170px;
+        }
+
+        .student-grid-card {
+            min-height: 170px;
+            padding: 12px;
+        }
+
+        .student-grid-name {
+            font-size: 0.98rem;
+        }
+
+        .student-grid-mood,
+        .student-grid-time {
+            font-size: 0.86rem;
+        }
             min-height: 214px;
         }
 

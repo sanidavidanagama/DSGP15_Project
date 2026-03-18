@@ -1,6 +1,7 @@
 import streamlit as st
 
-from services.class_api import ClassApiError, delete_class, get_class, get_students_by_class
+from services.class_api import ClassApiError, delete_class, get_class
+from services.student_api import StudentApiError, create_student, list_students
 
 
 WEEKDAY_LABELS = {
@@ -65,6 +66,42 @@ def _render_header(classroom: dict) -> None:
         unsafe_allow_html=True,
     )
 
+
+def _student_card(student: dict) -> bool:
+    student_id = student.get("id")
+    mood = _safe_text(student.get("last_predicted_mood"), fallback="No mood yet")
+    last_predicted = _safe_text(student.get("last_predicted_label"), fallback="No predictions yet")
+    total_analyses = _safe_text(student.get("total_analyses"), fallback="0")
+
+    st.markdown(
+        f"""
+        <div class='student-click-wrap'>
+            <div class='student-grid-card'>
+                <div class='student-grid-head'>
+                    <div class='student-avatar'>👧</div>
+                    <div class='student-head-copy'>
+                        <div class='student-grid-name'>{_safe_text(student.get('name'))}</div>
+                        <div class='student-grid-mood'>{mood}</div>
+                    </div>
+                </div>
+                <div class='student-grid-footer'>
+                    <span class='student-grid-time'>{last_predicted}</span>
+                    <span class='student-grid-analyses'>{total_analyses} analyses</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if st.button("Open Student Profile", key=f"student_open_{student_id}", use_container_width=True):
+        st.session_state.selected_student = student
+        st.session_state.page = "student_profile"
+        st.rerun()
+        return True
+
+    return False
+
 def class_detail_page():
 
     cls = st.session_state.get("selected_class")
@@ -121,15 +158,47 @@ def class_detail_page():
                 st.session_state.delete_confirm_class_id = None
                 st.rerun()
 
-    students = []
+    students: list[dict] = []
     try:
-        students = get_students_by_class(class_id)
-    except ClassApiError as exc:
+        students = list_students(class_id)
+    except StudentApiError as exc:
         st.warning(f"Could not load students from backend: {exc}")
+
+    add_col1, add_col2 = st.columns([1.5, 4.5])
+    with add_col1:
+        if st.button("Add New Student", key="detail_add_student_toggle", use_container_width=True):
+            st.session_state.show_add_student_form = not st.session_state.get("show_add_student_form", False)
+
+    if st.session_state.get("show_add_student_form", False):
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        with st.form("add_student_form", clear_on_submit=True):
+            student_name = st.text_input("Student Name", placeholder="e.g. Emma Watson")
+            student_age_group = st.text_input("Age Group", placeholder="e.g. Grade 4")
+            submitted = st.form_submit_button("Create Student", type="primary")
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        if submitted:
+            if not student_name.strip() or not student_age_group.strip():
+                st.error("Student name and age group are required.")
+            else:
+                try:
+                    create_student(
+                        class_id=class_id,
+                        name=student_name.strip(),
+                        age_group=student_age_group.strip(),
+                    )
+                except StudentApiError as exc:
+                    st.error(f"Failed to create student: {exc}")
+                else:
+                    st.success("Student added successfully.")
+                    st.session_state.show_add_student_form = False
+                    st.rerun()
 
     st.divider()
 
     col1, col2, col3 = st.columns(3)
+    total_analyses = sum(int(s.get("total_analyses") or 0) for s in students)
 
     with col1:
         st.markdown(
@@ -144,21 +213,22 @@ def class_detail_page():
 
     with col2:
         st.markdown(
-            """
+            f"""
             <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Average Analyses</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>N/A</div>
+                <div style='font-size:18px;font-weight:600;'>Total Analyses</div>
+                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{total_analyses}</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
     with col3:
+        recent_count = len([s for s in students if _safe_text(s.get("last_predicted_label")) in {"just now"}])
         st.markdown(
-            """
+            f"""
             <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Active Today</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>N/A</div>
+                <div style='font-size:18px;font-weight:600;'>Updated Recently</div>
+                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{recent_count}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -171,20 +241,13 @@ def class_detail_page():
     if search:
         students = [s for s in students if search.lower() in _safe_text(s.get("name"), fallback="").lower()]
 
-    st.subheader("Students")
+    st.subheader(f"Students ({len(students)})")
 
     if not students:
         st.caption("No students found for this class yet.")
+        return
 
-    for student in students:
-        with st.expander(f"{_safe_text(student.get('name'))} — {_safe_text(student.get('age_group'))}"):
-            st.markdown(
-                f"""
-                <div class='card'>
-                    <div style='margin-bottom:10px; font-weight:600;'>Student ID: {_safe_text(student.get('id'))}</div>
-                    <div style='margin-bottom:10px; font-weight:600;'>Age Group: {_safe_text(student.get('age_group'))}</div>
-                    <div style='color:#475569;'>Joined At: {_safe_text(student.get('joined_at'))}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+    columns = st.columns(3, gap="medium")
+    for index, student in enumerate(students):
+        with columns[index % 3]:
+            _student_card(student)

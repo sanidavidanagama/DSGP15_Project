@@ -6,6 +6,7 @@ from components.sidebar import sidebar
 from pages.dashboard import dashboard
 from pages.classes import classes_page
 from pages.class_detail import class_detail_page
+from pages.child_profile import child_profile
 from pages.add_class import add_class
 from pages.edit_class import edit_class_page
 from pages.analysis import analysis
@@ -62,6 +63,9 @@ else:
 
     elif st.session_state.page == "class_detail":
         class_detail_page()
+
+    elif st.session_state.page == "student_profile":
+        child_profile()
 
     elif st.session_state.page == "add_class":
         add_class()

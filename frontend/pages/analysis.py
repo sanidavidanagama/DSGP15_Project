@@ -5,6 +5,8 @@ import streamlit as st
 from PIL import Image
 
 from services.analysis_api import AnalysisApiError, upload_job, validate_image, get_job_status
+from services.class_api import ClassApiError, get_classes
+from services.student_api import StudentApiError, list_students, save_analysis_to_student
 
 
 def _resolve_image_path(path_value: str | None) -> str | None:
@@ -603,6 +605,68 @@ def results_page():
     st.subheader("Recommendation")
     st.write("Category:", _safe_text(rec.get("RecommendationCategory")))
     st.info(rec.get("RecommendationText", "No recommendation text available."))
+
+    st.subheader("Save To Student Profile")
+    save_col_left, save_col_right = st.columns([1.4, 1.6])
+
+    classes: list[dict] = []
+    class_options: dict[str, int] = {}
+    student_options: dict[str, int] = {}
+
+    try:
+        classes = get_classes()
+        class_options = {
+            f"{_safe_text(item.get('class_name'))} ({_safe_text(item.get('grade_age_group'))})": int(item["id"])
+            for item in classes
+            if isinstance(item.get("id"), int)
+        }
+    except ClassApiError as exc:
+        st.caption(f"Classes unavailable for save flow: {exc}")
+
+    selected_class_id: int | None = None
+    selected_student_id: int | None = None
+
+    with save_col_left:
+        if class_options:
+            selected_class_label = st.selectbox("Select Class", options=list(class_options.keys()))
+            selected_class_id = class_options.get(selected_class_label)
+        else:
+            st.caption("No class available.")
+
+    with save_col_right:
+        if selected_class_id is not None:
+            try:
+                class_students = list_students(selected_class_id)
+            except StudentApiError as exc:
+                st.caption(f"Students unavailable: {exc}")
+                class_students = []
+
+            student_options = {
+                _safe_text(student.get("name")): int(student["id"])
+                for student in class_students
+                if isinstance(student.get("id"), int)
+            }
+
+            if student_options:
+                selected_student_label = st.selectbox("Select Student", options=list(student_options.keys()))
+                selected_student_id = student_options.get(selected_student_label)
+            else:
+                st.caption("No students in this class yet.")
+
+    if st.button("Save Result To Student", key="save_analysis_to_student", disabled=selected_student_id is None):
+        if selected_student_id is None:
+            st.error("Please select a student before saving.")
+        else:
+            current_job_id = st.session_state.get("job_id")
+            if not current_job_id:
+                st.error("No job id found for this analysis result.")
+            else:
+                try:
+                    save_analysis_to_student(student_id=selected_student_id, job_id=str(current_job_id))
+                except StudentApiError as exc:
+                    st.error(f"Failed to save analysis to student: {exc}")
+                else:
+                    st.success("Analysis saved to student profile.")
 
     if st.button("Analyze Another Drawing"):
         st.session_state.analysis_page = "upload"

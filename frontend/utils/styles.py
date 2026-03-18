@@ -335,86 +335,166 @@ def apply_styles():
 
     /* -- Classes page -- */
     .class-grid-wrapper {
-        margin-top: 6px;
+        margin-top: 8px;
     }
 
-    .class-click-wrap {
+    /* Make the widget immediately following a card act as a full-card click layer. */
+    div[data-testid="stElementContainer"]:has(.class-click-wrap) {
+        margin-bottom: 0;
+    }
+
+    div[data-testid="stElementContainer"]:has(.class-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) {
+        margin-top: -228px !important;
+        height: 228px;
+        margin-bottom: 10px !important;
         position: relative;
-        margin-bottom: 8px;
-    }
-
-    .class-click-wrap .stButton {
-        position: absolute;
-        inset: 0;
         z-index: 3;
     }
 
-    .class-click-wrap .stButton > button {
+    div[data-testid="stElementContainer"]:has(.class-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton {
+        height: 100%;
+    }
+
+    div[data-testid="stElementContainer"]:has(.class-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button {
         width: 100%;
         height: 100%;
-        min-height: 218px;
+        min-height: 228px;
         opacity: 0;
-        background: transparent !important;
-        color: transparent !important;
         border: none !important;
+        background: transparent !important;
         box-shadow: none !important;
-        padding: 0 !important;
+        color: transparent !important;
         margin: 0 !important;
+        padding: 0 !important;
+        cursor: pointer;
     }
 
-    .class-click-wrap .stButton > button:hover,
-    .class-click-wrap .stButton > button:focus {
-        background: transparent !important;
-        color: transparent !important;
+    div[data-testid="stElementContainer"]:has(.class-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button:focus,
+    div[data-testid="stElementContainer"]:has(.class-click-wrap)
+    + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button:hover {
         border: none !important;
+        outline: none !important;
+        background: transparent !important;
         box-shadow: none !important;
+        color: transparent !important;
     }
 
-    .class-click-wrap:hover .class-grid-card {
+    .class-grid-link {
+        display: block;
+        margin-bottom: 0;
+        text-decoration: none !important;
+        color: inherit;
+    }
+
+    .class-grid-link,
+    .class-grid-link * {
+        text-decoration: none !important;
+    }
+
+    .class-grid-link:focus-visible {
+        outline: 2px solid rgba(42, 127, 143, 0.65);
+        outline-offset: 4px;
+        border-radius: 20px;
+    }
+
+    .class-grid-link.is-disabled {
+        pointer-events: none;
+        opacity: 0.75;
+    }
+
+    .class-grid-link:hover .class-grid-card {
         border-color: rgba(42, 127, 143, 0.42);
-        box-shadow: 0 14px 30px rgba(60, 40, 20, 0.1);
+        box-shadow: 0 16px 34px rgba(60, 40, 20, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .class-grid-link:hover .class-grid-arrow {
+        transform: translateX(3px);
+        opacity: 1;
     }
 
     .class-grid-card {
-        min-height: 218px;
-        border-radius: 18px;
+        min-height: 228px;
+        border-radius: 20px;
         padding: 18px;
         border: 1px solid var(--ink-border);
-        background: rgba(237, 227, 208, 0.46);
+        background: rgba(247, 242, 234, 0.72);
         box-shadow: var(--ink-soft-shadow);
         margin-bottom: 0;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .class-grid-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
     }
 
     .class-grid-title {
-        font-size: 1.08rem;
+        font-size: 1.16rem;
         font-weight: 700;
         color: var(--ink-title);
-        margin-bottom: 4px;
+        margin: 0;
     }
 
     .class-grid-subtitle {
-        font-size: 0.86rem;
+        font-size: 0.9rem;
+        font-weight: 600;
         color: var(--ink-muted);
-        margin-bottom: 10px;
+        margin: -4px 0 0;
+    }
+
+    .class-grid-arrow {
+        color: var(--ink-teal);
+        font-size: 1.15rem;
+        line-height: 1;
+        opacity: 0.78;
+        transition: transform 0.2s ease, opacity 0.2s ease;
     }
 
     .class-chip-row {
-        margin-bottom: 10px;
+        margin-top: 2px;
+        margin-bottom: 2px;
     }
 
     .class-grid-description {
-        font-size: 0.9rem;
+        font-size: 0.92rem;
+        line-height: 1.46;
         color: var(--ink-text);
-        margin: 0 0 12px;
-        min-height: 48px;
+        margin: 0;
+        min-height: 56px;
+    }
+
+    .class-grid-footer {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(160, 130, 100, 0.22);
     }
 
     .class-grid-meta {
-        font-size: 0.8rem;
+        font-size: 0.84rem;
         font-weight: 600;
         color: var(--ink-teal-dark);
         margin: 0;
+    }
+
+    .class-grid-open {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--ink-teal);
+        letter-spacing: 0.01em;
     }
 
     .class-grid-add {
@@ -424,21 +504,65 @@ def apply_styles():
         justify-content: center;
         text-align: center;
         border: 1.5px dashed rgba(42, 127, 143, 0.45);
-        background: rgba(42, 127, 143, 0.08);
+        background: rgba(42, 127, 143, 0.09);
+        min-height: 236px;
     }
 
     .class-grid-plus {
-        width: 54px;
-        height: 54px;
+        width: 58px;
+        height: 58px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         background: rgba(42, 127, 143, 0.18);
         color: var(--ink-teal-dark);
-        font-size: 1.8rem;
+        font-size: 1.9rem;
         font-weight: 700;
         margin-bottom: 12px;
+    }
+
+    .class-grid-add .class-grid-description {
+        min-height: 0;
+        max-width: 320px;
+        margin-bottom: 2px;
+    }
+
+    @media (max-width: 768px) {
+        div[data-testid="stElementContainer"]:has(.class-click-wrap) {
+            margin-bottom: 0;
+        }
+
+        div[data-testid="stElementContainer"]:has(.class-click-wrap)
+        + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button {
+            min-height: 214px;
+        }
+
+        div[data-testid="stElementContainer"]:has(.class-click-wrap)
+        + div[data-testid="stElementContainer"]:has(.stButton) {
+            margin-top: -214px !important;
+            height: 214px;
+            margin-bottom: 12px !important;
+        }
+
+        .class-grid-link {
+            margin-bottom: 0;
+        }
+
+        .class-grid-card,
+        .class-grid-add {
+            min-height: 214px;
+            padding: 16px;
+        }
+
+        .class-grid-title {
+            font-size: 1.06rem;
+        }
+
+        .class-grid-description {
+            min-height: 0;
+            font-size: 0.88rem;
+        }
     }
 
     .stForm{

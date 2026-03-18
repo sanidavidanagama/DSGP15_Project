@@ -7,6 +7,7 @@ from pages.dashboard import dashboard
 from pages.classes import classes_page
 from pages.class_detail import class_detail_page
 from pages.add_class import add_class
+from pages.edit_class import edit_class_page
 from pages.analysis import analysis
 
 from utils.styles import apply_styles
@@ -64,6 +65,9 @@ else:
 
     elif st.session_state.page == "add_class":
         add_class()
+
+    elif st.session_state.page == "edit_class":
+        edit_class_page()
 
     elif st.session_state.page == "New Analysis":
         analysis()

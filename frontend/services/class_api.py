@@ -64,6 +64,14 @@ def get_students_by_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -
     return payload
 
 
+def get_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> dict[str, Any]:
+    response = _request("GET", f"/classes/{class_id}", teacher_id=teacher_id)
+    payload = response.json()
+    if not isinstance(payload, dict):
+        raise ClassApiError("Unexpected response format from class endpoint.")
+    return payload
+
+
 def create_class(
     class_name: str,
     grade_age_group: str,
@@ -82,6 +90,31 @@ def create_class(
     if not isinstance(data, dict):
         raise ClassApiError("Unexpected response format from create class endpoint.")
     return data
+
+
+def update_class(
+    class_id: int,
+    class_name: str,
+    grade_age_group: str,
+    schedule_days: list[str],
+    description: str = "",
+    teacher_id: str = DEFAULT_TEACHER_ID,
+) -> dict[str, Any]:
+    payload = {
+        "class_name": class_name,
+        "grade_age_group": grade_age_group,
+        "schedule_days": schedule_days,
+        "description": description or None,
+    }
+    response = _request("PATCH", f"/classes/{class_id}", teacher_id=teacher_id, json=payload)
+    data = response.json()
+    if not isinstance(data, dict):
+        raise ClassApiError("Unexpected response format from update class endpoint.")
+    return data
+
+
+def delete_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> None:
+    _request("DELETE", f"/classes/{class_id}", teacher_id=teacher_id)
 
 
 def _parse_timestamp(value: Any) -> datetime | None:

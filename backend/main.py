@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.database.database import engine, Base
 import app.models.class_model
 import app.models.student
+import app.models.student_saved_analysis
 
 
 app = FastAPI(

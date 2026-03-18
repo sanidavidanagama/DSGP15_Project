@@ -11,8 +11,11 @@ from app.database.crud_student import (
     soft_delete_student,
     update_student,
 )
+from app.database.crud_student_saved_analysis import create_saved_analysis, list_saved_analyses
+from app.database.crud_job import get_job_by_job_id
 from app.database.database import SessionLocal
 from app.schemas.student import StudentCreate, StudentResponse, StudentUpdate
+from app.schemas.student_saved_analysis import StudentSavedAnalysisCreate, StudentSavedAnalysisResponse
 
 
 
@@ -96,3 +99,32 @@ def delete_student(
     resolve_student_with_ownership(student_id, teacher_id, db)
     soft_delete_student(db, student_id)
     return {"message": "Student deleted"}
+
+
+@router.post("/students/{student_id}/saved-analyses", response_model=StudentSavedAnalysisResponse, status_code=201)
+def save_analysis_for_student(
+    student_id: int,
+    payload: StudentSavedAnalysisCreate,
+    teacher_id: str = Depends(get_teacher_id),
+    db: Session = Depends(get_db),
+):
+    resolve_student_with_ownership(student_id, teacher_id, db)
+
+    job = get_job_by_job_id(db, payload.job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.status != "done" or not isinstance(job.result, dict):
+        raise HTTPException(status_code=400, detail="Job is not ready to be saved")
+
+    return create_saved_analysis(db, student_id, job)
+
+
+@router.get("/students/{student_id}/saved-analyses", response_model=List[StudentSavedAnalysisResponse])
+def list_saved_analyses_for_student(
+    student_id: int,
+    teacher_id: str = Depends(get_teacher_id),
+    db: Session = Depends(get_db),
+):
+    resolve_student_with_ownership(student_id, teacher_id, db)
+    return list_saved_analyses(db, student_id)

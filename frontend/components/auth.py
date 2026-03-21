@@ -33,6 +33,7 @@ def _render_login_form() -> None:
                     st.session_state.auth_token = token
                     st.session_state.teacher_id = profile.get("teacher_id") or profile.get("email") or identifier
                     st.session_state.teacher_name = profile.get("username") or ""
+                    st.session_state.page = "Dashboard"
                     st.success("Logged in successfully")
                     if hasattr(st, "experimental_rerun"):
                         st.experimental_rerun()

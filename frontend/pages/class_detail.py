@@ -117,6 +117,7 @@ def _student_card(student: dict) -> bool:
     return False
 
 def class_detail_page():
+    token = st.session_state.get("auth_token")
 
     cls = st.session_state.get("selected_class")
 
@@ -130,7 +131,7 @@ def class_detail_page():
         return
 
     try:
-        cls = get_class(class_id)
+        cls = get_class(class_id, token=token)
         st.session_state.selected_class = cls
     except ClassApiError as exc:
         st.warning(f"Could not refresh class details from backend: {exc}")
@@ -159,7 +160,7 @@ def class_detail_page():
         with confirm_col:
             if st.button("Yes, Delete", key="detail_delete_confirm", use_container_width=True):
                 try:
-                    delete_class(class_id)
+                    delete_class(class_id, token=token)
                 except ClassApiError as exc:
                     st.error(f"Failed to delete class: {exc}")
                 else:
@@ -175,7 +176,7 @@ def class_detail_page():
 
     students: list[dict] = []
     try:
-        students = list_students(class_id)
+        students = list_students(class_id, token=token)
     except StudentApiError as exc:
         st.warning(f"Could not load students from backend: {exc}")
 
@@ -221,6 +222,7 @@ def class_detail_page():
                         class_id=class_id,
                         name=student_name.strip(),
                         age_group=student_age_group.strip(),
+                        token=token,
                     )
                 except StudentApiError as exc:
                     st.error(f"Failed to create student: {exc}")

@@ -67,6 +67,8 @@ def _render_hero(class_name: str) -> None:
 
 
 def edit_class_page() -> None:
+    token = st.session_state.get("auth_token")
+
     cls = st.session_state.get("selected_class")
     if not cls:
         st.warning("No class selected")
@@ -135,6 +137,7 @@ def edit_class_page() -> None:
                 grade_age_group=grade_age_group.strip(),
                 schedule_days=schedule_days,
                 description=description.strip(),
+                token=token,
             )
         except ClassApiError as exc:
             st.error(f"Failed to update class: {exc}")

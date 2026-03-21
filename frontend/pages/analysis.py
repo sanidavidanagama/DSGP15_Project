@@ -664,7 +664,7 @@ def results_page():
                 st.error("No job id found for this analysis result.")
             else:
                 try:
-                    save_analysis_to_student(student_id=selected_student_id, job_id=str(current_job_id))
+                    save_analysis_to_student(student_id=selected_student_id, job_id=str(current_job_id), token=token)
                 except StudentApiError as exc:
                     st.error(f"Failed to save analysis to student: {exc}")
                 else:

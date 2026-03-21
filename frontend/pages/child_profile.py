@@ -72,6 +72,7 @@ def _render_hero(student: dict, class_name: str) -> None:
     )
 
 def child_profile():
+    token = st.session_state.get("auth_token")
 
     student = st.session_state.get("selected_student")
     selected_class = st.session_state.get("selected_class") or {}
@@ -89,13 +90,13 @@ def child_profile():
         return
 
     try:
-        student = get_student(student_id)
+        student = get_student(student_id, token=token)
         st.session_state.selected_student = student
     except StudentApiError as exc:
         st.warning(f"Could not refresh student details: {exc}")
 
     try:
-        history = list_saved_analyses(student_id)
+        history = list_saved_analyses(student_id, token=token)
     except StudentApiError as exc:
         st.warning(f"Could not load saved analysis history: {exc}")
         history = []
@@ -124,7 +125,7 @@ def child_profile():
         with confirm_col:
             if st.button("Yes, Delete", key="student_profile_delete_confirm", use_container_width=True):
                 try:
-                    delete_student(student_id)
+                    delete_student(student_id, token=token)
                 except StudentApiError as exc:
                     st.error(f"Failed to delete student: {exc}")
                 else:
@@ -153,7 +154,7 @@ def child_profile():
                 st.error("Student name and age group are required.")
             else:
                 try:
-                    updated = update_student(student_id, name=name.strip(), age_group=age_group.strip())
+                    updated = update_student(student_id, name=name.strip(), age_group=age_group.strip(), token=token)
                 except StudentApiError as exc:
                     st.error(f"Failed to update student: {exc}")
                 else:

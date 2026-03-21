@@ -28,6 +28,12 @@ apply_styles()
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
+if "auth_token" not in st.session_state:
+    st.session_state.auth_token = None
+
+if st.session_state.auth and not st.session_state.auth_token:
+    st.session_state.auth = False
+
 # -------------------------
 # Page session
 # -------------------------
@@ -40,7 +46,7 @@ if "page" not in st.session_state:
 # -------------------------
 
 if not st.session_state.auth:
-
+    st.session_state.page = "Dashboard"
     login()
 
 # -------------------------

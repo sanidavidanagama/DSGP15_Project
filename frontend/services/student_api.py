@@ -99,7 +99,7 @@ def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: st
         student_id = item.get("id")
         if isinstance(student_id, int):
             try:
-                history = list_saved_analyses(student_id=student_id, teacher_id=teacher_id)
+                history = list_saved_analyses(student_id=student_id, teacher_id=teacher_id, token=token)
             except StudentApiError:
                 history = []
 
@@ -128,7 +128,7 @@ def get_student(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: st
     item.setdefault("total_analyses", 0)
 
     try:
-        history = list_saved_analyses(student_id=student_id, teacher_id=teacher_id)
+        history = list_saved_analyses(student_id=student_id, teacher_id=teacher_id, token=token)
     except StudentApiError:
         history = []
 
@@ -190,8 +190,8 @@ def save_analysis_to_student(student_id: int, job_id: str, teacher_id: str = DEF
     return data
 
 
-def list_saved_analyses(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> list[dict[str, Any]]:
-    response = _request("GET", f"/students/{student_id}/saved-analyses", teacher_id=teacher_id)
+def list_saved_analyses(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> list[dict[str, Any]]:
+    response = _request("GET", f"/students/{student_id}/saved-analyses", teacher_id=teacher_id, token=token)
     payload = response.json()
     if not isinstance(payload, list):
         raise StudentApiError("Unexpected response format from saved analyses endpoint.")

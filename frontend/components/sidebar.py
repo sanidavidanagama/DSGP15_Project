@@ -48,4 +48,10 @@ def sidebar():
 
         if st.button("Logout", key="logout_btn"):
             st.session_state.auth = False
+            st.session_state.auth_token = None
+            st.session_state.teacher_id = None
+            st.session_state.teacher_name = None
+            st.session_state.selected_class = None
+            st.session_state.selected_student = None
+            st.session_state.page = "Dashboard"
             st.rerun()

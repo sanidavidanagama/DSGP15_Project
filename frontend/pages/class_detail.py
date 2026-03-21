@@ -40,6 +40,20 @@ def _display_day_label(day: object) -> str:
     return WEEKDAY_LABELS.get(normalized.lower(), normalized)
 
 
+def _format_mood_label(value: object) -> str:
+    mood = _safe_text(value, fallback="No mood yet")
+    if mood.lower() in {"n/a", "no mood yet"}:
+        return mood
+    return mood[:1].upper() + mood[1:].lower()
+
+
+def _render_metric_tile(label: str, value: str) -> None:
+    st.markdown(
+        f"<div class='analysis-metric'><div class='analysis-metric-label'>{label}</div><div class='analysis-metric-value'>{value}</div></div>",
+        unsafe_allow_html=True,
+    )
+
+
 def _render_header(classroom: dict) -> None:
     schedule_days = classroom.get("schedule_days") or []
     schedule_chips = []
@@ -69,7 +83,7 @@ def _render_header(classroom: dict) -> None:
 
 def _student_card(student: dict) -> bool:
     student_id = student.get("id")
-    mood = _safe_text(student.get("last_predicted_mood"), fallback="No mood yet")
+    mood = _format_mood_label(student.get("last_predicted_mood"))
     last_predicted = _safe_text(student.get("last_predicted_label"), fallback="No predictions yet")
     total_analyses = _safe_text(student.get("total_analyses"), fallback="0")
 
@@ -123,7 +137,8 @@ def class_detail_page():
 
     _render_header(cls)
 
-    action_col1, action_col2, action_col3 = st.columns([1.1, 1.1, 4.8])
+    st.markdown("<h4 class='analysis-section-title'>Class Actions</h4>", unsafe_allow_html=True)
+    action_col1, action_col2, action_col3 = st.columns(3)
     with action_col1:
         if st.button("Back to Classes", key="detail_back_to_classes", use_container_width=True):
             st.session_state.page = "My Classes"
@@ -135,7 +150,7 @@ def class_detail_page():
             st.rerun()
 
     with action_col3:
-        if st.button("Delete Class", key="detail_delete_class", use_container_width=False):
+        if st.button("Delete Class", key="detail_delete_class", use_container_width=True):
             st.session_state.delete_confirm_class_id = class_id
 
     if st.session_state.get("delete_confirm_class_id") == class_id:
@@ -164,8 +179,27 @@ def class_detail_page():
     except StudentApiError as exc:
         st.warning(f"Could not load students from backend: {exc}")
 
-    add_col1, add_col2 = st.columns([1.5, 4.5])
-    with add_col1:
+    st.divider()
+
+    col1, col2, col3 = st.columns(3)
+    total_analyses = sum(int(s.get("total_analyses") or 0) for s in students)
+
+    with col1:
+        _render_metric_tile("Total Students", str(len(students)))
+
+    with col2:
+        _render_metric_tile("Total Analyses", str(total_analyses))
+
+    with col3:
+        recent_count = len([s for s in students if _safe_text(s.get("last_predicted_label")) in {"just now"}])
+        _render_metric_tile("Updated Recently", str(recent_count))
+
+    st.divider()
+
+    header_col, action_col = st.columns([3.8, 1.2])
+    with header_col:
+        st.subheader(f"Students ({len(students)})")
+    with action_col:
         if st.button("Add New Student", key="detail_add_student_toggle", use_container_width=True):
             st.session_state.show_add_student_form = not st.session_state.get("show_add_student_form", False)
 
@@ -195,53 +229,10 @@ def class_detail_page():
                     st.session_state.show_add_student_form = False
                     st.rerun()
 
-    st.divider()
-
-    col1, col2, col3 = st.columns(3)
-    total_analyses = sum(int(s.get("total_analyses") or 0) for s in students)
-
-    with col1:
-        st.markdown(
-            f"""
-            <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Total Students</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{len(students)}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with col2:
-        st.markdown(
-            f"""
-            <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Total Analyses</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{total_analyses}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with col3:
-        recent_count = len([s for s in students if _safe_text(s.get("last_predicted_label")) in {"just now"}])
-        st.markdown(
-            f"""
-            <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Updated Recently</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{recent_count}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    st.divider()
-
-    search = st.text_input("Search students")
+    search = st.text_input("Search students", placeholder="Type student name...")
 
     if search:
         students = [s for s in students if search.lower() in _safe_text(s.get("name"), fallback="").lower()]
-
-    st.subheader(f"Students ({len(students)})")
 
     if not students:
         st.caption("No students found for this class yet.")

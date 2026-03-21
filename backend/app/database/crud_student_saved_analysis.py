@@ -63,3 +63,25 @@ def list_saved_analyses(db: Session, student_id: int) -> list[StudentSavedAnalys
         .order_by(StudentSavedAnalysis.saved_at.desc())
         .all()
     )
+
+
+def list_saved_analyses_with_job_context(db: Session, student_id: int) -> list[dict[str, Any]]:
+    items = list_saved_analyses(db, student_id)
+    enriched: list[dict[str, Any]] = []
+
+    for item in items:
+        job = db.query(Job).filter(Job.job_id == item.job_id).first()
+        enriched.append(
+            {
+                "id": item.id,
+                "student_id": item.student_id,
+                "job_id": item.job_id,
+                "mood": item.mood,
+                "confidence": item.confidence,
+                "summary": item.summary,
+                "drawing_description": job.description if job else None,
+                "saved_at": item.saved_at,
+            }
+        )
+
+    return enriched

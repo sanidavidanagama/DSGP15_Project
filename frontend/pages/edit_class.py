@@ -3,11 +3,50 @@ import streamlit as st
 from services.class_api import ClassApiError, update_class
 
 
+WEEKDAY_OPTIONS = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+]
+
+WEEKDAY_LABELS = {
+    "mon": "Monday",
+    "monday": "Monday",
+    "tue": "Tuesday",
+    "tues": "Tuesday",
+    "tuesday": "Tuesday",
+    "wed": "Wednesday",
+    "weds": "Wednesday",
+    "wednesday": "Wednesday",
+    "thu": "Thursday",
+    "thur": "Thursday",
+    "thurs": "Thursday",
+    "thursday": "Thursday",
+    "fri": "Friday",
+    "friday": "Friday",
+    "sat": "Saturday",
+    "saturday": "Saturday",
+    "sun": "Sunday",
+    "sunday": "Sunday",
+}
+
+
 def _safe_text(value: object, fallback: str = "") -> str:
     if value is None:
         return fallback
     text = str(value).strip()
     return text if text else fallback
+
+
+def _normalize_schedule_day(value: object) -> str:
+    normalized = _safe_text(value, fallback="")
+    if not normalized:
+        return ""
+    return WEEKDAY_LABELS.get(normalized.lower(), normalized)
 
 
 def _render_hero(class_name: str) -> None:
@@ -48,9 +87,11 @@ def edit_class_page() -> None:
     grade_default = _safe_text(cls.get("grade_age_group"))
     description_default = _safe_text(cls.get("description"))
 
-    schedule_options = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     selected_schedule = [
-        day for day in (cls.get("schedule_days") or []) if day in schedule_options
+        normalized
+        for day in (cls.get("schedule_days") or [])
+        for normalized in [_normalize_schedule_day(day)]
+        if normalized in WEEKDAY_OPTIONS
     ]
 
     _render_hero(class_name_default or "this class")
@@ -61,7 +102,7 @@ def edit_class_page() -> None:
         grade_age_group = st.text_input("Grade / Age Group", value=grade_default, placeholder="e.g. Grade 4")
         schedule_days = st.multiselect(
             "Schedule Days",
-            options=schedule_options,
+            options=WEEKDAY_OPTIONS,
             default=selected_schedule,
             placeholder="Pick one or more days",
         )

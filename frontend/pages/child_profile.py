@@ -1,4 +1,7 @@
 import streamlit as st
+import altair as alt
+import pandas as pd
+from datetime import datetime
 
 from services.student_api import StudentApiError, delete_student, get_student, list_saved_analyses, update_student
 
@@ -10,6 +13,48 @@ def _safe_text(value: object, fallback: str = "N/A") -> str:
     return text if text else fallback
 
 
+def _format_mood_label(value: object) -> str:
+    mood = _safe_text(value, fallback="No mood yet")
+    if mood.lower() in {"n/a", "no mood yet"}:
+        return mood
+    return mood[:1].upper() + mood[1:].lower()
+
+
+def _confidence_to_percent(value: object) -> float:
+    text = _safe_text(value, fallback="0").replace("%", "").strip()
+    try:
+        parsed = float(text)
+    except ValueError:
+        return 0.0
+    return min(100.0, max(0.0, parsed))
+
+
+def _parse_datetime(value: object) -> datetime | None:
+    text = _safe_text(value, fallback="").strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        return None
+
+
+def _format_saved_at(value: object) -> str:
+    dt = _parse_datetime(value)
+    if not dt:
+        return "N/A"
+    return dt.strftime("%d %b %y | %H:%M")
+
+
+def _render_metric_tile(label: str, value: str) -> None:
+    st.markdown(
+        f"<div class='analysis-metric'><div class='analysis-metric-label'>{label}</div><div class='analysis-metric-value'>{value}</div></div>",
+        unsafe_allow_html=True,
+    )
+
+
 def _render_hero(student: dict, class_name: str) -> None:
     st.markdown(
         f"""
@@ -17,7 +62,7 @@ def _render_hero(student: dict, class_name: str) -> None:
             <h2 style='margin:0'>{_safe_text(student.get('name'))}</h2>
             <p class='analysis-subtitle'>{_safe_text(student.get('age_group'))} • {class_name}</p>
             <div class='analysis-chip-row'>
-                <span class='analysis-chip'>Last Mood: {_safe_text(student.get('last_predicted_mood'), fallback='No mood yet')}</span>
+                <span class='analysis-chip'>Last Mood: {_format_mood_label(student.get('last_predicted_mood'))}</span>
                 <span class='analysis-chip'>Last Update: {_safe_text(student.get('last_predicted_label'), fallback='No predictions yet')}</span>
                 <span class='analysis-chip'>Total Analyses: {_safe_text(student.get('total_analyses'), fallback='0')}</span>
             </div>
@@ -58,7 +103,8 @@ def child_profile():
     class_name = _safe_text(selected_class.get("class_name"), fallback="Class")
     _render_hero(student, class_name)
 
-    action_col1, action_col2, action_col3 = st.columns([1.2, 1.2, 4.6])
+    st.markdown("<h4 class='analysis-section-title'>Student Actions</h4>", unsafe_allow_html=True)
+    action_col1, action_col2, action_col3 = st.columns(3)
     with action_col1:
         if st.button("Back to Class", key="student_profile_back", use_container_width=True):
             st.session_state.page = "class_detail"
@@ -69,7 +115,7 @@ def child_profile():
             st.session_state.show_student_edit_form = not st.session_state.get("show_student_edit_form", False)
 
     with action_col3:
-        if st.button("Delete Student", key="student_profile_delete", use_container_width=False):
+        if st.button("Delete Student", key="student_profile_delete", use_container_width=True):
             st.session_state.delete_confirm_student_id = student_id
 
     if st.session_state.get("delete_confirm_student_id") == student_id:
@@ -120,80 +166,148 @@ def child_profile():
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(
-            f"""
-            <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Total Analyses</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{_safe_text(student.get('total_analyses'), fallback='0')}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        _render_metric_tile("Total Analyses", _safe_text(student.get("total_analyses"), fallback="0"))
 
     with col2:
-        st.markdown(
-            f"""
-            <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Last Predicted Mood</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{_safe_text(student.get('last_predicted_mood'), fallback='N/A')}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        _render_metric_tile("Last Predicted Mood", _format_mood_label(student.get("last_predicted_mood")))
 
     with col3:
-        st.markdown(
-            f"""
-            <div class='card'>
-                <div style='font-size:18px;font-weight:600;'>Last Updated</div>
-                <div style='font-size:36px;font-weight:700;margin-top:12px;'>{_safe_text(student.get('last_predicted_label'), fallback='N/A')}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        _render_metric_tile("Last Updated", _safe_text(student.get("last_predicted_label"), fallback="N/A"))
 
     st.subheader("Analysis History")
     if not history:
         st.caption("No saved analyses yet. Once teachers save analysis results to this student, they will appear here.")
         return
 
-    for item in history:
-        job_id = _safe_text(item.get("job_id"), fallback="")
-        st.markdown(
-            f"""
-            <div class='analysis-list-card' style='margin-bottom:10px'>
-                <div class='analysis-kv'>
-                    <div class='analysis-kv-item'>
-                        <div class='analysis-kv-key'>Mood</div>
-                        <div class='analysis-kv-value'>{_safe_text(item.get('mood'))}</div>
+    left_col, right_col = st.columns(2, gap="large")
+
+    with left_col:
+        chart_points = []
+        for item in history:
+            saved_at = _parse_datetime(item.get("saved_at"))
+            if not saved_at:
+                continue
+            chart_points.append(
+                {
+                    "saved_at": saved_at,
+                    "predicted_mood": _confidence_to_percent(item.get("confidence")),
+                }
+            )
+
+        st.markdown("<h4 class='analysis-section-title' style='margin-top:2px'>Mood Trend</h4>", unsafe_allow_html=True)
+        if chart_points:
+            chart_df = pd.DataFrame(chart_points)
+            chart_df = chart_df.dropna(subset=["saved_at"]).sort_values("saved_at")
+
+            if not chart_df.empty:
+                start_at = chart_df["saved_at"].min()
+                end_at = chart_df["saved_at"].max()
+
+                if start_at == end_at:
+                    # Ensure visible horizontal range for a single-point timeline.
+                    start_at = start_at.replace(hour=0, minute=0, second=0, microsecond=0)
+                    end_at = end_at.replace(hour=23, minute=59, second=59, microsecond=0)
+
+                bands_df = pd.DataFrame(
+                    [
+                        {"x0": start_at, "x1": end_at, "y0": 0, "y1": 40, "zone": "Low"},
+                        {"x0": start_at, "x1": end_at, "y0": 40, "y1": 60, "zone": "Mid"},
+                        {"x0": start_at, "x1": end_at, "y0": 60, "y1": 100, "zone": "High"},
+                    ]
+                )
+
+                zone_colors = alt.Scale(
+                    domain=["Low", "Mid", "High"],
+                    range=["#ef4444", "#facc15", "#22c55e"],
+                )
+
+                y_encoding = alt.Y(
+                    "predicted_mood:Q",
+                    scale=alt.Scale(domain=[0, 100], nice=False),
+                    title="Predicted Mood",
+                )
+                x_encoding = alt.X(
+                    "saved_at:T",
+                    axis=alt.Axis(title="Timeline", format="%d %b %y"),
+                )
+
+                zones = alt.Chart(bands_df).mark_rect(opacity=0.09).encode(
+                    x="x0:T",
+                    x2="x1:T",
+                    y="y0:Q",
+                    y2="y1:Q",
+                    color=alt.Color("zone:N", scale=zone_colors, legend=None),
+                )
+
+                thresholds = alt.Chart(pd.DataFrame({"threshold": [40, 60]})).mark_rule(
+                    color="#7A6F63",
+                    strokeDash=[6, 4],
+                ).encode(y="threshold:Q")
+
+                trend = alt.Chart(chart_df).mark_line(point=True, color="#2A7F8F", strokeWidth=3).encode(
+                    x=x_encoding,
+                    y=y_encoding,
+                    tooltip=[
+                        alt.Tooltip("saved_at:T", title="Timeline", format="%d %b %y"),
+                        alt.Tooltip("predicted_mood:Q", title="Predicted Mood", format=".0f"),
+                    ],
+                )
+
+                chart = (
+                    alt.layer(zones, thresholds, trend)
+                    .properties(height=320)
+                    .configure(background="#e7e1d1")
+                    .configure_view(fill="#e7e1d1", strokeOpacity=0)
+                    .configure_axis(
+                        labelColor="#3D3730",
+                        titleColor="#3D3730",
+                        domainColor="#9D8F7D",
+                        tickColor="#9D8F7D",
+                        gridColor="rgba(124, 108, 91, 0.28)",
+                    )
+                )
+
+                st.altair_chart(chart, use_container_width=True, theme=None)
+            else:
+                st.caption("Not enough timestamped history to render the mood trend yet.")
+        else:
+            st.caption("No confidence history available yet.")
+
+    with right_col:
+        st.markdown("<h4 class='analysis-section-title' style='margin-top:2px'>Saved Analyses</h4>", unsafe_allow_html=True)
+        for item in history:
+            job_id = _safe_text(item.get("job_id"), fallback="")
+            mood = _format_mood_label(item.get("mood"))
+            saved_at = _format_saved_at(item.get("saved_at"))
+            description = _safe_text(item.get("drawing_description"), fallback="No drawing description available.")
+
+            st.markdown(
+                f"""
+                <div class='analysis-list-card student-history-card'>
+                    <div class='analysis-kv-item student-history-description'>
+                        <div class='analysis-kv-key'>Drawing Description</div>
+                        <div class='analysis-kv-value'>{description}</div>
                     </div>
-                    <div class='analysis-kv-item'>
-                        <div class='analysis-kv-key'>Confidence</div>
-                        <div class='analysis-kv-value'>{_safe_text(item.get('confidence'))}</div>
-                    </div>
-                    <div class='analysis-kv-item'>
-                        <div class='analysis-kv-key'>Saved At</div>
-                        <div class='analysis-kv-value'>{_safe_text(item.get('saved_at'))}</div>
-                    </div>
-                    <div class='analysis-kv-item'>
-                        <div class='analysis-kv-key'>Job Id</div>
-                        <div class='analysis-kv-value'>{job_id}</div>
-                    </div>
-                    <div class='analysis-kv-item'>
-                        <div class='analysis-kv-key'>Summary</div>
-                        <div class='analysis-kv-value'>{_safe_text(item.get('summary'))}</div>
+                    <div class='student-history-meta-row'>
+                        <div class='analysis-kv-item'>
+                            <div class='analysis-kv-key'>Predicted Mood</div>
+                            <div class='analysis-kv-value'>{mood}</div>
+                        </div>
+                        <div class='analysis-kv-item'>
+                            <div class='analysis-kv-key'>Saved At</div>
+                            <div class='analysis-kv-value'>{saved_at}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
 
-        if st.button("Open Full Metrics", key=f"open_saved_metrics_{_safe_text(item.get('id'))}", use_container_width=False):
-            if not job_id:
-                st.error("Job id not available for this saved item.")
-            else:
-                st.session_state.job_id = job_id
-                st.session_state.analysis_page = "loading"
-                st.session_state.page = "New Analysis"
-                st.rerun()
+            if st.button("Open Full Metrics", key=f"open_saved_metrics_{_safe_text(item.get('id'))}", use_container_width=False):
+                if not job_id:
+                    st.error("Job id not available for this saved item.")
+                else:
+                    st.session_state.job_id = job_id
+                    st.session_state.analysis_page = "loading"
+                    st.session_state.page = "New Analysis"
+                    st.rerun()

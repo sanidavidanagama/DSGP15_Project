@@ -14,6 +14,7 @@ class StudentSavedAnalysisResponse(BaseModel):
     mood: str | None = None
     confidence: str | None = None
     summary: str | None = None
+    drawing_description: str | None = None
     saved_at: datetime
 
     model_config = {"from_attributes": True}

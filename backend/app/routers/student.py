@@ -12,7 +12,11 @@ from app.database.crud_student import (
     soft_delete_student,
     update_student,
 )
-from app.database.crud_student_saved_analysis import create_saved_analysis, list_saved_analyses
+from app.database.crud_student_saved_analysis import (
+    create_saved_analysis,
+    list_saved_analyses,
+    list_saved_analyses_with_job_context,
+)
 from app.database.crud_job import get_job_by_job_id
 from app.database.database import SessionLocal
 from app.schemas.student import StudentCreate, StudentResponse, StudentUpdate
@@ -128,4 +132,4 @@ def list_saved_analyses_for_student(
     db: Session = Depends(get_db),
 ):
     resolve_student_with_ownership(student_id, teacher_id, db)
-    return list_saved_analyses(db, student_id)
+    return list_saved_analyses_with_job_context(db, student_id)

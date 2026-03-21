@@ -683,6 +683,27 @@ def apply_styles():
         font-weight: 700;
     }
 
+    .student-history-panel {
+        min-height: 360px;
+    }
+
+    .student-history-card {
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .student-history-description {
+        background: rgba(247, 242, 234, 0.65);
+    }
+
+    .student-history-meta-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
     @media (max-width: 768px) {
         div[data-testid="stElementContainer"]:has(.class-click-wrap) {
             margin-bottom: 0;
@@ -744,16 +765,39 @@ def apply_styles():
             min-height: 0;
             font-size: 0.88rem;
         }
+
+        .student-history-meta-row {
+            grid-template-columns: 1fr;
+        }
     }
 
     .stForm{
-        background:#f8fafc;
-        border:1px solid rgba(96, 165, 250, 0.5);
-        padding:20px;
-        border-radius:16px;
-        margin-bottom:18px;
-        color:#1e293b;
-        box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        background: linear-gradient(145deg, rgba(247, 242, 234, 0.62), rgba(237, 227, 208, 0.46));
+        border: 1px solid rgba(42, 127, 143, 0.22);
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+        color: var(--ink-text);
+        box-shadow: 0 10px 22px rgba(60, 40, 20, 0.08);
+        backdrop-filter: blur(5px);
+    }
+
+    div[data-testid="stFormSubmitButton"] > button {
+        background: linear-gradient(135deg, var(--ink-teal), #237187) !important;
+        color: #103640 !important;
+        border: 1px solid rgba(31, 96, 112, 0.55) !important;
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 18px rgba(31, 96, 112, 0.22);
+    }
+
+    div[data-testid="stFormSubmitButton"] > button:hover,
+    div[data-testid="stFormSubmitButton"] > button:focus {
+        background: linear-gradient(135deg, var(--ink-teal-dark), #1a5462) !important;
+        color: #b7d5db !important;
+        border-color: rgba(20, 73, 85, 0.7) !important;
     }
 
     </style>

@@ -15,11 +15,13 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    username: str
     password: str
 
 
 class UserDB(UserBase):
     id: int
+    username: str | None = None
     is_active: bool
 
     class Config:

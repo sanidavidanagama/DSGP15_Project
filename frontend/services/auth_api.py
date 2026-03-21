@@ -45,6 +45,26 @@ def login(username: str, password: str) -> dict[str, Any]:
     return payload
 
 
+def register(username: str, email: str, password: str) -> dict[str, Any]:
+    try:
+        response = requests.post(
+            f"{BACKEND_BASE_URL}/auth/register",
+            json={"username": username, "email": email, "password": password},
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
+    except requests.RequestException as exc:
+        raise AuthApiError(f"Failed to connect to backend: {exc}") from exc
+
+    if response.status_code >= 400:
+        raise AuthApiError(_parse_error_message(response))
+
+    payload = response.json()
+    if not isinstance(payload, dict):
+        raise AuthApiError("Invalid register response")
+
+    return payload
+
+
 def get_current_profile(token: str) -> dict[str, Any]:
     try:
         response = requests.get(

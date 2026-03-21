@@ -3,6 +3,17 @@ import streamlit as st
 from services.class_api import ClassApiError, create_class
 
 
+WEEKDAY_OPTIONS = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+]
+
+
 def _render_hero() -> None:
     st.markdown(
         """
@@ -28,7 +39,7 @@ def add_class():
         grade_age_group = st.text_input("Grade / Age Group", placeholder="e.g. Grade 4")
         schedule_days = st.multiselect(
             "Schedule Days",
-            options=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            options=WEEKDAY_OPTIONS,
             placeholder="Pick one or more days",
         )
         description = st.text_area(

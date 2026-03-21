@@ -27,9 +27,12 @@ def _parse_error_message(response: requests.Response) -> str:
         return response.text or "Unexpected backend error"
 
 
-def _request(method: str, path: str, teacher_id: str, **kwargs: Any) -> requests.Response:
+def _request(method: str, path: str, teacher_id: str | None = None, token: str | None = None, **kwargs: Any) -> requests.Response:
     headers = kwargs.pop("headers", {})
-    headers = {**headers, "X-Teacher-Id": teacher_id}
+    if token:
+        headers = {**headers, "Authorization": f"Bearer {token}"}
+    elif teacher_id:
+        headers = {**headers, "X-Teacher-Id": teacher_id}
 
     try:
         response = requests.request(
@@ -80,8 +83,8 @@ def _relative_time_label(value: datetime | None) -> str:
     return f"{seconds // 86400}d ago"
 
 
-def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> list[dict[str, Any]]:
-    response = _request("GET", f"/classes/{class_id}/students", teacher_id=teacher_id)
+def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> list[dict[str, Any]]:
+    response = _request("GET", f"/classes/{class_id}/students", teacher_id=teacher_id, token=token)
     payload = response.json()
     if not isinstance(payload, list):
         raise StudentApiError("Unexpected response format from students endpoint.")
@@ -113,8 +116,8 @@ def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> list[d
     return enriched
 
 
-def get_student(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> dict[str, Any]:
-    response = _request("GET", f"/students/{student_id}", teacher_id=teacher_id)
+def get_student(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> dict[str, Any]:
+    response = _request("GET", f"/students/{student_id}", teacher_id=teacher_id, token=token)
     payload = response.json()
     if not isinstance(payload, dict):
         raise StudentApiError("Unexpected response format from student endpoint.")
@@ -144,9 +147,10 @@ def create_student(
     name: str,
     age_group: str,
     teacher_id: str = DEFAULT_TEACHER_ID,
+    token: str | None = None,
 ) -> dict[str, Any]:
     payload = {"name": name, "age_group": age_group}
-    response = _request("POST", f"/classes/{class_id}/students", teacher_id=teacher_id, json=payload)
+    response = _request("POST", f"/classes/{class_id}/students", teacher_id=teacher_id, token=token, json=payload)
     data = response.json()
     if not isinstance(data, dict):
         raise StudentApiError("Unexpected response format from create student endpoint.")
@@ -158,24 +162,26 @@ def update_student(
     name: str,
     age_group: str,
     teacher_id: str = DEFAULT_TEACHER_ID,
+    token: str | None = None,
 ) -> dict[str, Any]:
     payload = {"name": name, "age_group": age_group}
-    response = _request("PATCH", f"/students/{student_id}", teacher_id=teacher_id, json=payload)
+    response = _request("PATCH", f"/students/{student_id}", teacher_id=teacher_id, token=token, json=payload)
     data = response.json()
     if not isinstance(data, dict):
         raise StudentApiError("Unexpected response format from update student endpoint.")
     return data
 
 
-def delete_student(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> None:
-    _request("DELETE", f"/students/{student_id}", teacher_id=teacher_id)
+def delete_student(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> None:
+    _request("DELETE", f"/students/{student_id}", teacher_id=teacher_id, token=token)
 
 
-def save_analysis_to_student(student_id: int, job_id: str, teacher_id: str = DEFAULT_TEACHER_ID) -> dict[str, Any]:
+def save_analysis_to_student(student_id: int, job_id: str, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> dict[str, Any]:
     response = _request(
         "POST",
         f"/students/{student_id}/saved-analyses",
         teacher_id=teacher_id,
+        token=token,
         json={"job_id": job_id},
     )
     data = response.json()

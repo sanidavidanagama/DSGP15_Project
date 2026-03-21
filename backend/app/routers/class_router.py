@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.crud_class import (
@@ -10,6 +10,7 @@ from app.database.crud_class import (
     soft_delete_class,
     update_class,
 )
+from app.services.auth_service import get_current_teacher
 from app.database.database import SessionLocal
 from app.schemas.class_schema import ClassCreate, ClassResponse, ClassUpdate
 
@@ -24,8 +25,8 @@ def get_db():
         db.close()
 
 
-def get_teacher_id(x_teacher_id: str = Header(default="dev-teacher", alias="X-Teacher-Id")) -> str:
-    return x_teacher_id
+def get_teacher_id(teacher_id: str = Depends(get_current_teacher)) -> str:
+    return teacher_id
 
 
 @router.post("", response_model=ClassResponse, status_code=201)

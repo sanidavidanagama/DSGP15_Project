@@ -613,8 +613,10 @@ def results_page():
     class_options: dict[str, int] = {}
     student_options: dict[str, int] = {}
 
+    token = st.session_state.get("auth_token")
+
     try:
-        classes = get_classes()
+        classes = get_classes(token=token)
         class_options = {
             f"{_safe_text(item.get('class_name'))} ({_safe_text(item.get('grade_age_group'))})": int(item["id"])
             for item in classes
@@ -636,7 +638,7 @@ def results_page():
     with save_col_right:
         if selected_class_id is not None:
             try:
-                class_students = list_students(selected_class_id)
+                class_students = list_students(selected_class_id, token=token)
             except StudentApiError as exc:
                 st.caption(f"Students unavailable: {exc}")
                 class_students = []

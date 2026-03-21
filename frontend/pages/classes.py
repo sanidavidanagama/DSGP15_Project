@@ -164,8 +164,9 @@ def _add_class_card() -> None:
 def classes_page():
     _render_hero()
 
+    token = st.session_state.get("auth_token")
     try:
-        dashboard = build_classes_dashboard()
+        dashboard = build_classes_dashboard(token=token)
     except ClassApiError as exc:
         st.error(f"Unable to load classes from backend: {exc}")
         st.caption("Make sure backend is running and reachable from frontend.")

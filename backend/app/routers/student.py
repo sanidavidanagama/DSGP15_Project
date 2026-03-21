@@ -1,9 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.crud_class import get_class_by_id
+from app.services.auth_service import get_current_teacher
 from app.database.crud_student import (
     create_student,
     get_student_by_id,
@@ -30,8 +31,8 @@ def get_db():
         db.close()
 
 
-def get_teacher_id(x_teacher_id: str = Header(default="dev-teacher", alias="X-Teacher-Id")) -> str:
-    return x_teacher_id
+def get_teacher_id(teacher_id: str = Depends(get_current_teacher)) -> str:
+    return teacher_id
 
 
 def resolve_class(class_id: int, teacher_id: str, db: Session):

@@ -27,9 +27,12 @@ def _parse_error_message(response: requests.Response) -> str:
         return response.text or "Unexpected backend error"
 
 
-def _request(method: str, path: str, teacher_id: str, **kwargs: Any) -> requests.Response:
+def _request(method: str, path: str, teacher_id: str | None = None, token: str | None = None, **kwargs: Any) -> requests.Response:
     headers = kwargs.pop("headers", {})
-    headers = {**headers, "X-Teacher-Id": teacher_id}
+    if token:
+        headers = {**headers, "Authorization": f"Bearer {token}"}
+    elif teacher_id:
+        headers = {**headers, "X-Teacher-Id": teacher_id}
 
     try:
         response = requests.request(
@@ -48,24 +51,24 @@ def _request(method: str, path: str, teacher_id: str, **kwargs: Any) -> requests
     return response
 
 
-def get_classes(teacher_id: str = DEFAULT_TEACHER_ID) -> list[dict[str, Any]]:
-    response = _request("GET", "/classes", teacher_id=teacher_id)
+def get_classes(teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> list[dict[str, Any]]:
+    response = _request("GET", "/classes", teacher_id=teacher_id, token=token)
     payload = response.json()
     if not isinstance(payload, list):
         raise ClassApiError("Unexpected response format from classes endpoint.")
     return payload
 
 
-def get_students_by_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> list[dict[str, Any]]:
-    response = _request("GET", f"/classes/{class_id}/students", teacher_id=teacher_id)
+def get_students_by_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> list[dict[str, Any]]:
+    response = _request("GET", f"/classes/{class_id}/students", teacher_id=teacher_id, token=token)
     payload = response.json()
     if not isinstance(payload, list):
         raise ClassApiError("Unexpected response format from students endpoint.")
     return payload
 
 
-def get_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> dict[str, Any]:
-    response = _request("GET", f"/classes/{class_id}", teacher_id=teacher_id)
+def get_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> dict[str, Any]:
+    response = _request("GET", f"/classes/{class_id}", teacher_id=teacher_id, token=token)
     payload = response.json()
     if not isinstance(payload, dict):
         raise ClassApiError("Unexpected response format from class endpoint.")
@@ -78,6 +81,7 @@ def create_class(
     schedule_days: list[str],
     description: str = "",
     teacher_id: str = DEFAULT_TEACHER_ID,
+    token: str | None = None,
 ) -> dict[str, Any]:
     payload = {
         "class_name": class_name,
@@ -85,7 +89,7 @@ def create_class(
         "schedule_days": schedule_days,
         "description": description or None,
     }
-    response = _request("POST", "/classes", teacher_id=teacher_id, json=payload)
+    response = _request("POST", "/classes", teacher_id=teacher_id, token=token, json=payload)
     data = response.json()
     if not isinstance(data, dict):
         raise ClassApiError("Unexpected response format from create class endpoint.")
@@ -99,6 +103,7 @@ def update_class(
     schedule_days: list[str],
     description: str = "",
     teacher_id: str = DEFAULT_TEACHER_ID,
+    token: str | None = None,
 ) -> dict[str, Any]:
     payload = {
         "class_name": class_name,
@@ -106,15 +111,15 @@ def update_class(
         "schedule_days": schedule_days,
         "description": description or None,
     }
-    response = _request("PATCH", f"/classes/{class_id}", teacher_id=teacher_id, json=payload)
+    response = _request("PATCH", f"/classes/{class_id}", teacher_id=teacher_id, token=token, json=payload)
     data = response.json()
     if not isinstance(data, dict):
         raise ClassApiError("Unexpected response format from update class endpoint.")
     return data
 
 
-def delete_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID) -> None:
-    _request("DELETE", f"/classes/{class_id}", teacher_id=teacher_id)
+def delete_class(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> None:
+    _request("DELETE", f"/classes/{class_id}", teacher_id=teacher_id, token=token)
 
 
 def _parse_timestamp(value: Any) -> datetime | None:
@@ -134,8 +139,8 @@ def _parse_timestamp(value: Any) -> datetime | None:
         return None
 
 
-def build_classes_dashboard(teacher_id: str = DEFAULT_TEACHER_ID) -> dict[str, Any]:
-    classes = get_classes(teacher_id=teacher_id)
+def build_classes_dashboard(teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> dict[str, Any]:
+    classes = get_classes(teacher_id=teacher_id, token=token)
 
     total_students = 0
     latest_activity_at: datetime | None = None
@@ -148,7 +153,7 @@ def build_classes_dashboard(teacher_id: str = DEFAULT_TEACHER_ID) -> dict[str, A
 
         if isinstance(class_id, int):
             try:
-                student_count = len(get_students_by_class(class_id=class_id, teacher_id=teacher_id))
+                student_count = len(get_students_by_class(class_id=class_id, teacher_id=teacher_id, token=token))
             except ClassApiError:
                 student_count = 0
 

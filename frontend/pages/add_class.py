@@ -52,6 +52,7 @@ def add_class():
                 grade_age_group=grade_age_group.strip(),
                 schedule_days=schedule_days,
                 description=description.strip(),
+                token=st.session_state.get("auth_token"),
             )
         except ClassApiError as exc:
             st.error(f"Failed to create class: {exc}")

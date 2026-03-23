@@ -1,4 +1,3 @@
-# app/ml/dia_model/config.py
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -30,7 +29,7 @@ class RagConfig:
             data_dir=dirs["data_dir"],
             chroma_dir=dirs["chroma_dir"],
             llm_model=settings.GEMINI_MODEL,
-            top_k=int(settings.RAG_TOP_K or 4),
+            top_k=int(settings.RAG_TOP_K or 10),
             api_key=settings.GOOGLE_API_KEY,
             st_embed_model=settings.ST_EMBED_MODEL,
         )

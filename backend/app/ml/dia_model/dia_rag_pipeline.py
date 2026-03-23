@@ -12,7 +12,7 @@ from app.ml.dia_model.utils import read_image_bytes
 from app.ml.dia_model.prompts import SYSTEM_PROMPT, json_structure
 
 logger = logging.getLogger(__name__)
-MAX_CONTEXT_CHARS = 3500
+MAX_CONTEXT_CHARS = 6000
 
 
 def _format_context(chunks) -> str:
@@ -77,8 +77,10 @@ class DrawingIndicatorAnalyser:
         - Use only enumerated values for the categorical fields.
         - Count number_of_figures as individual visible drawing objects (for example sun, house, person, tree, animal), not only human figures.
         - Interpretation must contain exactly 5 short non-empty lines.
-        - Each interpretation line must be grounded in the image and extracted indicators, and must follow retrieved literature when making interpretive links.
-        - Mention psychological concern signals only when supported by image evidence and literature; otherwise state that no strong concern is evident.
+        - Lines 1–2 must summarise the structured drawing indicators (line_pressure, shading_intensity, overall_tone, page_usage, figure_size, placement, missing_body_parts, number_of_figures, distance_between_figures, self_positioning, etc.).
+        - Lines 3–5 must focus mainly on what the image itself shows about mood, emotional state, relationships, and psychological concern signals.
+        - At least one of lines 3–5 must explicitly state whether strong psychological concern signals are present or that no strong psychological concern is evident, and briefly explain which visual and indicator evidence supports that conclusion.
+        - Every interpretation line must be grounded in the image and extracted indicators, and must follow the retrieved rulebook when making interpretive links.
         """.strip()
 
         out = self.llm.generate_json(

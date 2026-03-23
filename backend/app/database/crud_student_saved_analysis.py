@@ -33,6 +33,30 @@ def _extract_snapshot(result: dict[str, Any] | None) -> tuple[str | None, str | 
     )
 
 
+def _extract_happy_score(result: dict[str, Any] | None) -> float | None:
+    if not isinstance(result, dict):
+        return None
+
+    emotion = result.get("emotion") if isinstance(result.get("emotion"), dict) else {}
+    probabilities = emotion.get("probabilities")
+    if not isinstance(probabilities, dict):
+        return None
+
+    happy_value: Any | None = None
+    for key, value in probabilities.items():
+        if str(key).strip().lower() == "happy":
+            happy_value = value
+            break
+
+    if happy_value is None:
+        return None
+
+    try:
+        return float(happy_value)
+    except (TypeError, ValueError):
+        return None
+
+
 def create_saved_analysis(db: Session, student_id: int, job: Job) -> StudentSavedAnalysis:
     existing = (
         db.query(StudentSavedAnalysis)
@@ -71,6 +95,7 @@ def list_saved_analyses_with_job_context(db: Session, student_id: int) -> list[d
 
     for item in items:
         job = db.query(Job).filter(Job.job_id == item.job_id).first()
+        happy_score = _extract_happy_score(job.result if job else None)
         enriched.append(
             {
                 "id": item.id,
@@ -78,6 +103,7 @@ def list_saved_analyses_with_job_context(db: Session, student_id: int) -> list[d
                 "job_id": item.job_id,
                 "mood": item.mood,
                 "confidence": item.confidence,
+                "happy_score": happy_score,
                 "summary": item.summary,
                 "drawing_description": job.description if job else None,
                 "saved_at": item.saved_at,

@@ -29,6 +29,27 @@ def _confidence_to_percent(value: object) -> float:
     return min(100.0, max(0.0, parsed))
 
 
+def _happy_score_to_percent(value: object) -> float | None:
+    if value is None:
+        return None
+
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        text = _safe_text(value, fallback="").replace("%", "").strip()
+        if not text:
+            return None
+        try:
+            parsed = float(text)
+        except ValueError:
+            return None
+
+    if 0.0 <= parsed <= 1.0:
+        parsed *= 100.0
+
+    return min(100.0, max(0.0, parsed))
+
+
 def _parse_datetime(value: object) -> datetime | None:
     text = _safe_text(value, fallback="").strip()
     if not text:
@@ -186,12 +207,15 @@ def child_profile():
         chart_points = []
         for item in history:
             saved_at = _parse_datetime(item.get("saved_at"))
+            happy_percent = _happy_score_to_percent(item.get("happy_score"))
             if not saved_at:
+                continue
+            if happy_percent is None:
                 continue
             chart_points.append(
                 {
                     "saved_at": saved_at,
-                    "predicted_mood": _confidence_to_percent(item.get("confidence")),
+                    "predicted_mood": happy_percent,
                 }
             )
 
@@ -272,7 +296,7 @@ def child_profile():
             else:
                 st.caption("Not enough timestamped history to render the mood trend yet.")
         else:
-            st.caption("No confidence history available yet.")
+            st.caption("No happy score history available yet.")
 
     with right_col:
         st.markdown("<h4 class='analysis-section-title' style='margin-top:2px'>Saved Analyses</h4>", unsafe_allow_html=True)

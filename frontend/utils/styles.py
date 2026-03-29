@@ -800,5 +800,86 @@ def apply_styles():
         border-color: rgba(20, 73, 85, 0.7) !important;
     }
 
+    /* -- Auth wallpaper layout -- */
+    .auth-visual {
+        position: relative;
+        width: 100%;
+        min-height: 380px;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(160, 130, 100, 0.32);
+        box-shadow: var(--ink-soft-shadow);
+        background-image: url('../backend/app/assets/wallpaper.jpg');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .auth-visual-overlay {
+        position: absolute;
+        inset: 0;
+        padding: 22px 22px 20px;
+        background: radial-gradient(circle at 10% 0%, rgba(0,0,0,0.4), transparent 55%),
+                    linear-gradient(145deg, rgba(7, 24, 46, 0.76), rgba(9, 44, 68, 0.15));
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        color: #f6fbff;
+    }
+
+    .auth-visual-overlay h2 {
+        margin: 0 0 4px;
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    .auth-visual-overlay p {
+        margin: 0;
+        font-size: 0.9rem;
+        max-width: 360px;
+        line-height: 1.5;
+        opacity: 0.94;
+    }
+
+    @media (max-width: 900px) {
+        .auth-visual {
+            min-height: 220px;
+            margin-bottom: 14px;
+        }
+    }
+
+    .auth-brand {
+        text-align: center;
+        margin: 4px 0 22px;
+    }
+
+    .auth-brand-logo {
+        width: 90px;
+        height: auto;
+        display: block;
+        margin: 0 auto 8px;
+        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
+    }
+
+    .auth-brand-name {
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: var(--ink-title);
+        margin-bottom: 2px;
+    }
+
+    .auth-brand-tagline {
+        font-size: 0.82rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        margin-bottom: 4px;
+    }
+
+    .auth-brand-subtitle {
+        font-size: 0.9rem;
+        color: var(--ink-muted);
+    }
+
     </style>
     """, unsafe_allow_html=True)

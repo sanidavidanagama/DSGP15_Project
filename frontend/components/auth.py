@@ -6,7 +6,8 @@ import streamlit as st
 from services.auth_api import AuthApiError, get_current_profile, login as auth_login, register as auth_register
 
 
-ASSETS_BASE_PATH = "../backend/app/assets"
+# Frontend asset directory (relative to the working directory where app.py runs)
+ASSETS_BASE_PATH = "assets"
 LOGO_BLUE_PATH = f"{ASSETS_BASE_PATH}/logo-blue.png"
 LOGO_WHITE_PATH = f"{ASSETS_BASE_PATH}/logo-white.png"
 WALLPAPER_PATH = f"{ASSETS_BASE_PATH}/wallpaper.jpg"

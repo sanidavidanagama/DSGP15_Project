@@ -38,10 +38,22 @@ def sidebar():
         st.divider()
 
         # ── Teacher Info ─────────────────────────────────
+        teacher_name = st.session_state.get("teacher_name")
+        teacher_id = st.session_state.get("teacher_id")
+
+        if teacher_name and teacher_id:
+            display_line = f"{teacher_name} ({teacher_id})"
+        elif teacher_name:
+            display_line = teacher_name
+        elif teacher_id:
+            display_line = teacher_id
+        else:
+            display_line = "teacher@school.edu"
+
         st.markdown(
-            """
+            f"""
             <p class="sidebar-label">Teacher Name</p>
-            <p class="sidebar-email">teacher@school.edu</p>
+            <p class="sidebar-email">{display_line}</p>
             """,
             unsafe_allow_html=True,
         )

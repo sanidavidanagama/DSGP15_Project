@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+
 import streamlit as st
 
 from services.class_api import ClassApiError, delete_class, get_class
-from services.student_api import StudentApiError, create_student, list_students
+from services.student_api import StudentApiError, create_student
 
 
 WEEKDAY_LABELS = {
@@ -45,6 +47,38 @@ def _format_mood_label(value: object) -> str:
     if mood.lower() in {"n/a", "no mood yet"}:
         return mood
     return mood[:1].upper() + mood[1:].lower()
+
+
+def _parse_timestamp(value: object) -> datetime | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        return None
+
+
+def _relative_time_label(value: datetime | None) -> str:
+    if value is None:
+        return "No predictions yet"
+
+    now = datetime.now(timezone.utc)
+    dt = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    delta = now - dt
+    seconds = max(0, int(delta.total_seconds()))
+
+    if seconds < 60:
+        return "just now"
+    if seconds < 3600:
+        return f"{seconds // 60}m ago"
+    if seconds < 86400:
+        return f"{seconds // 3600}h ago"
+    return f"{seconds // 86400}d ago"
 
 
 def _render_metric_tile(label: str, value: str) -> None:
@@ -174,19 +208,24 @@ def class_detail_page():
                 st.session_state.delete_confirm_class_id = None
                 st.rerun()
 
+    # Students (with stats) now come directly from the class detail payload
+    raw_students = cls.get("students") or []
     students: list[dict] = []
-    try:
-        students = list_students(class_id, token=token)
-    except StudentApiError as exc:
-        st.warning(f"Could not load students from backend: {exc}")
+    for raw in raw_students:
+        item = dict(raw)
+        dt = _parse_timestamp(item.get("last_predicted_at") or item.get("joined_at"))
+        item["last_predicted_at"] = dt.isoformat() if dt else None
+        item["last_predicted_label"] = _relative_time_label(dt)
+        students.append(item)
 
     st.divider()
 
     col1, col2, col3 = st.columns(3)
     total_analyses = sum(int(s.get("total_analyses") or 0) for s in students)
+    total_students = int(cls.get("student_count") or len(students))
 
     with col1:
-        _render_metric_tile("Total Students", str(len(students)))
+        _render_metric_tile("Total Students", str(total_students))
 
     with col2:
         _render_metric_tile("Total Analyses", str(total_analyses))

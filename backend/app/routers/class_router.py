@@ -11,9 +11,11 @@ from app.database.crud_class import (
     update_class,
 )
 from app.database.crud_student import get_students_by_class
+from app.database.crud_student_saved_analysis import list_saved_analyses_with_job_context
 from app.services.auth_service import get_current_teacher
 from app.database.database import SessionLocal
-from app.schemas.class_schema import ClassCreate, ClassResponse, ClassUpdate, ClassWithStatsResponse
+from app.schemas.class_schema import ClassCreate, ClassDetailResponse, ClassResponse, ClassUpdate, ClassWithStatsResponse
+from app.schemas.student import StudentWithStatsResponse
 
 router = APIRouter(prefix="/classes", tags=["Classes"])
 
@@ -67,7 +69,7 @@ def get_classes_route(
     return classes_with_stats
 
 
-@router.get("/{class_id}", response_model=ClassResponse)
+@router.get("/{class_id}", response_model=ClassDetailResponse)
 def get_class_route(
     class_id: int,
     teacher_id: str = Depends(get_teacher_id),
@@ -76,7 +78,46 @@ def get_class_route(
     classroom = get_class_by_id(db, class_id, teacher_id)
     if not classroom:
         raise HTTPException(status_code=404, detail="Class not found")
-    return classroom
+
+    students = get_students_by_class(db, class_id)
+
+    students_with_stats: List[StudentWithStatsResponse] = []
+    for student in students:
+        history = list_saved_analyses_with_job_context(db, student.id)
+        total_analyses = len(history)
+
+        last_mood = None
+        last_saved_at = None
+        if history:
+            latest = history[0]
+            last_mood = latest.get("mood")
+            last_saved_at = latest.get("saved_at")
+
+        students_with_stats.append(
+            StudentWithStatsResponse(
+                id=student.id,
+                class_id=student.class_id,
+                name=student.name,
+                age_group=student.age_group,
+                joined_at=student.joined_at,
+                last_predicted_mood=last_mood,
+                last_predicted_at=last_saved_at,
+                total_analyses=total_analyses,
+            )
+        )
+
+    return ClassDetailResponse(
+        id=classroom.id,
+        teacher_id=classroom.teacher_id,
+        class_name=classroom.class_name,
+        grade_age_group=classroom.grade_age_group,
+        schedule_days=classroom.schedule_days,
+        description=classroom.description,
+        created_at=classroom.created_at,
+        updated_at=classroom.updated_at,
+        student_count=len(students),
+        students=students_with_stats,
+    )
 
 
 @router.patch("/{class_id}", response_model=ClassResponse)

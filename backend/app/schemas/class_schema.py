@@ -3,6 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, field_validator
 
+from app.schemas.student import StudentWithStatsResponse
+
 DAY_ALIASES = {
     "mon": "Monday",
     "monday": "Monday",
@@ -93,3 +95,7 @@ class ClassResponse(BaseModel):
 
 class ClassWithStatsResponse(ClassResponse):
     student_count: int
+
+
+class ClassDetailResponse(ClassWithStatsResponse):
+    students: List[StudentWithStatsResponse]

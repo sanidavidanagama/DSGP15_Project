@@ -101,11 +101,23 @@ class ChildDrawingPreprocessor:
         img = self._load_image(image_input)
         img = self._resize_if_large(img)
 
-        mask = self._detect_paper_fast(img)
-
-        corners = self._find_paper_corners(mask)
-        if corners is None:
-            raise RuntimeError("Could not find paper corners")
+        # Try normal paper detection first; if it fails, fall back to using
+        # the entire image as the "paper" region so we still process
+        # reasonable drawings instead of rejecting them.
+        try:
+            mask = self._detect_paper_fast(img)
+            corners = self._find_paper_corners(mask)
+            if corners is None:
+                raise RuntimeError("Could not find paper corners")
+        except Exception:
+            h, w = img.shape[:2]
+            mask = np.ones((h, w), dtype=np.uint8) * 255
+            corners = np.array([
+                [0, 0],
+                [w - 1, 0],
+                [w - 1, h - 1],
+                [0, h - 1],
+            ])
 
         corrected_img = self._apply_perspective_transform(img, corners)
 
@@ -286,9 +298,9 @@ class ChildDrawingPreprocessor:
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
         # BRIGHTNESS PRE-FILTERING: Suppress dark objects
-        # Paper is usually white/light colored (brightness > 160)
-        # This filters out laptops, phones, dark books, etc.
-        _, light_mask = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)
+        # Paper is usually white/light colored, but allow slightly dim rooms
+        # Relaxed from 160 -> 140 to avoid rejecting valid but darker photos.
+        _, light_mask = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY)
 
         # Apply Gaussian blur
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -318,8 +330,10 @@ class ChildDrawingPreprocessor:
             area = cv2.contourArea(contour)
             area_ratio = area / img_area
 
-            # Stricter area requirements: paper should be 30-85% of frame
-            if not (0.3 < area_ratio < 0.85):
+            # Relaxed area requirements: paper can be smaller or almost full frame
+            # Previously 30-85%, now 15-95% to accept more valid shots
+            # and scanner-like images that fill most of the canvas.
+            if not (0.15 < area_ratio < 0.95):
                 continue
 
             # Check rectangularity - paper should be somewhat rectangular
@@ -364,11 +378,13 @@ class ChildDrawingPreprocessor:
         contour = max(contours, key=cv2.contourArea)
         area = cv2.contourArea(contour)
 
-        # 1. Area ratio check
+        # 1. Area ratio check (relaxed, scanner-friendly)
         img_area = img_shape[0] * img_shape[1]
         area_ratio = area / img_area
 
-        if area_ratio < 0.15 or area_ratio > 0.85:
+        # Allow smaller sheets and also almost-full-frame pages
+        # so that proper scanner exports are considered valid.
+        if area_ratio < 0.05 or area_ratio > 0.98:
             return False
 
         # 2. Aspect ratio check
@@ -379,15 +395,15 @@ class ChildDrawingPreprocessor:
             return False
 
         aspect_ratio = max(width, height) / min(width, height)
-        if aspect_ratio > 3.0:  # Paper shouldn't be super elongated
+        if aspect_ratio > 3.5:  # Slightly more tolerant for perspective
             return False
 
         # 3. Rectangularity check - IMPORTANT for filtering out non-paper shapes
         bbox_area = width * height
         rectangularity = area / bbox_area if bbox_area > 0 else 0
 
-        # Stricter threshold: paper should be quite rectangular
-        if rectangularity < 0.7:
+        # Relaxed threshold: real photos often have perspective / curved pages
+        if rectangularity < 0.55:
             return False
 
         # 4. Solidity check (convexity)
@@ -395,7 +411,8 @@ class ChildDrawingPreprocessor:
         hull_area = cv2.contourArea(hull)
         solidity = area / hull_area if hull_area > 0 else 0
 
-        if solidity < 0.8:  # Should be fairly convex (stricter)
+        # Relaxed: allow a bit more irregularity around edges
+        if solidity < 0.7:
             return False
 
         # 5. CENTER-BIAS CHECK: Paper should be reasonably centered
@@ -408,7 +425,8 @@ class ChildDrawingPreprocessor:
             img_center_y = img_shape[0] / 2
 
             dist_from_center = np.sqrt((cx - img_center_x) ** 2 + (cy - img_center_y) ** 2)
-            max_acceptable_dist = min(img_shape) * 0.45
+            # Allow drawings that are more off‑center than before
+            max_acceptable_dist = min(img_shape) * 0.55
 
             if dist_from_center > max_acceptable_dist:
                 return False

@@ -247,20 +247,20 @@ def class_detail_page():
         st.markdown("<div class='card'>", unsafe_allow_html=True)
         with st.form("add_student_form", clear_on_submit=True):
             student_name = st.text_input("Student Name", placeholder="e.g. Emma Watson")
-            student_age_group = st.text_input("Age Group", placeholder="e.g. Grade 4")
+            student_gender = st.selectbox("Gender", ["Female", "Male", "Non-binary", "Prefer not to say"], index=0)
             submitted = st.form_submit_button("Create Student", type="primary")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
         if submitted:
-            if not student_name.strip() or not student_age_group.strip():
-                st.error("Student name and age group are required.")
+            if not student_name.strip() or not student_gender:
+                st.error("Student name and gender are required.")
             else:
                 try:
                     create_student(
                         class_id=class_id,
                         name=student_name.strip(),
-                        age_group=student_age_group.strip(),
+                        gender=student_gender,
                         token=token,
                     )
                 except StudentApiError as exc:

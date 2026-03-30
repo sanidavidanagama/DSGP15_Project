@@ -7,7 +7,7 @@ from app.schemas.student import StudentCreate, StudentUpdate
 
 
 def create_student(db: Session, class_id: int, data: StudentCreate) -> Student:
-    student = Student(class_id=class_id, name=data.name, age_group=data.age_group)
+    student = Student(class_id=class_id, name=data.name, gender=data.gender)
     db.add(student)
     db.commit()
     db.refresh(student)

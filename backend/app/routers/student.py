@@ -133,7 +133,7 @@ def get_student_in_class(
         id=student.id,
         class_id=student.class_id,
         name=student.name,
-        age_group=student.age_group,
+        gender=student.gender,
         joined_at=student.joined_at,
         last_predicted_mood=last_mood,
         last_predicted_at=last_saved_at,

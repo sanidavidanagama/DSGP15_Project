@@ -135,11 +135,11 @@ def get_student_in_class(class_id: int, student_id: int, teacher_id: str = DEFAU
 def create_student(
     class_id: int,
     name: str,
-    age_group: str,
+    gender: str,
     teacher_id: str = DEFAULT_TEACHER_ID,
     token: str | None = None,
 ) -> dict[str, Any]:
-    payload = {"name": name, "age_group": age_group}
+    payload = {"name": name, "gender": gender}
     response = _request("POST", f"/classes/{class_id}/students", teacher_id=teacher_id, token=token, json=payload)
     data = response.json()
     if not isinstance(data, dict):
@@ -150,11 +150,11 @@ def create_student(
 def update_student(
     student_id: int,
     name: str,
-    age_group: str,
+    gender: str,
     teacher_id: str = DEFAULT_TEACHER_ID,
     token: str | None = None,
 ) -> dict[str, Any]:
-    payload = {"name": name, "age_group": age_group}
+    payload = {"name": name, "gender": gender}
     response = _request("PATCH", f"/students/{student_id}", teacher_id=teacher_id, token=token, json=payload)
     data = response.json()
     if not isinstance(data, dict):

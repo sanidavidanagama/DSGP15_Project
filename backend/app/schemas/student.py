@@ -8,19 +8,19 @@ from app.schemas.student_saved_analysis import StudentSavedAnalysisResponse
 
 class StudentCreate(BaseModel):
     name: str
-    age_group: str
+    gender: str
 
 
 class StudentUpdate(BaseModel):
     name: Optional[str] = None
-    age_group: Optional[str] = None
+    gender: Optional[str] = None
 
 
 class StudentResponse(BaseModel):
     id: int
     class_id: int
     name: str
-    age_group: str
+    gender: str
     joined_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}

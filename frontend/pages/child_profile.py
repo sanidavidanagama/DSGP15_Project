@@ -87,7 +87,7 @@ def _render_hero(student: dict, class_name: str) -> None:
         f"""
         <div class='analysis-hero'>
             <h2 style='margin:0'>{_safe_text(student.get('name'))}</h2>
-            <p class='analysis-subtitle'>{_safe_text(student.get('age_group'))} • {class_name}</p>
+                <p class='analysis-subtitle'>{_safe_text(student.get('gender'))} • {class_name}</p>
             <div class='analysis-chip-row'>
                 <span class='analysis-chip'>Last Mood: {_format_mood_label(student.get('last_predicted_mood'))}</span>
                 <span class='analysis-chip'>Last Update: {_safe_text(student.get('last_predicted_label'), fallback='No predictions yet')}</span>
@@ -179,17 +179,22 @@ def child_profile():
         st.markdown("<div class='card'>", unsafe_allow_html=True)
         with st.form("edit_student_form", clear_on_submit=False):
             name = st.text_input("Student Name", value=_safe_text(student.get("name"), fallback=""))
-            age_group = st.text_input("Age Group", value=_safe_text(student.get("age_group"), fallback=""))
+                gender = st.selectbox(
+                    "Gender",
+                    ["Female", "Male", "Non-binary", "Prefer not to say"],
+                    index=0,
+                )
             submitted = st.form_submit_button("Save Changes", type="primary")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
         if submitted:
-            if not name.strip() or not age_group.strip():
-                st.error("Student name and age group are required.")
+            if submitted:
+                if not name.strip() or not gender:
+                    st.error("Student name and gender are required.")
             else:
                 try:
-                    updated = update_student(student_id, name=name.strip(), age_group=age_group.strip(), token=token)
+                        updated = update_student(student_id, name=name.strip(), gender=gender, token=token)
                 except StudentApiError as exc:
                     st.error(f"Failed to update student: {exc}")
                 else:

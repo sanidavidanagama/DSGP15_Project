@@ -30,7 +30,7 @@ Generate exactly 5 string elements for the `interpretation` array.
 2. [Positive/Developmental Alignment]: Note any standard developmental elements or positive signs of motor control.
 3. [Visual Concerns/Anomalies]: Explicitly call out heavy shading, missing features, extreme sizes, or isolation.
 4. [Contextual Integration]: Combine the visual concerns with the child's description to explain the emotional significance. Use natural, empathetic language (e.g., "The heavy shading over the face, combined with the child stating 'My head is full', suggests they may be experiencing significant anxiety or feeling overwhelmed.") 
-5. [Escalation Status]: Choose between: "Routine Observation," "Warrants Teacher/Therapist Attention," or "Priority Review Recommended [State the specific visual red flags triggering this]."
+5. [Escalation Status]: Choose between: "Routine Observation," "Warrants Teacher/Therapist Attention," or "Priority Review Recommended (State the specific visual red flags triggering this)."
 
 OUTPUT FORMAT:
 You must output ONLY a valid JSON object matching the exact structure below. Do not include markdown formatting like ```json or any conversational text outside the JSON.

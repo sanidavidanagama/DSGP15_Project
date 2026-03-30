@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.schemas.student_saved_analysis import StudentSavedAnalysisResponse
+
 
 class StudentCreate(BaseModel):
     name: str
@@ -22,3 +24,13 @@ class StudentResponse(BaseModel):
     joined_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+
+class StudentWithStatsResponse(StudentResponse):
+    last_predicted_mood: Optional[str] = None
+    last_predicted_at: Optional[datetime] = None
+    total_analyses: int = 0
+
+
+class StudentDetailResponse(StudentWithStatsResponse):
+    history: list[StudentSavedAnalysisResponse] = []

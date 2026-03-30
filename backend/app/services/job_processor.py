@@ -25,82 +25,15 @@ _dia_pipeline = None
 _dia_pipeline_lock = threading.Lock()
 
 
-def _default_dia_result() -> dict:
-    return {
-        "line_pressure": "Normal",
-        "shading_intensity": "Moderate",
-        "overall_tone": "Balanced",
-        "page_usage": "Medium",
-        "figure_size": "Average",
-        "placement": "Center",
-        "human_figure_present": "Yes",
-        "missing_body_parts": "None",
-        "facial_features": "Present",
-        "number_of_figures": "2-3",
-        "distance_between_figures": "Moderate",
-        "self_positioning": "With others",
-        "interpretation": [
-            "Interpretation unavailable due to incomplete model output.",
-            "Please retry the analysis.",
-            "Observable indicators were partially recovered from the current output.",
-            "Interpretive links were limited by incomplete structured JSON generation.",
-            "No reliable additional conclusion can be made from this incomplete output.",
-        ],
-    }
+def _normalize_dia_result(candidate: dict):
+    """Normalize DIA result keys without inventing interpretation text.
 
+    We map legacy key names but leave the model's `interpretation` untouched
+    (aside from basic type/length safety). This ensures all narrative content
+    comes only from the DIA RAG / VLM.
+    """
 
-def _is_fallback_dia_result(dia: dict) -> bool:
-    interpretation = dia.get("interpretation")
-    if not isinstance(interpretation, list) or not interpretation:
-        return True
-    first_line = str(interpretation[0]).strip().lower()
-    return first_line.startswith("interpretation unavailable")
-
-
-def _synthesize_interpretation(dia: dict, child_description: str) -> list[str]:
-    """Build a concise non-clinical interpretation when model interpretation is missing."""
-    overall_tone = str(dia.get("overall_tone", "Balanced")).strip()
-    shading = str(dia.get("shading_intensity", "Moderate")).strip()
-    page_usage = str(dia.get("page_usage", "Medium")).strip()
-    placement = str(dia.get("placement", "Center")).strip()
-    num_figures = str(dia.get("number_of_figures", "2")).strip()
-    self_positioning = str(dia.get("self_positioning", "With others")).strip()
-    distance = str(dia.get("distance_between_figures", "Moderate")).strip()
-    facial = str(dia.get("facial_features", "Present")).strip()
-
-    emotional_line = (
-        f"The drawing shows a {overall_tone.lower()} visual tone with {shading.lower()} shading, "
-        "which may suggest a steady style of expression in this activity."
-    )
-
-    spatial_line = (
-        f"Spatial organization appears {page_usage.lower()} with {placement.lower()} placement and "
-        f"{num_figures} figure(s), indicating a clear and structured scene layout."
-    )
-
-    social_line = (
-        f"Figure spacing is {distance.lower()} and self-positioning is '{self_positioning}', "
-        "which may reflect comfort representing relationships in shared space."
-    )
-
-    feature_line = (
-        "Facial features are "
-        f"{facial.lower()}, supporting readable social-emotional cues in the drawing."
-    )
-
-    desc = (child_description or "").strip().replace("\n", " ")
-    if len(desc) > 140:
-        desc = desc[:137].rstrip() + "..."
-    description_line = (
-        f"Child description context: {desc}" if desc else "Child description context was limited in this submission."
-    )
-
-    lines = [emotional_line, spatial_line, social_line, feature_line, description_line]
-    return [str(x)[:220] for x in lines]
-
-
-def _normalize_dia_result(candidate: dict) -> dict:
-    base = _default_dia_result()
+    base: dict[str, object] = {}
 
     # Accept either snake_case or legacy PascalCase keys.
     key_map = {
@@ -126,13 +59,34 @@ def _normalize_dia_result(candidate: dict) -> dict:
                 out[target_key] = candidate[alias]
                 break
 
+    # If any required structural keys are missing, treat result as unusable.
+    required_keys = [
+        "line_pressure",
+        "shading_intensity",
+        "overall_tone",
+        "page_usage",
+        "figure_size",
+        "placement",
+        "human_figure_present",
+        "missing_body_parts",
+        "facial_features",
+        "number_of_figures",
+        "distance_between_figures",
+        "self_positioning",
+    ]
+    missing = [k for k in required_keys if k not in out]
+    if missing:
+        logger.warning(
+            "DIA JSON missing required keys %s; discarding partial result.",
+            ", ".join(missing),
+        )
+        return None
+
+    # Keep the model's interpretation as-is, only enforcing list + max length.
     interp = out.get("interpretation")
     if not isinstance(interp, list):
         interp = [str(interp)] if interp is not None else []
     interp = [str(x) for x in interp][:5]
-    while len(interp) < 5:
-        interp.append("Evidence was limited for this interpretation aspect in the model output.")
-    interp = [x if x.strip() else "Evidence was limited for this interpretation aspect in the model output." for x in interp]
     out["interpretation"] = interp
 
     # Ensure string fields remain strings.
@@ -144,7 +98,7 @@ def _normalize_dia_result(candidate: dict) -> dict:
     return out
 
 
-def _parse_dia_json(raw: str) -> dict:
+def _parse_dia_json(raw: str):
     def _repair_json_candidate(s: str) -> str:
         if not s:
             return ""
@@ -197,8 +151,8 @@ def _parse_dia_json(raw: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    logger.warning("DIA JSON parse failed; storing fallback result. raw_prefix=%s", (raw or "")[:200])
-    return _default_dia_result()
+    logger.warning("DIA JSON parse failed; treating DIA result as missing. raw_prefix=%s", (raw or "")[:200])
+    return None
 
 
 def get_dia_pipeline() -> DrawingIndicatorAnalyser:
@@ -216,7 +170,7 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
     # Clear status at start
     update_job_status_and_result(db, job_id, status="processing", result=None, processed_image_path=None)
 
-    # Run image processor
+    # Run image processor for downstream models that need it
     processed_image_path = run_image_processor(image_path)
     if not processed_image_path:
         update_job_status_and_result(db, job_id, status="failed", result={"error": "Image processing failed"})
@@ -241,15 +195,12 @@ def process_job(job_id: str, image_path: str, description: str, db: Session):
         nonlocal dia_result
         try:
             pipeline = get_dia_pipeline()
-            raw_result = pipeline.run(processed_image_path, description)
+            # Use the original uploaded image for DIA RAG analysis
+            raw_result = pipeline.run(image_path, description)
             dia_result = _parse_dia_json(raw_result)
-            if _is_fallback_dia_result(dia_result):
-                dia_result["interpretation"] = _synthesize_interpretation(dia_result, description)
-                logger.warning("DIA fallback interpretation synthesized for job_id=%s", job_id)
         except Exception as exc:
-            logger.exception("DIA task failed; using fallback for job_id=%s: %s", job_id, exc)
-            dia_result = _default_dia_result()
-            dia_result["interpretation"] = _synthesize_interpretation(dia_result, description)
+            logger.exception("DIA task failed for job_id=%s: %s", job_id, exc)
+            dia_result = None
         finally:
             dia_done_event.set()
 

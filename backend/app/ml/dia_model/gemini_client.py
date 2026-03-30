@@ -63,6 +63,49 @@ def _normalize_response_text(text: str) -> str:
 
     return cleaned
 
+
+def _is_complete_dia_json(text: str) -> bool:
+    """Heuristic check that JSON includes all expected DIA keys.
+
+    This does NOT add or change any values; it only verifies that the
+    structure is present so the backend schema can be satisfied.
+    """
+    if not text:
+        return False
+    try:
+        obj = json.loads(text)
+    except json.JSONDecodeError:
+        return False
+
+    if not isinstance(obj, dict):
+        return False
+
+    required_keys = {
+        "line_pressure",
+        "shading_intensity",
+        "overall_tone",
+        "page_usage",
+        "figure_size",
+        "placement",
+        "human_figure_present",
+        "missing_body_parts",
+        "facial_features",
+        "number_of_figures",
+        "distance_between_figures",
+        "self_positioning",
+        "interpretation",
+    }
+
+    missing = [k for k in required_keys if k not in obj]
+    if missing:
+        logger.warning(
+            "Gemini DIA JSON missing keys %s; will attempt a retry if possible.",
+            ", ".join(missing),
+        )
+        return False
+
+    return True
+
 @dataclass
 class GeminiClient:
     model_name: str
@@ -89,6 +132,8 @@ class GeminiClient:
             self._genai.types.Part.from_bytes(data=image_bytes, mime_type=image_mime),
             compact_user_prompt,
         ]
+        logger.info("DIA system prompt prefix: %r", system_prompt[:300])
+        logger.info("DIA user prompt prefix: %r", compact_user_prompt[:300])
 
         def _call(max_tokens: int, force_json: bool) -> tuple[str, str]:
             config = self._genai.types.GenerateContentConfig(
@@ -114,13 +159,19 @@ class GeminiClient:
             text = ""
             raw_text = ""
 
+        # If we got some JSON but it is structurally incomplete, treat it as
+        # unusable for the first pass so we trigger a retry.
+        if text and not _is_complete_dia_json(text):
+            logger.warning("Gemini DIA JSON structurally incomplete on first attempt; retrying once.")
+            text = ""
+
         # Single retry only to avoid quota exhaustion.
         if not text:
             logger.warning("Gemini JSON output appears incomplete; retrying once with larger token budget.")
             try:
                 text, retry_raw_text = _call(max_tokens=3600, force_json=True)
                 if retry_raw_text and not text:
-                    logger.warning("Gemini retry returned content but still no valid JSON object could be extracted.")
+                    logger.warning("Gemini retry returned content but no valid JSON object could be extracted.")
             except Exception as exc:
                 logger.warning("Gemini retry failed: %s", exc)
                 text = ""

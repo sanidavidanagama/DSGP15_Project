@@ -3,7 +3,13 @@ import altair as alt
 import pandas as pd
 from datetime import datetime
 
-from services.student_api import StudentApiError, delete_student, get_student, list_saved_analyses, update_student
+from services.student_api import (
+    StudentApiError,
+    delete_student,
+    get_student_in_class,
+    list_saved_analyses,
+    update_student,
+)
 
 
 def _safe_text(value: object, fallback: str = "N/A") -> str:
@@ -110,16 +116,24 @@ def child_profile():
         st.error("Selected student is missing a valid id.")
         return
 
-    try:
-        student = get_student(student_id, token=token)
-        st.session_state.selected_student = student
-    except StudentApiError as exc:
-        st.warning(f"Could not refresh student details: {exc}")
+    class_id = selected_class.get("id")
+    if not isinstance(class_id, int):
+        st.error("Selected class is missing a valid id.")
+        return
 
     try:
-        history = list_saved_analyses(student_id, token=token)
+        detail = get_student_in_class(class_id=class_id, student_id=student_id, token=token)
+        history = detail.get("history") or []
+
+        # Derive a relative label for last update from last_predicted_at or joined_at
+        last_predicted_at = detail.get("last_predicted_at") or detail.get("joined_at")
+        dt = _parse_datetime(last_predicted_at)
+        detail["last_predicted_label"] = _safe_text(_format_saved_at(dt.isoformat() if dt else None), fallback="No predictions yet")
+
+        student = detail
+        st.session_state.selected_student = student
     except StudentApiError as exc:
-        st.warning(f"Could not load saved analysis history: {exc}")
+        st.warning(f"Could not load student profile: {exc}")
         history = []
 
     class_name = _safe_text(selected_class.get("class_name"), fallback="Class")
@@ -333,6 +347,11 @@ def child_profile():
                     st.error("Job id not available for this saved item.")
                 else:
                     st.session_state.job_id = job_id
+                    st.session_state.viewing_saved_report = True
+                    st.session_state.saved_report_context = {
+                        "class_id": selected_class.get("id"),
+                        "student_id": student_id,
+                    }
                     st.session_state.analysis_page = "loading"
                     st.session_state.page = "New Analysis"
                     st.rerun()

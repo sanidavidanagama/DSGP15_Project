@@ -90,6 +90,26 @@ def get_job_status(job_id: str) -> dict[str, Any]:
     return response.json()
 
 
+def get_saved_report(class_id: int, student_id: int, job_id: str, token: str | None = None) -> dict[str, Any]:
+    headers: dict[str, str] = {}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    try:
+        response = requests.get(
+            f"{BACKEND_BASE_URL}/classes/{class_id}/students/{student_id}/report/{job_id}",
+            headers=headers,
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
+    except requests.RequestException as exc:
+        raise AnalysisApiError(f"Failed while fetching saved report: {exc}") from exc
+
+    if response.status_code >= 400:
+        raise AnalysisApiError(_parse_error_message(response))
+
+    return response.json()
+
+
 def poll_job_status(job_id: str, timeout_seconds: int = POLL_TIMEOUT_SECONDS) -> dict[str, Any]:
     start = time.time()
 

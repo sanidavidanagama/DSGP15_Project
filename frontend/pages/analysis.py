@@ -4,7 +4,13 @@ import time
 import streamlit as st
 from PIL import Image
 
-from services.analysis_api import AnalysisApiError, upload_job, validate_image, get_job_status
+from services.analysis_api import (
+    AnalysisApiError,
+    get_job_status,
+    get_saved_report,
+    upload_job,
+    validate_image,
+)
 from services.class_api import ClassApiError, get_classes
 from services.student_api import StudentApiError, list_students, save_analysis_to_student
 
@@ -327,6 +333,9 @@ def upload_page():
 
         start_disabled = image is None
         if st.button("Start Full Analysis", type="primary", disabled=start_disabled):
+            # New analysis run, not viewing a saved report
+            st.session_state.viewing_saved_report = False
+            st.session_state.pop("saved_report_context", None)
             image_bytes = image.getvalue() if image else b""
 
             if not image_bytes:
@@ -412,6 +421,40 @@ def loading_page():
         if st.button("Back to Upload"):
             st.session_state.analysis_page = "upload"
             st.rerun()
+        return
+
+    # When viewing a previously saved report from a student profile,
+    # fetch the finished report directly from the scoped report endpoint
+    if st.session_state.get("viewing_saved_report"):
+        ctx = st.session_state.get("saved_report_context") or {}
+        class_id = ctx.get("class_id")
+        student_id = ctx.get("student_id")
+        if not isinstance(class_id, int) or not isinstance(student_id, int):
+            st.error("Missing class or student context for saved report.")
+            if st.button("Back to Upload"):
+                st.session_state.analysis_page = "upload"
+                st.rerun()
+            return
+
+        token = st.session_state.get("auth_token")
+        try:
+            status_response = get_saved_report(class_id=class_id, student_id=student_id, job_id=str(job_id), token=token)
+        except AnalysisApiError as exc:
+            st.error(f"Could not fetch saved report: {exc}")
+            if st.button("Back to Upload"):
+                st.session_state.analysis_page = "upload"
+                st.rerun()
+            return
+
+        status_response = _normalize_result_paths(status_response)
+
+        st.session_state.results = status_response.get("result", {})
+        st.session_state.raw_image_path = status_response.get("raw_image_path")
+        st.session_state.analysis_started_at_backend = status_response.get("analysis_started_at")
+        st.session_state.analysis_finished_at_backend = status_response.get("analysis_finished_at")
+        st.session_state.analysis_duration_seconds = status_response.get("analysis_duration_seconds")
+        st.session_state.analysis_page = "results"
+        st.rerun()
         return
 
     try:
@@ -606,69 +649,72 @@ def results_page():
     st.write("Category:", _safe_text(rec.get("RecommendationCategory")))
     st.info(rec.get("RecommendationText", "No recommendation text available."))
 
-    st.subheader("Save To Student Profile")
-    save_col_left, save_col_right = st.columns([1.4, 1.6])
+    # Only show "Save To Student Profile" for fresh analyses, not when
+    # revisiting a saved report from a student profile.
+    if not st.session_state.get("viewing_saved_report", False):
+        st.subheader("Save To Student Profile")
+        save_col_left, save_col_right = st.columns([1.4, 1.6])
 
-    classes: list[dict] = []
-    class_options: dict[str, int] = {}
-    student_options: dict[str, int] = {}
+        classes: list[dict] = []
+        class_options: dict[str, int] = {}
+        student_options: dict[str, int] = {}
 
-    token = st.session_state.get("auth_token")
+        token = st.session_state.get("auth_token")
 
-    try:
-        classes = get_classes(token=token)
-        class_options = {
-            f"{_safe_text(item.get('class_name'))} ({_safe_text(item.get('grade_age_group'))})": int(item["id"])
-            for item in classes
-            if isinstance(item.get("id"), int)
-        }
-    except ClassApiError as exc:
-        st.caption(f"Classes unavailable for save flow: {exc}")
-
-    selected_class_id: int | None = None
-    selected_student_id: int | None = None
-
-    with save_col_left:
-        if class_options:
-            selected_class_label = st.selectbox("Select Class", options=list(class_options.keys()))
-            selected_class_id = class_options.get(selected_class_label)
-        else:
-            st.caption("No class available.")
-
-    with save_col_right:
-        if selected_class_id is not None:
-            try:
-                class_students = list_students(selected_class_id, token=token)
-            except StudentApiError as exc:
-                st.caption(f"Students unavailable: {exc}")
-                class_students = []
-
-            student_options = {
-                _safe_text(student.get("name")): int(student["id"])
-                for student in class_students
-                if isinstance(student.get("id"), int)
+        try:
+            classes = get_classes(token=token)
+            class_options = {
+                f"{_safe_text(item.get('class_name'))} ({_safe_text(item.get('grade_age_group'))})": int(item["id"])
+                for item in classes
+                if isinstance(item.get("id"), int)
             }
+        except ClassApiError as exc:
+            st.caption(f"Classes unavailable for save flow: {exc}")
 
-            if student_options:
-                selected_student_label = st.selectbox("Select Student", options=list(student_options.keys()))
-                selected_student_id = student_options.get(selected_student_label)
-            else:
-                st.caption("No students in this class yet.")
+        selected_class_id: int | None = None
+        selected_student_id: int | None = None
 
-    if st.button("Save Result To Student", key="save_analysis_to_student", disabled=selected_student_id is None):
-        if selected_student_id is None:
-            st.error("Please select a student before saving.")
-        else:
-            current_job_id = st.session_state.get("job_id")
-            if not current_job_id:
-                st.error("No job id found for this analysis result.")
+        with save_col_left:
+            if class_options:
+                selected_class_label = st.selectbox("Select Class", options=list(class_options.keys()))
+                selected_class_id = class_options.get(selected_class_label)
             else:
+                st.caption("No class available.")
+
+        with save_col_right:
+            if selected_class_id is not None:
                 try:
-                    save_analysis_to_student(student_id=selected_student_id, job_id=str(current_job_id), token=token)
+                    class_students = list_students(selected_class_id, token=token)
                 except StudentApiError as exc:
-                    st.error(f"Failed to save analysis to student: {exc}")
+                    st.caption(f"Students unavailable: {exc}")
+                    class_students = []
+
+                student_options = {
+                    _safe_text(student.get("name")): int(student["id"])
+                    for student in class_students
+                    if isinstance(student.get("id"), int)
+                }
+
+                if student_options:
+                    selected_student_label = st.selectbox("Select Student", options=list(student_options.keys()))
+                    selected_student_id = student_options.get(selected_student_label)
                 else:
-                    st.success("Analysis saved to student profile.")
+                    st.caption("No students in this class yet.")
+
+        if st.button("Save Result To Student", key="save_analysis_to_student", disabled=selected_student_id is None):
+            if selected_student_id is None:
+                st.error("Please select a student before saving.")
+            else:
+                current_job_id = st.session_state.get("job_id")
+                if not current_job_id:
+                    st.error("No job id found for this analysis result.")
+                else:
+                    try:
+                        save_analysis_to_student(student_id=selected_student_id, job_id=str(current_job_id), token=token)
+                    except StudentApiError as exc:
+                        st.error(f"Failed to save analysis to student: {exc}")
+                    else:
+                        st.success("Analysis saved to student profile.")
 
     if st.button("Analyze Another Drawing"):
         st.session_state.analysis_page = "upload"
@@ -681,6 +727,8 @@ def results_page():
         st.session_state.pop("analysis_started_at_backend", None)
         st.session_state.pop("analysis_finished_at_backend", None)
         st.session_state.pop("analysis_duration_seconds", None)
+        st.session_state.pop("viewing_saved_report", None)
+        st.session_state.pop("saved_report_context", None)
         st.rerun()
 
 

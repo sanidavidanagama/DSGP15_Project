@@ -121,25 +121,15 @@ def get_student(student_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: st
     payload = response.json()
     if not isinstance(payload, dict):
         raise StudentApiError("Unexpected response format from student endpoint.")
+    return dict(payload)
 
-    item = dict(payload)
-    item.setdefault("last_predicted_mood", None)
-    item.setdefault("last_predicted_at", None)
-    item.setdefault("total_analyses", 0)
 
-    try:
-        history = list_saved_analyses(student_id=student_id, teacher_id=teacher_id, token=token)
-    except StudentApiError:
-        history = []
-
-    if history:
-        item["total_analyses"] = len(history)
-        item["last_predicted_mood"] = history[0].get("mood")
-        item["last_predicted_at"] = history[0].get("saved_at")
-
-    dt = _parse_timestamp(item.get("last_predicted_at") or item.get("joined_at"))
-    item["last_predicted_label"] = _relative_time_label(dt)
-    return item
+def get_student_in_class(class_id: int, student_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> dict[str, Any]:
+    response = _request("GET", f"/classes/{class_id}/students/{student_id}", teacher_id=teacher_id, token=token)
+    payload = response.json()
+    if not isinstance(payload, dict):
+        raise StudentApiError("Unexpected response format from student detail endpoint.")
+    return dict(payload)
 
 
 def create_student(

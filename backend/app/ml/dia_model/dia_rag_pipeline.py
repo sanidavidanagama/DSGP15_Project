@@ -9,7 +9,7 @@ from app.ml.dia_model.gemini_client import GeminiClient
 from app.ml.dia_model.utils import read_image_bytes
 
 
-from app.ml.dia_model.prompts import SYSTEM_PROMPT, json_structure
+from app.ml.dia_model.prompts import SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
 MAX_CONTEXT_CHARS = 6000
@@ -42,9 +42,9 @@ class DrawingIndicatorAnalyser:
         self.llm = GeminiClient(self.config.llm_model, api_key=self.config.api_key)
         self._cached_context: str | None = None
         self._retrieval_query = (
-            "Drawing Indicator Analysis methods for interpreting children's drawings using observable features; "
-            "rules for cautious interpretation; linking child text description to image features; "
-            "non-clinical phrasing; literature-supported psychological concern signals from color/tone/composition."
+            "Core interpretation principles; line pressure and shading intensity; "
+            "page usage, figure size, and placement; missing body parts and facial features; "
+            "figures distance and positioning; escalation protocol and emergency red flags."
         )
 
     def run(self, image_path: str, child_description: str) -> str:
@@ -61,26 +61,13 @@ class DrawingIndicatorAnalyser:
         image_bytes, image_mime = read_image_bytes(image_path)
         t3 = time.perf_counter()
 
+        # Clean, data-only user prompt
         user_prompt = f"""
-        ...
-        Return EXACTLY one JSON object that matches this JSON structure (same keys, no extra keys):
-        {json_structure}
+        CHILD'S DESCRIPTION OF DRAWING:
+        {child_description if child_description.strip() else "No description provided."}
 
-        Retrieved literature context:
+        RETRIEVED KNOWLEDGE BASE CONTEXT:
         {context}
-
-        Child text description:
-        {child_description}
-
-        Output rules:
-        - Output JSON only (no markdown, no backticks, no extra text).
-        - Use only enumerated values for the categorical fields.
-        - Count number_of_figures as individual visible drawing objects (for example sun, house, person, tree, animal), not only human figures.
-        - Interpretation must contain exactly 5 short non-empty lines.
-        - Lines 1–2 must summarise the structured drawing indicators (line_pressure, shading_intensity, overall_tone, page_usage, figure_size, placement, missing_body_parts, number_of_figures, distance_between_figures, self_positioning, etc.).
-        - Lines 3–5 must focus mainly on what the image itself shows about mood, emotional state, relationships, and psychological concern signals.
-        - At least one of lines 3–5 must explicitly state whether strong psychological concern signals are present or that no strong psychological concern is evident, and briefly explain which visual and indicator evidence supports that conclusion.
-        - Every interpretation line must be grounded in the image and extracted indicators, and must follow the retrieved rulebook when making interpretive links.
         """.strip()
 
         out = self.llm.generate_json(
@@ -89,6 +76,7 @@ class DrawingIndicatorAnalyser:
             image_bytes=image_bytes,
             image_mime=image_mime,
         )
+
         t4 = time.perf_counter()
         logger.info(
             "DIA run timings index=%.2fs retrieve=%.2fs image=%.2fs llm=%.2fs total=%.2fs",

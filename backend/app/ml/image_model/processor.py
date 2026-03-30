@@ -598,7 +598,7 @@ class ChildDrawingPreprocessor:
         return img
 
     def _download_checkpoint(self, model_type: str) -> str:
-        """Download SAM checkpoint if needed"""
+        """Download SAM checkpoint safely, preventing corrupted files"""
 
         checkpoint_urls = {
             'vit_b': 'https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth',
@@ -609,11 +609,25 @@ class ChildDrawingPreprocessor:
         cache_dir = Path.home() / ".cache" / "sam_models"
         cache_dir.mkdir(parents=True, exist_ok=True)
         checkpoint_path = cache_dir / f"sam_{model_type}.pth"
+        
+        # Temporary path for downloading
+        temp_path = cache_dir / f"sam_{model_type}.pth.downloading"
 
         if not checkpoint_path.exists():
-            urllib.request.urlretrieve(
-                checkpoint_urls[model_type],
-                checkpoint_path
-            )
+            print(f"Downloading SAM model {model_type}... This might take a minute.")
+            try:
+                # Download to the temporary file first
+                urllib.request.urlretrieve(
+                    checkpoint_urls[model_type],
+                    temp_path
+                )
+                # Once 100% complete, rename it to the actual expected filename
+                temp_path.rename(checkpoint_path)
+                print("Download complete!")
+            except Exception as e:
+                # Clean up the broken temp file if something goes wrong
+                if temp_path.exists():
+                    temp_path.unlink()
+                raise RuntimeError(f"Failed to download model: {e}")
 
         return str(checkpoint_path)

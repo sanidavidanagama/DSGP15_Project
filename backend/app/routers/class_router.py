@@ -10,9 +10,10 @@ from app.database.crud_class import (
     soft_delete_class,
     update_class,
 )
+from app.database.crud_student import get_students_by_class
 from app.services.auth_service import get_current_teacher
 from app.database.database import SessionLocal
-from app.schemas.class_schema import ClassCreate, ClassResponse, ClassUpdate
+from app.schemas.class_schema import ClassCreate, ClassResponse, ClassUpdate, ClassWithStatsResponse
 
 router = APIRouter(prefix="/classes", tags=["Classes"])
 
@@ -38,12 +39,32 @@ def create_class_route(
     return create_class(db, teacher_id, payload)
 
 
-@router.get("", response_model=List[ClassResponse])
+@router.get("", response_model=List[ClassWithStatsResponse])
 def get_classes_route(
     teacher_id: str = Depends(get_teacher_id),
     db: Session = Depends(get_db),
 ):
-    return get_classes(db, teacher_id)
+    classrooms = get_classes(db, teacher_id)
+
+    classes_with_stats: List[ClassWithStatsResponse] = []
+    for classroom in classrooms:
+        student_count = len(get_students_by_class(db, classroom.id))
+
+        classes_with_stats.append(
+            ClassWithStatsResponse(
+                id=classroom.id,
+                teacher_id=classroom.teacher_id,
+                class_name=classroom.class_name,
+                grade_age_group=classroom.grade_age_group,
+                schedule_days=classroom.schedule_days,
+                description=classroom.description,
+                created_at=classroom.created_at,
+                updated_at=classroom.updated_at,
+                student_count=student_count,
+            )
+        )
+
+    return classes_with_stats
 
 
 @router.get("/{class_id}", response_model=ClassResponse)

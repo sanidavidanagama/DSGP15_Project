@@ -148,15 +148,7 @@ def build_classes_dashboard(teacher_id: str = DEFAULT_TEACHER_ID, token: str | N
 
     for classroom in classes:
         class_copy = dict(classroom)
-        student_count = 0
-        class_id = class_copy.get("id")
-
-        if isinstance(class_id, int):
-            try:
-                student_count = len(get_students_by_class(class_id=class_id, teacher_id=teacher_id, token=token))
-            except ClassApiError:
-                student_count = 0
-
+        student_count = int(class_copy.get("student_count") or 0)
         class_copy["student_count"] = student_count
         total_students += student_count
 

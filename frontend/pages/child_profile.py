@@ -1,6 +1,7 @@
 import streamlit as st
 import altair as alt
 import pandas as pd
+import html
 from datetime import datetime
 
 from services.student_api import (

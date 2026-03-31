@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     TF_ENABLE_ONEDNN_OPTS: Optional[int] = None
     PROCESSED_IMAGE_DIR: str = "uploads/processed/"
     RAW_IMAGE_DIR: str = "uploads/raw/"
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     EMOTION_BERT_MODEL_DIR: str
     EMOTION_RESNET_MODEL_PATH: str
     EMOTION_FUSION_MODEL_PATH: str

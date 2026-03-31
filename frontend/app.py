@@ -5,9 +5,14 @@ from components.sidebar import sidebar
 
 from pages.dashboard import dashboard
 from pages.classes import classes_page
+from pages.class_detail import class_detail_page
+from pages.child_profile import child_profile
+from pages.add_class import add_class
+from pages.edit_class import edit_class_page
 from pages.analysis import analysis
 
 from utils.styles import apply_styles
+
 
 st.set_page_config(
     page_title="INKIND",
@@ -16,22 +21,63 @@ st.set_page_config(
 
 apply_styles()
 
+# -------------------------
+# Auth session
+# -------------------------
+
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
-if not st.session_state.auth:
+if "auth_token" not in st.session_state:
+    st.session_state.auth_token = None
 
+if st.session_state.auth and not st.session_state.auth_token:
+    st.session_state.auth = False
+
+# -------------------------
+# Page session
+# -------------------------
+
+if "page" not in st.session_state:
+    st.session_state.page = "Dashboard"
+
+# -------------------------
+# Login screen
+# -------------------------
+
+if not st.session_state.auth:
+    st.session_state.page = "Dashboard"
     login()
+
+# -------------------------
+# Main App
+# -------------------------
 
 else:
 
-    page = sidebar()
+    sidebar()
 
-    if page == "Dashboard":
+    # -------------------------
+    # Page Routing
+    # -------------------------
+
+    if st.session_state.page == "Dashboard":
         dashboard()
 
-    if page == "My Classes":
+    elif st.session_state.page == "My Classes":
         classes_page()
 
-    if page == "New Analysis":
+    elif st.session_state.page == "class_detail":
+        class_detail_page()
+
+    elif st.session_state.page == "student_profile":
+        child_profile()
+
+    elif st.session_state.page == "add_class":
+        add_class()
+
+    elif st.session_state.page == "edit_class":
+        edit_class_page()
+
+    elif st.session_state.page == "New Analysis":
         analysis()

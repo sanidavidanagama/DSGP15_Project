@@ -1,8 +1,111 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
+import logging
+import json
 
-@dataclass
+logger = logging.getLogger(__name__)
+
+
+def _extract_balanced_json_object(text: str) -> str:
+    """Return the first balanced JSON object from text, or empty string."""
+    if not text:
+        return ""
+
+    start = text.find("{")
+    if start == -1:
+        return ""
+
+    depth = 0
+    in_string = False
+    escaped = False
+    for i in range(start, len(text)):
+        ch = text[i]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_string = False
+            continue
+
+        if ch == '"':
+            in_string = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1].strip()
+
+    return ""
+
+
+def _normalize_response_text(text: str) -> str:
+    """Strip wrappers and keep only parseable JSON object when possible."""
+    cleaned = (text or "").strip()
+    if not cleaned:
+        return ""
+
+    # Remove accidental markdown fences.
+    if cleaned.startswith("```"):
+        cleaned = cleaned.strip("`").strip()
+        if cleaned.lower().startswith("json"):
+            cleaned = cleaned[4:].strip()
+
+    obj_text = _extract_balanced_json_object(cleaned)
+    if obj_text:
+        try:
+            json.loads(obj_text)
+            return obj_text
+        except json.JSONDecodeError:
+            pass
+
+    return cleaned
+
+
+def _is_complete_dia_json(text: str) -> bool:
+    """Heuristic check that JSON includes all expected DIA keys.
+
+    This does NOT add or change any values; it only verifies that the
+    structure is present so the backend schema can be satisfied.
+    """
+    if not text:
+        return False
+    try:
+        obj = json.loads(text)
+    except json.JSONDecodeError:
+        return False
+
+    if not isinstance(obj, dict):
+        return False
+
+    required_keys = {
+        "line_pressure",
+        "shading_intensity",
+        "overall_tone",
+        "page_usage",
+        "figure_size",
+        "placement",
+        "human_figure_present",
+        "missing_body_parts",
+        "facial_features",
+        "number_of_figures",
+        "distance_between_figures",
+        "self_positioning",
+        "interpretation",
+    }
+
+    missing = [k for k in required_keys if k not in obj]
+    if missing:
+        logger.warning(
+            "Gemini DIA JSON missing keys %s; will attempt a retry if possible.",
+            ", ".join(missing),
+        )
+        return False
+
+    return True
+
 @dataclass
 class GeminiClient:
     model_name: str
@@ -20,14 +123,57 @@ class GeminiClient:
         self._client = genai.Client(api_key=self.api_key)
 
     def generate_json(self, system_prompt: str, user_prompt: str, image_bytes: bytes, image_mime: str) -> str:
-        resp = self._client.models.generate_content(
-            model=self.model_name,
-            contents=[
-                system_prompt,
-                self._genai.types.Part.from_bytes(data=image_bytes, mime_type=image_mime),
-                user_prompt,
-            ],
+        compact_user_prompt = (
+            user_prompt
+            + "\n\nReturn compact JSON in one object only. Do not add extra keys, comments, or markdown."
         )
+        parts = [
+            system_prompt,
+            self._genai.types.Part.from_bytes(data=image_bytes, mime_type=image_mime),
+            compact_user_prompt,
+        ]
+        logger.info("DIA system prompt prefix: %r", system_prompt[:300])
+        logger.info("DIA user prompt prefix: %r", compact_user_prompt[:300])
 
-        text = (resp.text or "").strip()
+        def _call(max_tokens: int, force_json: bool) -> tuple[str, str]:
+            config = self._genai.types.GenerateContentConfig(
+                temperature=0.1,
+                max_output_tokens=max_tokens,
+                response_mime_type="application/json" if force_json else None,
+            )
+            resp = self._client.models.generate_content(
+                model=self.model_name,
+                contents=parts,
+                config=config,
+            )
+            text = (resp.text or "").strip()
+            return _normalize_response_text(text), text
+
+        # First pass: strict JSON with a moderate token budget for reliability.
+        try:
+            text, raw_text = _call(max_tokens=1400, force_json=True)
+            if raw_text and not text:
+                logger.warning("Gemini returned content but no JSON object could be extracted on first attempt.")
+        except Exception as exc:
+            logger.warning("Gemini request failed on first attempt: %s", exc)
+            text = ""
+            raw_text = ""
+
+        # If we got some JSON but it is structurally incomplete, treat it as
+        # unusable for the first pass so we trigger a retry.
+        if text and not _is_complete_dia_json(text):
+            logger.warning("Gemini DIA JSON structurally incomplete on first attempt; retrying once.")
+            text = ""
+
+        # Single retry only to avoid quota exhaustion.
+        if not text:
+            logger.warning("Gemini JSON output appears incomplete; retrying once with larger token budget.")
+            try:
+                text, retry_raw_text = _call(max_tokens=3600, force_json=True)
+                if retry_raw_text and not text:
+                    logger.warning("Gemini retry returned content but no valid JSON object could be extracted.")
+            except Exception as exc:
+                logger.warning("Gemini retry failed: %s", exc)
+                text = ""
+
         return text

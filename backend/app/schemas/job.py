@@ -15,6 +15,9 @@ class ImageMetadata(BaseModel):
 
 class EmotionResult(BaseModel):
     emotion: str
+    predicted_mood: Optional[str] = None
+    happy_score: Optional[float] = None
+    probabilities: Optional[dict[str, float]] = None
 
 
 class DiaResult(BaseModel):
@@ -55,4 +58,7 @@ class JobStatusResponse(BaseModel):
     job_id: str
     status: str
     raw_image_path: Optional[str] = None
+    analysis_started_at: Optional[str] = None
+    analysis_finished_at: Optional[str] = None
+    analysis_duration_seconds: Optional[float] = None
     result: Optional[ResultBundle] = None

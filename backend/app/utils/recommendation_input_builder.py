@@ -11,20 +11,39 @@ class RecommendationInputBuilder:
         # Example: extract mood from emotion_result
         mood = emotion_result.get("predicted_mood") or emotion_result.get("mood") or "Unknown"
 
-        # Example: extract drawing features from dia_result
-        # These keys must match what RecommendationEngine expects
+        def _pick(*keys, default=None):
+            for key in keys:
+                if key in dia_result and dia_result.get(key) is not None:
+                    return dia_result.get(key)
+            return default
+
+        def _num_figures(value) -> int:
+            text = str(value or "").strip().lower()
+            if text == "many":
+                return 4
+            if text == "2-3":
+                return 3
+            if text == "4-6":
+                return 5
+            if text == "7+":
+                return 7
+            if text.isdigit():
+                return int(text)
+            return 2
+
+
         data = {
-            "LinePressure": dia_result.get("LinePressure", "Normal"),
-            "ShadingIntensity": dia_result.get("ShadingIntensity", "Moderate"),
-            "OverallTone": dia_result.get("OverallTone", "Balanced"),
-            "PageUsage": dia_result.get("PageUsage", "Small"),
-            "FigureSize": dia_result.get("FigureSize", "Small"),
-            "Placement": dia_result.get("Placement", "Corner"),
-            "HumanFigurePresent": dia_result.get("HumanFigurePresent", "Yes"),
-            "MissingBodyParts": dia_result.get("MissingBodyParts", "None"),
-            "FacialFeatures": dia_result.get("FacialFeatures", "Present"),
-            "NumberOfFigures": int(dia_result.get("NumberOfFigures", 1)),
-            "DistanceBetweenFigures": dia_result.get("DistanceBetweenFigures", None),
-            "SelfPositioning": dia_result.get("SelfPositioning", None)
+            "LinePressure": _pick("line_pressure", "LinePressure", default="Normal"),
+            "ShadingIntensity": _pick("shading_intensity", "ShadingIntensity", default="Moderate"),
+            "OverallTone": _pick("overall_tone", "OverallTone", default="Balanced"),
+            "PageUsage": _pick("page_usage", "PageUsage", default="Medium"),
+            "FigureSize": _pick("figure_size", "FigureSize", default="Average"),
+            "Placement": _pick("placement", "Placement", default="Center"),
+            "HumanFigurePresent": _pick("human_figure_present", "HumanFigurePresent", default="Yes"),
+            "MissingBodyParts": _pick("missing_body_parts", "MissingBodyParts", default="None"),
+            "FacialFeatures": _pick("facial_features", "FacialFeatures", default="Present"),
+            "NumberOfFigures": _num_figures(_pick("number_of_figures", "NumberOfFigures", default="2")),
+            "DistanceBetweenFigures": _pick("distance_between_figures", "DistanceBetweenFigures", default="Moderate"),
+            "SelfPositioning": _pick("self_positioning", "SelfPositioning", default="With others"),
         }
         return mood, data

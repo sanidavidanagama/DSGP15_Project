@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-
+import html
 import streamlit as st
 
 from services.class_api import ClassApiError, delete_class, get_class
@@ -121,6 +121,7 @@ def _student_card(student: dict) -> bool:
     last_predicted = _safe_text(student.get("last_predicted_label"), fallback="No predictions yet")
     total_analyses = _safe_text(student.get("total_analyses"), fallback="0")
 
+    safe_name = html.escape(_safe_text(student.get('name')))
     st.markdown(
         f"""
         <div class='student-click-wrap'>

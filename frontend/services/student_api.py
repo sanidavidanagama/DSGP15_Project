@@ -83,7 +83,7 @@ def _relative_time_label(value: datetime | None) -> str:
     return f"{seconds // 86400}d ago"
 
 
-def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None) -> list[dict[str, Any]]:
+def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: str | None = None, fetch_history: bool = False) -> list[dict[str, Any]]:
     response = _request("GET", f"/classes/{class_id}/students", teacher_id=teacher_id, token=token)
     payload = response.json()
     if not isinstance(payload, list):
@@ -97,7 +97,8 @@ def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: st
         item.setdefault("total_analyses", 0)
 
         student_id = item.get("id")
-        if isinstance(student_id, int):
+        
+        if isinstance(student_id, int) and fetch_history:
             try:
                 history = list_saved_analyses(student_id=student_id, teacher_id=teacher_id, token=token)
             except StudentApiError:
@@ -107,6 +108,9 @@ def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: st
                 item["total_analyses"] = len(history)
                 item["last_predicted_mood"] = history[0].get("mood")
                 item["last_predicted_at"] = history[0].get("saved_at")
+        
+        enriched.append(item)
+    return enriched
 
         last_predicted_at = _parse_timestamp(item.get("last_predicted_at") or item.get("joined_at"))
         item["last_predicted_at"] = last_predicted_at.isoformat() if last_predicted_at else None

@@ -1,6 +1,6 @@
 from pathlib import Path
 import time
-
+import html
 import streamlit as st
 from PIL import Image
 
@@ -109,6 +109,8 @@ def _render_mood_stack(left_label: str, left_pct: float, right_label: str, right
 def _render_kv_grid(items: list[tuple[str, object]]) -> None:
     html_items = []
     for key, value in items:
+        safe_key = html.escape(str(key))
+        safe_value = html.escape(_safe_text(value))
         html_items.append(
             "<div class='analysis-kv-item'>"
             f"<div class='analysis-kv-key'>{key}</div>"

@@ -21,12 +21,17 @@ class RecommendationInputBuilder:
             text = str(value or "").strip().lower()
             if text == "many":
                 return 4
+            if text == "2-3":
+                return 3
+            if text == "4-6":
+                return 5
+            if text == "7+":
+                return 7
             if text.isdigit():
                 return int(text)
             return 2
 
-        # Example: extract drawing features from dia_result
-        # These keys must match what RecommendationEngine expects
+
         data = {
             "LinePressure": _pick("line_pressure", "LinePressure", default="Normal"),
             "ShadingIntensity": _pick("shading_intensity", "ShadingIntensity", default="Moderate"),

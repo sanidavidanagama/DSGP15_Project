@@ -28,7 +28,7 @@ Output ONLY a valid, raw JSON object matching the exact structure below. Do not 
 STRUCTURAL OBLIGATIONS (DO NOT VIOLATE):
 - Every key MUST appear exactly once. Never omit a key.
 - If unsure, pick the safest neutral option from the allowed list. Do NOT leave any field blank.
-- The `interpretation` array MUST contain exactly 5 strings corresponding to the outlined categories. The category names must be ommited and only the content should be provided in the strings.
+- The `interpretation` array MUST contain exactly 5 strings corresponding to the outlined categories. The category names must be omitted and only the actual content/explanation should be provided in the strings.
 
 {
   "line_pressure": "High|Normal|Low",

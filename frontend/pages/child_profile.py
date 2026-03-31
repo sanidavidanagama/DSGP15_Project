@@ -179,22 +179,24 @@ def child_profile():
         st.markdown("<div class='card'>", unsafe_allow_html=True)
         with st.form("edit_student_form", clear_on_submit=False):
             name = st.text_input("Student Name", value=_safe_text(student.get("name"), fallback=""))
-                gender = st.selectbox(
-                    "Gender",
-                    ["Female", "Male", "Non-binary", "Prefer not to say"],
-                    index=0,
-                )
+            # FIX: Indentation is now aligned with 'name'
+            gender = st.selectbox(
+                "Gender",
+                ["Female", "Male", "Non-binary", "Prefer not to say"],
+                index=0,
+            )
             submitted = st.form_submit_button("Save Changes", type="primary")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
         if submitted:
-            if submitted:
-                if not name.strip() or not gender:
-                    st.error("Student name and gender are required.")
+            if not name.strip() or not gender:
+                st.error("Student name and gender are required.")
             else:
                 try:
-                        updated = update_student(student_id, name=name.strip(), gender=gender, token=token)
+                    updated = update_student(student_id, name=name.strip(), gender=gender, token=token)
+                    st.success("Student updated successfully.")
+                    # Add your rerun or state update logic here if needed
                 except StudentApiError as exc:
                     st.error(f"Failed to update student: {exc}")
                 else:

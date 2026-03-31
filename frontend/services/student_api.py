@@ -97,7 +97,6 @@ def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: st
         item.setdefault("total_analyses", 0)
 
         student_id = item.get("id")
-        
         if isinstance(student_id, int) and fetch_history:
             try:
                 history = list_saved_analyses(student_id=student_id, teacher_id=teacher_id, token=token)
@@ -107,16 +106,14 @@ def list_students(class_id: int, teacher_id: str = DEFAULT_TEACHER_ID, token: st
             if history:
                 item["total_analyses"] = len(history)
                 item["last_predicted_mood"] = history[0].get("mood")
-                item["last_predicted_at"] = history[0].get("saved_at")
+                
+                # --- FIX: Moved the timestamp parsing logic here ---
+                raw_time = history[0].get("saved_at") or item.get("joined_at")
+                last_predicted_at = _parse_timestamp(raw_time) if raw_time else None
+                item["last_predicted_at"] = last_predicted_at.isoformat() if last_predicted_at else None
+
+        enriched.append(item)
         
-        enriched.append(item)
-    return enriched
-
-        last_predicted_at = _parse_timestamp(item.get("last_predicted_at") or item.get("joined_at"))
-        item["last_predicted_at"] = last_predicted_at.isoformat() if last_predicted_at else None
-        item["last_predicted_label"] = _relative_time_label(last_predicted_at)
-        enriched.append(item)
-
     return enriched
 
 

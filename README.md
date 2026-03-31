@@ -156,6 +156,7 @@ GEMINI_MODEL=gemini-3-flash-preview
 ST_EMBED_MODEL=sentence-transformers/all-MiniLM-L6-v2
 RAG_TOP_K=6
 TF_ENABLE_ONEDNN_OPTS=0
+JWT_SECRET_KEY=your_super_secret_random_string_here
 PROCESSED_IMAGE_DIR=uploads/processed/
 RAW_IMAGE_DIR=uploads/raw/
 EMOTION_BERT_MODEL_DIR=path_to_image_dir

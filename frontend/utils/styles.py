@@ -710,7 +710,16 @@ def apply_styles():
         }
 
         div[data-testid="stElementContainer"]:has(.class-click-wrap)
+        + div[data-testid="stElementContainer"]:has(.stButton) {
+            margin-top: -214px !important;
+            height: 214px;
+            margin-bottom: 12px !important;
+        }
+
+        div[data-testid="stElementContainer"]:has(.class-click-wrap)
         + div[data-testid="stElementContainer"]:has(.stButton) .stButton > button {
+            min-height: 214px;
+        }
 
         div[data-testid="stElementContainer"]:has(.student-click-wrap)
         + div[data-testid="stElementContainer"]:has(.stButton) {
@@ -736,15 +745,6 @@ def apply_styles():
         .student-grid-mood,
         .student-grid-time {
             font-size: 0.86rem;
-        }
-            min-height: 214px;
-        }
-
-        div[data-testid="stElementContainer"]:has(.class-click-wrap)
-        + div[data-testid="stElementContainer"]:has(.stButton) {
-            margin-top: -214px !important;
-            height: 214px;
-            margin-bottom: 12px !important;
         }
 
         .class-grid-link {
@@ -809,7 +809,7 @@ def apply_styles():
         overflow: hidden;
         border: 1px solid rgba(160, 130, 100, 0.32);
         box-shadow: var(--ink-soft-shadow);
-        background-image: url('../backend/app/assets/wallpaper.jpg');
+        background-image: url('../assets/wallpaper.jpg');
         background-size: cover;
         background-position: center;
     }

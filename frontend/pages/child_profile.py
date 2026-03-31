@@ -327,6 +327,9 @@ def child_profile():
             saved_at = _format_saved_at(item.get("saved_at"))
             description = _safe_text(item.get("drawing_description"), fallback="No drawing description available.")
 
+            safe_description = html.escape(str(description or "No description provided"))
+            safe_mood = html.escape(str(mood or "N/A"))
+            
             st.markdown(
                 f"""
                 <div class='analysis-list-card student-history-card'>

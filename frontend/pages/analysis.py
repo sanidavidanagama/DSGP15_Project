@@ -113,8 +113,8 @@ def _render_kv_grid(items: list[tuple[str, object]]) -> None:
         safe_value = html.escape(_safe_text(value))
         html_items.append(
             "<div class='analysis-kv-item'>"
-            f"<div class='analysis-kv-key'>{key}</div>"
-            f"<div class='analysis-kv-value'>{_safe_text(value)}</div>"
+            f"<div class='analysis-kv-key'>{safe_key}</div>"
+            f"<div class='analysis-kv-value'>{safe_value}</div>"
             "</div>"
         )
 

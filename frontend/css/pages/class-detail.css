@@ -1,0 +1,158 @@
+/* ============================================================
+   Class Detail Page Styles
+   ============================================================ */
+
+/* Hero header */
+.class-hero {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.class-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.class-hero-info h2 {
+  margin-bottom: 6px;
+}
+
+.class-hero-grade {
+  color: var(--gray-500);
+  font-size: 0.9375rem;
+  margin-bottom: 10px;
+}
+
+.class-hero-desc {
+  color: var(--gray-600);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-top: 12px;
+  max-width: 640px;
+}
+
+.class-hero-schedule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.class-hero-actions {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+/* Students section header */
+.students-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.students-section-header h3 {
+  margin: 0;
+}
+
+.students-section-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Students grid */
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Student card */
+.student-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-card-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.student-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-card-name {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: 0.9375rem;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-card-meta {
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+}
+
+.student-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--gray-100);
+}
+
+.student-card-analyses {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.student-card-open {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--teal-500);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap var(--transition-fast);
+}
+
+.card-clickable:hover .student-card-open {
+  gap: 8px;
+}
+
+/* ====================
+   RESPONSIVE
+   ==================== */
+
+@media (max-width: 1024px) {
+  .students-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .students-grid { grid-template-columns: 1fr; }
+  .class-hero-top { flex-direction: column; }
+  .class-hero-actions { width: 100%; }
+}

@@ -1,0 +1,120 @@
+/* ============================================================
+   Classes List Page Styles
+   ============================================================ */
+
+.classes-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+/* Search + actions bar */
+.classes-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.classes-toolbar .search-wrapper {
+  flex: 1;
+  min-width: 240px;
+}
+
+/* Classes grid */
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Individual class card */
+.class-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.class-card-body {
+  flex: 1;
+}
+
+.class-card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+
+.class-card-grade {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  margin-bottom: 14px;
+}
+
+.class-card-schedule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.class-card-desc {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.class-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--gray-100);
+  margin-top: auto;
+}
+
+.class-card-student-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.class-card-open {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--teal-500);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap var(--transition-fast);
+}
+
+.card-clickable:hover .class-card-open {
+  gap: 8px;
+}
+
+/* ====================
+   RESPONSIVE
+   ==================== */
+
+@media (max-width: 1024px) {
+  .classes-grid { grid-template-columns: repeat(2, 1fr); }
+  .classes-summary-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .classes-grid { grid-template-columns: 1fr; }
+  .classes-summary-grid { grid-template-columns: 1fr; }
+}

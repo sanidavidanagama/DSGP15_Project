@@ -1,0 +1,312 @@
+/* ============================================================
+   Analysis Upload Page Styles
+   ============================================================ */
+
+.analysis-layout {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed var(--teal-300);
+  border-radius: var(--radius-lg);
+  background: var(--teal-50);
+  padding: 48px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--teal-500);
+  background: rgba(0, 128, 128, 0.08);
+}
+
+.upload-zone-icon {
+  color: var(--teal-400);
+  margin-bottom: 4px;
+}
+
+.upload-zone-title {
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 1rem;
+}
+
+.upload-zone-hint {
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+}
+
+/* Preview */
+.image-preview-card {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.image-preview-card.visible {
+  display: flex;
+}
+
+.image-preview-thumb {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.image-preview-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.image-preview-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--gray-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.image-preview-size {
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+/* Steps card */
+.steps-card ol {
+  list-style: none;
+  counter-reset: step-counter;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step-list-item {
+  counter-increment: step-counter;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+
+.step-list-item::before {
+  content: counter(step-counter);
+  background: var(--teal-500);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.75rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Loading state on submit button */
+.btn-submit-loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* ====================
+   ANALYSIS LOADING PAGE
+   ==================== */
+
+.analysis-loading-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px;
+}
+
+.progress-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+}
+
+/* Progress bar */
+.progress-bar-wrapper {
+  margin-bottom: 32px;
+}
+
+.progress-bar-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.progress-bar-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.progress-bar-pct {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--teal-500);
+}
+
+.progress-bar-track {
+  height: 10px;
+  background: var(--gray-100);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal-400), var(--teal-500));
+  border-radius: var(--radius-full);
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Timeline steps */
+.timeline-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gray-50);
+  animation: stepFadeIn 300ms ease forwards;
+}
+
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.timeline-step:last-child {
+  border-bottom: none;
+}
+
+.step-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all var(--transition-base);
+}
+
+.step-indicator.pending {
+  background: var(--gray-100);
+  border: 2px solid var(--gray-300);
+}
+
+.step-indicator.active {
+  background: transparent;
+  border: 2px solid var(--teal-500);
+  box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.12);
+  animation: pulseGlow 1.2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.12); }
+  50%       { box-shadow: 0 0 0 8px rgba(0, 128, 128, 0.06); }
+}
+
+.step-indicator.active .step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal-500);
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.2); }
+}
+
+.step-indicator.done {
+  background: var(--teal-500);
+  border: 2px solid var(--teal-500);
+  color: #FFFFFF;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-title-text {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--gray-800);
+  margin-bottom: 2px;
+}
+
+.step-title-text.pending  { color: var(--gray-400); }
+.step-title-text.active   { color: var(--gray-900); }
+.step-title-text.done     { color: var(--gray-600); }
+
+.step-caption {
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+}
+
+/* ====================
+   RESPONSIVE
+   ==================== */
+
+@media (max-width: 1024px) {
+  .analysis-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .analysis-loading-page { padding: 20px; }
+  .progress-card { padding: 24px; }
+}

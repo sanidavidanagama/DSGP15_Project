@@ -1,0 +1,63 @@
+/* ============================================================
+   License Page Styles
+   ============================================================ */
+
+.license-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 60px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.license-inner {
+  max-width: 720px;
+  width: 100%;
+}
+
+.license-back {
+  margin-bottom: 32px;
+}
+
+.license-inner h1 {
+  margin-bottom: 8px;
+}
+
+.license-date {
+  color: var(--gray-400);
+  font-size: 0.875rem;
+  margin-bottom: 32px;
+}
+
+.license-body {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-sm);
+  line-height: 1.8;
+  color: var(--gray-700);
+}
+
+.license-body h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 28px 0 8px;
+}
+
+.license-body h2:first-child {
+  margin-top: 0;
+}
+
+.license-copyright {
+  margin-top: 32px;
+  padding: 20px;
+  background: var(--teal-50);
+  border: 1px solid var(--teal-200);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--teal-800);
+  line-height: 1.6;
+}

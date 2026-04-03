@@ -12,8 +12,9 @@ export async function renderPage() {
 
 		const {
 			total_students = 0,
-			total_classes = 0,
+			active_classes = 0,
 			total_analyses = 0,
+			analyses_this_week = 0,
 			recent_activity = [],
 		} = dashboardData || {};
 
@@ -37,7 +38,7 @@ export async function renderPage() {
 						</div>
 						<div class="metric-content">
 							<p class="metric-label">Total Classes</p>
-							<p class="metric-value">${total_classes}</p>
+							<p class="metric-value">${active_classes}</p>
 						</div>
 					</div>
 
@@ -57,7 +58,7 @@ export async function renderPage() {
 						</div>
 						<div class="metric-content">
 							<p class="metric-label">This Week</p>
-							<p class="metric-value">${recent_activity.length}</p>
+							<p class="metric-value">${analyses_this_week}</p>
 						</div>
 					</div>
 				</div>
@@ -96,11 +97,11 @@ export async function renderPage() {
 											(activity) => `
 							<div class="activity-item">
 								<div class="activity-icon">
-									<i data-lucide="${activity.icon || 'check-circle'}"></i>
+									<i data-lucide="smile"></i>
 								</div>
 								<div class="activity-content">
-									<p class="activity-text">${activity.description}</p>
-									<p class="activity-time">${activity.timestamp || 'Just now'}</p>
+									<p class="activity-text"><strong>${activity.student_name}</strong> — emotion analyzed: <strong>${activity.emotion}</strong></p>
+									<p class="activity-time">${activity.time_ago}</p>
 								</div>
 							</div>
 						`

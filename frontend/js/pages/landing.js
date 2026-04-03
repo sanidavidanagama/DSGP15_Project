@@ -8,7 +8,7 @@ export async function renderPage() {
 		<div class="landing-page">
 			<header class="landing-nav" id="landing-nav">
 				<a href="#/" class="landing-nav-brand" aria-label="INKIND Teacher Portal">
-					<img src="assets/logo.svg" alt="INKIND" class="landing-logo-img" />
+					<img src="assets/inkind_logo.svg" alt="INKIND" class="landing-logo-img" />
 				</a>
 				<nav class="landing-nav-links">
 					<button class="landing-nav-link" data-scroll-target="features">Features</button>
@@ -194,7 +194,7 @@ export async function renderPage() {
 						<article class="team-card">
 							<div class="team-avatar">SV</div>
 							<div class="team-name">Sanida Vidanagama</div>
-							<div class="team-role">Project Manager, AI Engineer & Backend Developer</div>
+							<div class="team-role">Project Manager, AI Engineer & Full Stack Developer</div>
 						</article>
 
 						<article class="team-card">
@@ -206,13 +206,13 @@ export async function renderPage() {
 						<article class="team-card">
 							<div class="team-avatar">SD</div>
 							<div class="team-name">Sanuli Dhanuge</div>
-							<div class="team-role">Data Engineer & Evaluation Lead</div>
+							<div class="team-role">Data Engineer & Backend Developer</div>
 						</article>
 
 						<article class="team-card">
 							<div class="team-avatar">KR</div>
 							<div class="team-name">Kaviyan Ratneswaran</div>
-							<div class="team-role">QA Engineer, Domain Researcher & ML Engineer</div>
+							<div class="team-role">QA Engineer & Logic Developer</div>
 						</article>
 					</div>
 

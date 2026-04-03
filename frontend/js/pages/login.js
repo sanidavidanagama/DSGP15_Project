@@ -28,13 +28,9 @@ export async function renderPage() {
 
 			<div class="auth-form-panel">
 				<div class="auth-form-inner">
-					<div class="auth-brand">
-						<img src="assets/logo.svg" alt="INKIND" class="auth-brand-logo" />
-						<div class="auth-brand-text">
-							<span class="auth-brand-name">INKIND</span>
-							<span class="auth-brand-sub">Teacher Portal</span>
-						</div>
-					</div>
+					<a href="#/" class="auth-brand" aria-label="INKIND home">
+						<img src="assets/inkind_logo.svg" alt="INKIND" class="auth-brand-logo" />
+					</a>
 
 					<h1 class="auth-heading">Welcome back</h1>
 					<p class="auth-subheading">

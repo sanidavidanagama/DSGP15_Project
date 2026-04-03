@@ -31,22 +31,14 @@
 .sidebar-brand {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 0;
 	text-decoration: none;
-	background: linear-gradient(135deg, #008080, #006666);
-	background-clip: text;
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-	font-weight: 600;
-	font-size: 0.875rem;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
 }
 
 .sidebar-logo {
-	width: 32px;
-	height: 32px;
-	filter: brightness(1.2) contrast(1.1);
+	width: 116px;
+	height: auto;
+	display: block;
 }
 
 .sidebar-brand-text {

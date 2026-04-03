@@ -75,13 +75,16 @@
 .auth-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0;
   margin-bottom: 40px;
+  text-decoration: none;
+  width: fit-content;
 }
 
 .auth-brand-logo {
-  width: 36px;
-  height: 36px;
+  width: 140px;
+  height: auto;
+  display: block;
 }
 
 .auth-brand-text {

@@ -18,8 +18,7 @@ export function createShell(pageContent, options = {}) {
 			<aside class="sidebar">
 				<div class="sidebar-header">
 					<a href="#/dashboard" class="sidebar-brand">
-						<img src="assets/logo.svg" alt="INKIND" class="sidebar-logo" />
-						<span class="sidebar-brand-text">INKIND</span>
+						<img src="assets/inkind_logo.svg" alt="INKIND" class="sidebar-logo" />
 					</a>
 				</div>
 

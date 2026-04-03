@@ -4,6 +4,7 @@ import {
 	getActiveAnalysisJob,
 	fetchAnalysisJobStatus,
 	setLatestAnalysisResult,
+	setAnalysisReportMode,
 	clearActiveAnalysisJob,
 } from '../api/analysis.js';
 
@@ -96,6 +97,7 @@ async function pollJobUntilComplete(jobId) {
 
 			if (status === 'done') {
 				setLatestAnalysisResult(statusPayload);
+				setAnalysisReportMode('new');
 				clearActiveAnalysisJob();
 				showToast('success', 'Analysis completed successfully.');
 				window.location.hash = '#/analysis/report';

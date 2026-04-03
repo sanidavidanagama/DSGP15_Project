@@ -2,6 +2,7 @@ import { apiFetch } from './client.js';
 
 const ACTIVE_ANALYSIS_JOB_KEY = 'inkind_active_analysis_job';
 const LAST_ANALYSIS_RESULT_KEY = 'inkind_last_analysis_result';
+const ANALYSIS_REPORT_MODE_KEY = 'inkind_analysis_report_mode';
 
 export async function validateAnalysisImage(imageFile) {
 	const formData = new FormData();
@@ -60,4 +61,21 @@ export function getLatestAnalysisResult() {
 		console.error('Failed to parse latest analysis result', error);
 		return null;
 	}
+}
+
+export function setAnalysisReportMode(mode) {
+	window.sessionStorage.setItem(ANALYSIS_REPORT_MODE_KEY, String(mode || 'new'));
+}
+
+export function getAnalysisReportMode() {
+	try {
+		return window.sessionStorage.getItem(ANALYSIS_REPORT_MODE_KEY) || 'new';
+	} catch (error) {
+		console.error('Failed to read analysis report mode', error);
+		return 'new';
+	}
+}
+
+export function clearAnalysisReportMode() {
+	window.sessionStorage.removeItem(ANALYSIS_REPORT_MODE_KEY);
 }

@@ -1,5 +1,5 @@
 import { createShell, attachShellHandlers } from '../components/shell.js';
-import { getLatestAnalysisResult } from '../api/analysis.js';
+import { getLatestAnalysisResult, getAnalysisReportMode } from '../api/analysis.js';
 import { showToast } from '../components/toast.js';
 
 const API_BASE_URL = 'http://localhost:8000';
@@ -21,6 +21,7 @@ export async function renderPage() {
 	const dia = result.dia || {};
 	const recommendation = result.recommendation || {};
 	const patterns = recommendation.DetectedPatterns || {};
+	const reportMode = getAnalysisReportMode();
 
 	const happyScore = toPercent(emotion.happy_score);
 	const sadScore = Math.max(0, 100 - happyScore);
@@ -128,6 +129,7 @@ export async function renderPage() {
 			</section>
 
 
+			${reportMode === 'saved' ? '' : `
 			<section class="card">
 				<h3>Save Analysis to Student</h3>
 				<p class="text-muted" style="margin-top: 8px; margin-bottom: 16px;">
@@ -147,6 +149,7 @@ export async function renderPage() {
 				</div>
 				<p id="save-status-msg" class="text-muted" style="margin-top: 8px; display: none;"></p>
 			</section>
+ 			`}
 
             <section class="card">
 				<h3>Next Steps</h3>

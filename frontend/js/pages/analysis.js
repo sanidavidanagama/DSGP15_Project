@@ -61,7 +61,7 @@ export async function renderPage() {
 				</section>
 
 				<aside class="card steps-card">
-					<h3 style="margin-bottom: 12px;">How this works</h3>
+					<h3 style="margin-bottom: 12px;">What happens next?</h3>
 					<ol>
 						<li class="step-list-item">Upload a drawing image from your device.</li>
 						<li class="step-list-item">Optionally add teacher notes for context.</li>

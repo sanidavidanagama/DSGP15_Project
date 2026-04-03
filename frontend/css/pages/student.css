@@ -49,6 +49,22 @@
   align-items: flex-start;
 }
 
+.student-profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.student-hero-avatar {
+  width: 72px;
+  height: 72px;
+  font-size: 1.1rem;
+}
+
+.student-summary-grid {
+  margin-bottom: 0;
+}
+
 /* Two-column layout for chart + history */
 .student-content-columns {
   display: grid;
@@ -73,6 +89,19 @@
 .chart-container {
   position: relative;
   width: 100%;
+}
+
+.chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: var(--gray-900);
+  color: white;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--shadow-md);
 }
 
 #mood-chart-canvas {
@@ -143,6 +172,7 @@
   line-height: 1.5;
   margin-bottom: 10px;
   display: -webkit-box;
+	line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -152,6 +182,42 @@
   font-size: 0.75rem;
   color: var(--gray-400);
   margin-bottom: 10px;
+}
+
+.history-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  padding: 24px;
+  min-height: 280px;
+  color: var(--gray-500);
+}
+
+.history-empty-state i {
+  width: 32px;
+  height: 32px;
+  color: var(--gray-400);
+}
+
+.history-item-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 /* ====================
@@ -168,4 +234,5 @@
   .student-hero-top { flex-direction: column; }
   .student-hero-actions { width: 100%; }
   .student-hero-identity { flex-direction: column; align-items: flex-start; }
+  .student-content-columns { grid-template-columns: 1fr; }
 }

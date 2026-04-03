@@ -9,6 +9,18 @@
   margin-bottom: 28px;
 }
 
+.classes-page-header {
+  margin-bottom: 8px;
+}
+
+.classes-page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 /* Search + actions bar */
 .classes-toolbar {
   display: flex;
@@ -16,6 +28,25 @@
   gap: 16px;
   margin-bottom: 24px;
   flex-wrap: wrap;
+}
+
+.classes-search-wrapper {
+  position: relative;
+}
+
+.classes-search-wrapper i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--gray-400);
+  pointer-events: none;
+}
+
+.classes-search-wrapper .form-input {
+  padding-left: 38px;
 }
 
 .classes-toolbar .search-wrapper {
@@ -35,6 +66,11 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+
+.class-card-link {
+  color: inherit;
+  text-decoration: none;
 }
 
 .class-card-body {
@@ -67,6 +103,7 @@
   color: var(--gray-500);
   line-height: 1.5;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -80,6 +117,40 @@
   padding-top: 16px;
   border-top: 1px solid var(--gray-100);
   margin-top: auto;
+}
+
+.class-card-link .class-card-open {
+  transition: gap var(--transition-fast);
+}
+
+.class-card-link:hover .class-card-open {
+  gap: 8px;
+}
+
+.classes-last-updated {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.25rem;
+}
+
+.classes-empty-state {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.classes-empty-state i {
+  width: 36px;
+  height: 36px;
+  color: var(--gray-400);
+}
+
+.classes-add-card {
+  color: inherit;
+  text-decoration: none;
 }
 
 .class-card-student-count {
@@ -112,6 +183,17 @@
 @media (max-width: 1024px) {
   .classes-grid { grid-template-columns: repeat(2, 1fr); }
   .classes-summary-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .classes-grid,
+  .classes-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .classes-toolbar {
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 768px) {

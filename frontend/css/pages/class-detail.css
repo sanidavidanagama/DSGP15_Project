@@ -2,6 +2,141 @@
    Class Detail Page Styles
    ============================================================ */
 
+.class-detail-page {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.class-detail-hero {
+	padding: 28px;
+}
+
+.class-detail-hero-top {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+
+.class-detail-hero-identity {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.class-detail-hero-info h2 {
+	margin-bottom: 6px;
+}
+
+.class-detail-meta {
+	color: var(--gray-500);
+	font-size: 0.875rem;
+	margin-bottom: 12px;
+}
+
+.class-detail-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.class-detail-actions {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	align-items: flex-start;
+}
+
+.class-detail-summary-grid {
+	margin-bottom: 0;
+}
+
+.class-detail-students-section {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.class-detail-toolbar {
+	margin-bottom: 0;
+}
+
+.class-detail-students-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20px;
+}
+
+.class-student-card {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	text-decoration: none;
+	color: inherit;
+}
+
+.class-student-card-top {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.student-avatar-circle {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: var(--teal-50);
+	color: var(--teal-700);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.class-student-card-info h4 {
+	margin: 0 0 4px;
+}
+
+.class-student-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.class-student-card-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border-top: 1px solid var(--gray-100);
+	padding-top: 14px;
+	margin-top: auto;
+}
+
+@media (max-width: 1024px) {
+	.class-detail-students-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 768px) {
+	.class-detail-hero-top,
+	.class-detail-actions,
+	.class-detail-hero-identity {
+		flex-direction: column;
+	}
+
+	.class-detail-students-grid {
+		grid-template-columns: 1fr;
+	}
+}/* ============================================================
+   Class Detail Page Styles
+   ============================================================ */
+
 /* Hero header */
 .class-hero {
   background: var(--surface);

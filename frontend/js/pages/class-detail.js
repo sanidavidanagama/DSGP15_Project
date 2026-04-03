@@ -91,7 +91,7 @@ function renderClassDetail(appElement, classroom) {
 						<h3>Students (${students.length})</h3>
 						<p class="text-muted" style="margin-top: 6px;">Browse student profiles and their latest analysis summary.</p>
 					</div>
-					<a href="#/classes/${classroom.id}#students" class="btn btn-primary btn-sm">
+					<a href="#/classes/${classroom.id}/students/new" class="btn btn-primary btn-sm">
 						<i data-lucide="plus"></i>
 						Add Student
 					</a>

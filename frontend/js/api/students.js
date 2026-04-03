@@ -12,6 +12,13 @@ export async function fetchStudentsByClass(classId) {
 	return apiFetch(`/classes/${classId}/students`, { method: 'GET' });
 }
 
+export async function createStudent(classId, payload) {
+	return apiFetch(`/classes/${classId}/students`, {
+		method: 'POST',
+		body: JSON.stringify(payload),
+	});
+}
+
 export async function fetchSavedReport(classId, studentId, jobId) {
 	return apiFetch(`/classes/${classId}/students/${studentId}/report/${jobId}`, { method: 'GET' });
 }

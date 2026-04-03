@@ -4,7 +4,7 @@
 
 ---
 
-## Interpretable Analysis of Psychological Indicators in Children’s Drawings Using Deep Learning
+## Interpretable Analysis of Psychological Indicators in Children’s Drawings Using Artificial Intelligence
 
 **Second Year Group Project – BSc (Hons) Artificial Intelligence and Data Science**  
 **In collaboration with:** Robert Gordon University, Aberdeen, Scotland, UK  
@@ -25,7 +25,7 @@ This project provides an end-to-end system to analyze children's drawings using 
 
 - **ML model development** and experimentation.
 - A **FastAPI backend** for inference, data processing, and APIs.
-- A **Streamlit frontend** for interactive dashboards and user workflows.
+- A **web frontend (HTML/CSS/JS)** for interactive dashboards and user workflows.
 
 The goal is to detect emotions, understand mood, and present insights to educators and parents.
 
@@ -67,7 +67,7 @@ All components directly map to folders in this repository:
   FastAPI backend, database layer, business logic, and deployed inference pipelines (using the trained models).
 
 - **Frontend Application** – `frontend/`  
-  Streamlit-based UI for teachers and researchers to upload drawings, run analyses, and explore dashboards.
+   Browser-based UI (HTML/CSS/JS) for teachers and researchers to upload drawings, run analyses, and explore dashboards.
 
 ---
 
@@ -99,12 +99,11 @@ backend/                           # Application backend (FastAPI)
     ├── services/                  # Business logic services
     └── utils/                     # Helper utilities
 
-frontend/                          # Streamlit frontend
-├── app.py                         # Frontend entry point
-├── pages/                         # Multi-page views
-├── components/
-├── services/                      # API client wrappers
-└── utils/
+frontend/                          # Web frontend (HTML/CSS/JS)
+├── index.html                     # Frontend entry point
+├── assets/                        # Logos, icons, and static assets
+├── css/                           # Global and page-level styles
+└── js/                            # Router, pages, components, and API clients
 
 uploads/
 ├── processed/                     # Processed image outputs
@@ -218,16 +217,20 @@ uv run main.py
 
 This starts the FastAPI backend using the settings and models configured above.
 
-### Start the Frontend (Streamlit)
+### Start the Frontend (Web UI)
 
-Open a new terminal (still in the project root) and run:
+Open a new terminal (still in the project root) and run a simple static server:
 
 ```bash
 cd frontend
-uv run streamlit run app.py
+python -m http.server 5173
 ```
 
-Then open the URL shown in the terminal (by default, a `localhost` port) to access the UI.
+Then open:
+
+```text
+http://localhost:5173
+```
 
 Make sure the backend is running before you start using the frontend.
 

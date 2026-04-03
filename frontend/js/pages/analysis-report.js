@@ -25,12 +25,13 @@ export async function renderPage() {
 	const happyScore = toPercent(emotion.happy_score);
 	const sadScore = Math.max(0, 100 - happyScore);
 	const predictedMood = capitalize(emotion.predicted_mood || emotion.emotion || 'Unknown');
+	const moodIcon = getMoodMaterialIcon(predictedMood);
 
 	const pageContent = `
 		<div class="dashboard-container">
 			<section class="card">
 				<h2>Analysis Report</h2>
-				<p class="text-muted" style="margin-top: 8px;">Job ID: ${safeText(resultPayload.job_id)}}</p>
+				<p class="text-muted" style="margin-top: 8px;">Job ID: ${safeText(resultPayload.job_id)}</p>
 				<div class="report-chips">
 					<span class="badge badge-teal">Status: ${safeText(resultPayload.status || 'done')}</span>
                     <span class="badge badge-gray">Processed: ${formatDateShort(resultPayload.analysis_finished_at)}</span>
@@ -51,7 +52,9 @@ export async function renderPage() {
 
 			<section class="report-metrics-row">
 				<article class="glass-card report-metric-card">
-					<div class="report-metric-icon" style="background: rgba(0,128,128,0.12); color: #008080;">😊</div>
+					<div class="report-metric-icon" style="background: rgba(0,128,128,0.12); color: #008080;">
+						<span class="material-symbols-outlined report-material-icon">${moodIcon}</span>
+					</div>
 					<div class="report-metric-value">${safeText(predictedMood)}</div>
 					<div class="report-metric-label">Predicted Mood</div>
 				</article>
@@ -63,7 +66,9 @@ export async function renderPage() {
 				</article>
 
 				<article class="glass-card report-metric-card">
-					<div class="report-metric-icon" style="background: rgba(147,51,234,0.15); color: #7e22ce;">⏱</div>
+					<div class="report-metric-icon" style="background: rgba(147,51,234,0.15); color: #7e22ce;">
+						<span class="material-symbols-outlined report-material-icon">av_timer</span>
+					</div>
 					<div class="report-metric-value">${formatDuration(resultPayload.analysis_duration_seconds)}</div>
 					<div class="report-metric-label">Duration</div>
 				</article>
@@ -122,16 +127,6 @@ export async function renderPage() {
 				</div>
 			</section>
 
-			<section class="card">
-				<h3>Next Steps</h3>
-				<div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
-					<a href="#/analysis" class="btn btn-secondary">
-						<i data-lucide="plus"></i>
-						Run New Analysis
-					</a>
-					<a href="#/dashboard" class="btn btn-primary">Back to Dashboard</a>
-				</div>
-			</section>
 
 			<section class="card">
 				<h3>Save Analysis to Student</h3>
@@ -151,6 +146,17 @@ export async function renderPage() {
 					</button>
 				</div>
 				<p id="save-status-msg" class="text-muted" style="margin-top: 8px; display: none;"></p>
+			</section>
+
+            <section class="card">
+				<h3>Next Steps</h3>
+				<div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+					<a href="#/analysis" class="btn btn-secondary">
+						<i data-lucide="plus"></i>
+						Run New Analysis
+					</a>
+					<a href="#/dashboard" class="btn btn-primary">Back to Dashboard</a>
+				</div>
 			</section>
 		</div>
 	`;
@@ -214,6 +220,13 @@ function resolveImageUrl(imagePath) {
 function capitalize(text) {
 	if (!text || typeof text !== 'string') return 'Unknown';
 	return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
+function getMoodMaterialIcon(mood) {
+	const normalizedMood = String(mood || '').trim().toLowerCase();
+	if (normalizedMood.includes('happy')) return 'sentiment_satisfied_alt';
+	if (normalizedMood.includes('sad')) return 'sentiment_very_dissatisfied';
+	return 'sentiment_neutral';
 }
 
 function formatDateShort(isoString) {

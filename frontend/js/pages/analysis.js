@@ -46,11 +46,11 @@ export async function renderPage() {
 					</div>
 
 					<div class="form-group">
-						<label class="form-label" for="analysis-description">Teacher Context (Optional)</label>
+						<label class="form-label" for="analysis-description">Teacher Context</label>
 						<textarea
 							id="analysis-description"
 							class="form-textarea"
-							placeholder="Add context: student behavior, classroom events, concerns, or observations..."
+							placeholder="Add context: Student's explaination about the drawing..."
 						></textarea>
 					</div>
 

@@ -7,14 +7,8 @@ export async function renderPage() {
 	root.innerHTML = `
 		<div class="landing-page">
 			<header class="landing-nav" id="landing-nav">
-				<a href="#/" class="landing-nav-brand">
-					<div class="landing-logo-mark">
-						<span class="landing-logo-icon">IN</span>
-					</div>
-					<div class="landing-logo-text">
-						<span class="landing-logo-title">INKIND</span>
-						<span class="landing-logo-subtitle text-xs text-muted">Teacher Portal</span>
-					</div>
+				<a href="#/" class="landing-nav-brand" aria-label="INKIND Teacher Portal">
+					<img src="assets/logo.svg" alt="INKIND" class="landing-logo-img" />
 				</a>
 				<nav class="landing-nav-links">
 					<button class="landing-nav-link" data-scroll-target="features">Features</button>

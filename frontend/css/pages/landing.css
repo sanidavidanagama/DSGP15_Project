@@ -32,11 +32,10 @@
   text-decoration: none;
 }
 
-.landing-nav-brand-name {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--gray-900);
+.landing-logo-img {
+  height: 28px;
+  width: auto;
+  display: block;
 }
 
 .landing-nav-links {

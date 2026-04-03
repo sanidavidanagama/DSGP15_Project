@@ -90,7 +90,7 @@ def get_dashboard_overview(
     analyses_this_week = analyses_base_query.filter(StudentSavedAnalysis.saved_at >= week_start).count()
 
     recent_rows = (
-        db.query(StudentSavedAnalysis, Student.name)
+        db.query(StudentSavedAnalysis, Student.id, Student.class_id, Student.name)
         .join(Student, StudentSavedAnalysis.student_id == Student.id)
         .join(Classroom, Student.class_id == Classroom.id)
         .filter(
@@ -105,12 +105,14 @@ def get_dashboard_overview(
 
     recent_activity = [
         DashboardRecentActivityItem(
+            class_id=int(class_id),
+            student_id=int(student_id),
             student_name=str(student_name),
             emotion=str(item.mood) if item.mood else "Unknown",
             time_ago=_relative_time_label(item.saved_at),
             saved_at=item.saved_at,
         )
-        for item, student_name in recent_rows
+        for item, student_id, class_id, student_name in recent_rows
     ]
 
     return DashboardOverviewResponse(

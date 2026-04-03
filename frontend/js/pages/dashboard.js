@@ -18,6 +18,45 @@ export async function renderPage() {
 			recent_activity = [],
 		} = dashboardData || {};
 
+		const renderedRecentActivity = Array.isArray(recent_activity)
+			? recent_activity
+				.map((activity) => {
+					const studentName = escapeHtml(activity.student_name || 'Unknown student');
+					const emotion = escapeHtml(activity.emotion || 'unknown');
+					const timeAgo = escapeHtml(activity.time_ago || 'just now');
+					const classId = Number(activity.class_id);
+					const studentId = Number(activity.student_id);
+					const canOpenProfile = Number.isInteger(classId) && Number.isInteger(studentId);
+
+					if (!canOpenProfile) {
+						return `
+							<div class="activity-item" role="group" aria-label="Recent activity item">
+								<div class="activity-icon">
+									<i data-lucide="smile"></i>
+								</div>
+								<div class="activity-content">
+									<p class="activity-text"><strong>${studentName}</strong> - emotion analyzed: <strong>${emotion}</strong></p>
+									<p class="activity-time">${timeAgo}</p>
+								</div>
+							</div>
+						`;
+					}
+
+					return `
+						<a class="activity-item activity-item-link" href="#/classes/${classId}/students/${studentId}" aria-label="Open ${studentName} profile">
+							<div class="activity-icon">
+								<i data-lucide="smile"></i>
+							</div>
+							<div class="activity-content">
+								<p class="activity-text"><strong>${studentName}</strong> - emotion analyzed: <strong>${emotion}</strong></p>
+								<p class="activity-time">${timeAgo}</p>
+							</div>
+						</a>
+					`;
+				})
+				.join('')
+			: '';
+
 		const pageContent = `
 			<div class="dashboard-container dashboard-page-frame">
 				<!-- Metrics Grid -->
@@ -92,21 +131,7 @@ export async function renderPage() {
 					<div class="activity-feed">
 						${
 							recent_activity.length > 0
-								? recent_activity
-										.map(
-											(activity) => `
-							<div class="activity-item">
-								<div class="activity-icon">
-									<i data-lucide="smile"></i>
-								</div>
-								<div class="activity-content">
-									<p class="activity-text"><strong>${activity.student_name}</strong> - emotion analyzed: <strong>${activity.emotion}</strong></p>
-									<p class="activity-time">${activity.time_ago}</p>
-								</div>
-							</div>
-						`
-										)
-										.join('')
+								? renderedRecentActivity
 								: '<p class="text-muted">No recent activity</p>'
 						}
 					</div>
@@ -139,4 +164,13 @@ export async function renderPage() {
 			lucide.createIcons();
 		}
 	}
+}
+
+function escapeHtml(value) {
+	return String(value)
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+		.replaceAll("'", '&#39;');
 }

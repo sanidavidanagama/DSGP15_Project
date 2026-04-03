@@ -1,6 +1,7 @@
 import { createShell, attachShellHandlers } from '../components/shell.js';
 import { fetchClassById } from '../api/classes.js';
 import { deleteClass } from '../api/classes.js';
+import { openModal, closeModal } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
 
 export async function renderPage({ params } = {}) {
@@ -157,7 +158,7 @@ function bindDeleteAction(classroom) {
 				</div>
 			</div>
 		`);
-	});
+
 		const cancelButton = document.getElementById('cancel-delete-class-btn');
 		const confirmButton = document.getElementById('confirm-delete-class-btn');
 		cancelButton?.addEventListener('click', () => closeModal());
@@ -173,6 +174,7 @@ function bindDeleteAction(classroom) {
 				showToast('error', error.message || 'Failed to delete class.');
 			}
 		});
+	});
 }
 
 function renderStudentCards(classId, students) {

@@ -234,7 +234,7 @@ export async function renderPage() {
 
 			<footer class="landing-footer">
 				<span class="landing-footer-copy">
-					© 2026 INKIND — DSGP 15 | IIT × Robert Gordon University
+					© 2026 INKIND · DSGP 15 | IIT · Robert Gordon University
 				</span>
 				<div class="landing-footer-links">
 					<a href="#/license">License</a>

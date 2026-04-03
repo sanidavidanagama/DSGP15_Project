@@ -119,6 +119,11 @@
   color: var(--gray-900);
 }
 
+.hero-title-emphasis {
+	color: var(--teal-500);
+	font-style: italic;
+}
+
 .hero-subtitle {
   font-size: 1.0625rem;
   color: var(--gray-600);

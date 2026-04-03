@@ -142,7 +142,7 @@
 }
 
 .predicted-mood-text {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Lexend', sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--gray-900);

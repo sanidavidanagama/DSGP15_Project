@@ -7,3 +7,10 @@ export async function fetchClasses() {
 export async function fetchClassById(classId) {
 	return apiFetch(`/classes/${classId}`, { method: 'GET' });
 }
+
+export async function createClass(payload) {
+	return apiFetch('/classes', {
+		method: 'POST',
+		body: JSON.stringify(payload),
+	});
+}

@@ -39,7 +39,7 @@
 }
 
 .auth-wallpaper-quote {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Lexend', sans-serif;
   font-size: 1.5rem;
   font-weight: 600;
   color: #FFFFFF;
@@ -90,7 +90,7 @@
 }
 
 .auth-brand-name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Lexend', sans-serif;
   font-weight: 700;
   font-size: 1.125rem;
   color: var(--gray-900);

@@ -1,15 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INKIND</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>INKIND — Teacher Portal</title>
+
+    <!-- Google Fonts: Playfair Display + DM Sans -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    />
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- Core CSS: reset + design system -->
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/utilities.css" />
+
+    <!-- Page-level CSS (loaded globally for simplicity) -->
+    <link rel="stylesheet" href="css/pages/landing.css" />
+    <link rel="stylesheet" href="css/pages/auth.css" />
+    <link rel="stylesheet" href="css/pages/dashboard.css" />
+    <link rel="stylesheet" href="css/pages/classes.css" />
+    <link rel="stylesheet" href="css/pages/class-detail.css" />
+    <link rel="stylesheet" href="css/pages/student.css" />
+    <link rel="stylesheet" href="css/pages/analysis.css" />
+    <link rel="stylesheet" href="css/pages/report.css" />
+    <link rel="stylesheet" href="css/pages/license.css" />
 </head>
 <body>
-    <div id="app">
-        <h1>Welcome to INKIND</h1>
-    </div>
-    <script src="js/main.js"></script>
+    <!-- Toasts root (top-right) -->
+    <div id="toast-container"></div>
+
+    <!-- Modal root for dialogs / overlays -->
+    <div id="modal-root"></div>
+
+    <!-- Main SPA outlet -->
+    <div id="app"></div>
+
+    <!-- Lucide icons (global `lucide`) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <!-- Main application entry (ES module) -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -19,7 +19,7 @@ export async function renderPage() {
 		} = dashboardData || {};
 
 		const pageContent = `
-			<div class="dashboard-container">
+			<div class="dashboard-container dashboard-page-frame">
 				<!-- Metrics Grid -->
 				<div class="metrics-grid">
 					<div class="metric-card glass">
@@ -100,7 +100,7 @@ export async function renderPage() {
 									<i data-lucide="smile"></i>
 								</div>
 								<div class="activity-content">
-									<p class="activity-text"><strong>${activity.student_name}</strong> — emotion analyzed: <strong>${activity.emotion}</strong></p>
+									<p class="activity-text"><strong>${activity.student_name}</strong> - emotion analyzed: <strong>${activity.emotion}</strong></p>
 									<p class="activity-time">${activity.time_ago}</p>
 								</div>
 							</div>
@@ -123,7 +123,7 @@ export async function renderPage() {
 		}
 	} catch (error) {
 		const errorContent = `
-			<div class="dashboard-container">
+			<div class="dashboard-container dashboard-page-frame">
 				<div class="error-card glass">
 					<i data-lucide="alert-circle"></i>
 					<p>Unable to load dashboard data</p>

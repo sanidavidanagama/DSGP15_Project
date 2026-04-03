@@ -198,14 +198,14 @@ export async function renderPage() {
 						</article>
 
 						<article class="team-card">
-							<div class="team-avatar">RK</div>
-							<div class="team-name">Ravindu Kodikara</div>
+							<div class="team-avatar">LR</div>
+							<div class="team-name">Lidiya Rajapaksha</div>
 							<div class="team-role">Full Stack Developer & ML Engineer</div>
 						</article>
 
 						<article class="team-card">
-							<div class="team-avatar">MR</div>
-							<div class="team-name">Mihiran Ranasinghe</div>
+							<div class="team-avatar">SD</div>
+							<div class="team-name">Sanuli Dhanuge</div>
 							<div class="team-role">Data Engineer & Evaluation Lead</div>
 						</article>
 

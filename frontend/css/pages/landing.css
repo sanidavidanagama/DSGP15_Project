@@ -16,13 +16,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: background var(--transition-base), box-shadow var(--transition-base);
+  background: transparent;
+  transition:
+    background var(--transition-base),
+    box-shadow var(--transition-base),
+    padding var(--transition-base),
+    border-bottom var(--transition-base),
+    backdrop-filter var(--transition-base);
 }
 
 .landing-nav.scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  box-shadow: var(--shadow-sm);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  padding: 10px 40px;
 }
 
 .landing-nav-brand {

@@ -85,8 +85,7 @@ function renderStudentProfile(appElement, classroom, student) {
 
 				<article class="glass-card stat-card">
 					<div class="stat-card-icon-row"><div class="stat-card-icon"><i data-lucide="smile"></i></div></div>
-					<div class="stat-card-value">${safeText(student.last_predicted_mood || 'N/A')}</div>
-					<div class="stat-card-label">Last Predicted Mood</div>
+                    <div class="stat-card-value">${safeText(student.last_predicted_mood || 'N/A').replace(/^./, c => c.toUpperCase())}</div>					<div class="stat-card-label">Last Predicted Mood</div>
 				</article>
 
 				<article class="glass-card stat-card">

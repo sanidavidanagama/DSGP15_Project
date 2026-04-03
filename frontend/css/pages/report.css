@@ -277,11 +277,22 @@
 }
 
 /* Save to student section */
-.save-student-row {
+.report-save-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-top: 16px;
+}
+
+.report-save-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.report-save-status {
+  margin-top: 12px;
+  min-height: 1.4em;
 }
 
 /* ====================
@@ -293,5 +304,5 @@
   .report-images-grid { grid-template-columns: 1fr; }
   .indicators-grid    { grid-template-columns: 1fr; }
   .patterns-grid      { grid-template-columns: 1fr; }
-  .save-student-row   { grid-template-columns: 1fr; }
+  .report-save-grid   { grid-template-columns: 1fr; }
 }

@@ -4,8 +4,19 @@ export async function fetchStudentDetail(classId, studentId) {
 	return apiFetch(`/classes/${classId}/students/${studentId}`, { method: 'GET' });
 }
 
+export async function fetchStudentsByClass(classId) {
+	return apiFetch(`/classes/${classId}/students`, { method: 'GET' });
+}
+
 export async function fetchSavedReport(classId, studentId, jobId) {
 	return apiFetch(`/classes/${classId}/students/${studentId}/report/${jobId}`, { method: 'GET' });
+}
+
+export async function saveAnalysisToStudent(studentId, jobId) {
+	return apiFetch(`/students/${studentId}/saved-analyses`, {
+		method: 'POST',
+		body: JSON.stringify({ job_id: jobId }),
+	});
 }
 
 export async function updateStudent(studentId, payload) {

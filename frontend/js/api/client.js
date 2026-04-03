@@ -15,6 +15,11 @@ export async function apiFetch(path, options = {}) {
 		finalHeaders.Authorization = `Bearer ${auth.token}`;
 	}
 
+	// Set Content-Type to application/json when sending JSON body
+	if (body && typeof body === 'string' && !finalHeaders['Content-Type']) {
+		finalHeaders['Content-Type'] = 'application/json';
+	}
+
 	const response = await fetch(url, {
 		method,
 		headers: finalHeaders,

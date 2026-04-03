@@ -14,7 +14,6 @@ export async function renderPage() {
 					<button class="landing-nav-link" data-scroll-target="features">Features</button>
 					<button class="landing-nav-link" data-scroll-target="how-it-works">How It Works</button>
 					<button class="landing-nav-link" data-scroll-target="team">Team</button>
-					<a href="#/license" class="landing-nav-link">License</a>
 				</nav>
 				<div class="landing-nav-actions">
 					<a href="#/login" class="btn btn-ghost">Sign In</a>

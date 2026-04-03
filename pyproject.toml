@@ -1,7 +1,7 @@
 [project]
-name = "dsgp-15-project"
-version = "0.1.0"
-description = "Deep learning project to analyze children's drawings for emotion recognition and creativity assessment."
+name = "inkind-1.0"
+version = "0.9.0"
+description = "AI powered end-to-end system to analyze children's drawings and a full web application stack."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

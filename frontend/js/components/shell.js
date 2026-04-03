@@ -61,7 +61,7 @@ export function createShell(pageContent, options = {}) {
 						<h1 class="topbar-title">${topbarTitle}</h1>
 					</div>
 					<div class="topbar-right">
-						<div class="topbar-user">
+						<div class="topbar-user-card">
 							<div class="topbar-user-avatar">${teacherName.charAt(0)}</div>
 							<span class="topbar-user-name">${teacherName}</span>
 						</div>

@@ -1,3 +1,14 @@
+.topbar-user-card {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	background: #fff;
+	border-radius: 999px;
+	border: 1.5px solid #e0e0e0;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+	padding: 4px 16px 4px 8px;
+	min-width: 0;
+}
 /* Authenticated App Shell — Sidebar + Topbar + Main */
 
 .app-shell {

@@ -2,7 +2,7 @@
 import { getAuth, clearAuth } from '../utils/state.js';
 import { showToast } from './toast.js';
 
-export function createShell(pageContent) {
+export function createShell(pageContent, options = {}) {
 	const auth = getAuth();
 	if (!auth?.token) {
 		window.location.hash = '#/login';
@@ -10,6 +10,7 @@ export function createShell(pageContent) {
 	}
 
 	const teacherName = auth.teacherName || 'Teacher';
+	const topbarTitle = options.topbarTitle || 'Dashboard';
 
 	return `
 		<div class="app-shell">
@@ -58,7 +59,7 @@ export function createShell(pageContent) {
 				<!-- Topbar -->
 				<header class="topbar">
 					<div class="topbar-left">
-						<h1 class="topbar-title">Dashboard</h1>
+						<h1 class="topbar-title">${topbarTitle}</h1>
 					</div>
 					<div class="topbar-right">
 						<div class="topbar-user">

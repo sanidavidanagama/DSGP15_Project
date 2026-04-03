@@ -230,20 +230,67 @@
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 28px;
+  perspective: 1200px;
 }
 
 .feature-card {
-  background: var(--surface);
-  border: 1px solid var(--gray-200);
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  background: linear-gradient(165deg, #f7f9fb 0%, #eef2f5 100%);
+  border: 1px solid #d5dde4;
   border-radius: var(--radius-lg);
   padding: 28px;
-  transition: box-shadow var(--transition-base), transform var(--transition-base);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 20px 38px -26px rgba(14, 24, 39, 0.38),
+    0 6px 14px -10px rgba(14, 24, 39, 0.32);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.08) 36%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  pointer-events: none;
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -16px;
+  height: 20px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0) 72%);
+  pointer-events: none;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+  opacity: 0.6;
 }
 
 .feature-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  transform: translateY(-6px) rotateX(1.6deg);
+  border-color: #c2ced8;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 30px 52px -30px rgba(14, 24, 39, 0.52),
+    0 12px 24px -18px rgba(14, 24, 39, 0.42);
+}
+
+.feature-card:hover::after {
+  opacity: 0.85;
+  transform: translateY(2px) scale(1.06);
 }
 
 .feature-icon-wrap {
@@ -495,6 +542,7 @@
 
   .hero-image-container img { height: 320px; }
   .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .feature-card:hover { transform: translateY(-4px) rotateX(0.8deg); }
   .team-cards { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -504,6 +552,7 @@
   .landing-hero { padding: 100px 16px 60px; }
   .landing-section { padding: 60px 16px; }
   .features-grid { grid-template-columns: 1fr; }
+  .feature-card:hover { transform: translateY(-2px); }
   .team-cards { grid-template-columns: 1fr; }
   .how-section { padding: 60px 16px; }
   .cta-section { padding: 60px 16px; }

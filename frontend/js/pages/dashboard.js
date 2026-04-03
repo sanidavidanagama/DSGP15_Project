@@ -56,7 +56,7 @@ export async function renderPage() {
 							<i data-lucide="zap"></i>
 						</div>
 						<div class="metric-content">
-							<p class="metric-label">Active Today</p>
+							<p class="metric-label">This Week</p>
 							<p class="metric-value">${recent_activity.length}</p>
 						</div>
 					</div>

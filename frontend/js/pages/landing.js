@@ -6,19 +6,20 @@ export async function renderPage() {
 
 	root.innerHTML = `
 		<div class="landing-page">
-			<header class="landing-nav">
-				<div class="landing-nav-left">
+			<header class="landing-nav" id="landing-nav">
+				<a href="#/" class="landing-nav-brand">
 					<div class="landing-logo-mark">
 						<span class="landing-logo-icon">IN</span>
 					</div>
 					<div class="landing-logo-text">
 						<span class="landing-logo-title">INKIND</span>
+						<span class="landing-logo-subtitle text-xs text-muted">Teacher Portal</span>
 					</div>
-				</div>
+				</a>
 				<nav class="landing-nav-links">
-					<a href="#/" class="landing-nav-link" data-scroll="features">Features</a>
-					<a href="#/" class="landing-nav-link" data-scroll="how-it-works">How It Works</a>
-					<a href="#/" class="landing-nav-link" data-scroll="team">Team</a>
+					<button class="landing-nav-link" data-scroll-target="features">Features</button>
+					<button class="landing-nav-link" data-scroll-target="how-it-works">How It Works</button>
+					<button class="landing-nav-link" data-scroll-target="team">Team</button>
 					<a href="#/license" class="landing-nav-link">License</a>
 				</nav>
 				<div class="landing-nav-actions">
@@ -30,40 +31,41 @@ export async function renderPage() {
 			<main class="landing-main">
 				<!-- Hero Section -->
 				<section class="landing-hero" id="hero">
-					<div class="landing-hero-content">
-						<div class="badge badge-teal text-xs">AI-Powered Drawing Analysis</div>
-						<h1>See what children's drawings quietly reveal.</h1>
-						<p class="landing-hero-subtitle">
-							INKIND helps teachers interpret children's drawings through multimodal AI,
-							surfacing emotional and developmental indicators in minutes.
-						</p>
-						<div class="landing-hero-actions">
-							<a href="#/signup" class="btn btn-primary">Get Started</a>
-							<a href="#/login" class="btn btn-secondary">Sign In</a>
+					<div class="landing-hero-inner">
+						<div class="landing-hero-left">
+							<div class="hero-badge">
+								<i data-lucide="scan-eye" class="hero-badge-icon"></i>
+								<span>AI-Powered Drawing Analysis</span>
+							</div>
+							<h1 class="hero-title">See what children's drawings quietly reveal.</h1>
+							<p class="hero-subtitle">
+								INKIND helps teachers interpret children's drawings through multimodal AI,
+								surfacing emotional and developmental indicators in minutes.
+							</p>
+							<div class="hero-actions">
+								<a href="#/signup" class="btn btn-primary">Get Started</a>
+								<a href="#/login" class="btn btn-secondary">Sign In</a>
+							</div>
+							<p class="hero-trust">
+								Used by educators · Non-diagnostic · Privacy-first
+							</p>
 						</div>
-						<p class="landing-hero-trust text-sm text-muted">
-							Used by educators · Non-diagnostic · Privacy-first
-						</p>
-					</div>
-					<div class="landing-hero-visual">
-						<div class="landing-hero-image-wrapper">
-							<img
-								src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=1200"
-								alt="Child drawing with crayons"
-								class="landing-hero-image"
-							/>
-							<div class="glass-card landing-hero-sample-card">
-								<div class="landing-hero-sample-header">
-									<span class="text-sm text-muted">Sample Analysis</span>
-									<span class="badge badge-success text-xs">Balanced Mood</span>
+
+						<div class="landing-hero-right">
+							<div class="hero-image-wrapper">
+								<div class="hero-image-container">
+									<img
+										src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=1200"
+										alt="Child drawing with crayons"
+									/>
 								</div>
-								<div class="landing-hero-sample-mood">
-									<span class="text-xs text-muted">Mood Balance</span>
-									<div class="landing-hero-mood-bar">
-										<div class="landing-hero-mood-happy" style="width: 68%"></div>
-										<div class="landing-hero-mood-sad" style="width: 32%"></div>
+								<div class="hero-sample-card">
+									<div class="hero-sample-label">Sample analysis</div>
+									<div class="hero-sample-bar">
+										<div class="hero-sample-happy" style="width: 68%"></div>
+										<div class="hero-sample-sad" style="width: 32%"></div>
 									</div>
-									<div class="landing-hero-mood-labels text-xs">
+									<div class="hero-sample-labels">
 										<span>Happy 68%</span>
 										<span>Sad 32%</span>
 									</div>
@@ -73,38 +75,210 @@ export async function renderPage() {
 					</div>
 				</section>
 
-				<!-- Placeholder sections to be expanded in later steps -->
+				<!-- Features Section -->
 				<section id="features" class="landing-section">
-					<h2>What INKIND Offers</h2>
-					<p class="text-muted">
-						Detailed feature cards will be implemented next so you can see the full
-						storytelling of the product.
+					<h2 class="landing-section-title">What INKIND Offers</h2>
+					<p class="landing-section-subtitle">
+						A clinical yet compassionate toolkit to make sense of children's drawings.
 					</p>
+
+					<div class="features-grid">
+						<article class="feature-card">
+							<div class="feature-icon-wrap">
+								<i data-lucide="scan-eye"></i>
+							</div>
+							<h3 class="feature-title">Mood Detection</h3>
+							<p class="feature-desc">
+								Multimodal analysis combining drawing imagery and teacher-provided context to identify emotional patterns.
+							</p>
+						</article>
+
+						<article class="feature-card">
+							<div class="feature-icon-wrap">
+								<i data-lucide="trending-up"></i>
+							</div>
+							<h3 class="feature-title">Longitudinal View</h3>
+							<p class="feature-desc">
+								Track mood and drawing indicators across time to spot meaningful shifts, not one-off anomalies.
+							</p>
+						</article>
+
+						<article class="feature-card">
+							<div class="feature-icon-wrap">
+								<i data-lucide="users"></i>
+							</div>
+							<h3 class="feature-title">Classroom-Level Insights</h3>
+							<p class="feature-desc">
+								See patterns at the class level so you can adapt group activities and environments with confidence.
+							</p>
+						</article>
+
+						<article class="feature-card">
+							<div class="feature-icon-wrap">
+								<i data-lucide="check-circle"></i>
+							</div>
+							<h3 class="feature-title">Teacher-Friendly Reports</h3>
+							<p class="feature-desc">
+								Clear, non-technical language that highlights what to notice, what to celebrate, and what to monitor.
+							</p>
+						</article>
+
+						<article class="feature-card">
+							<div class="feature-icon-wrap">
+								<i data-lucide="shield"></i>
+							</div>
+							<h3 class="feature-title">Non-Diagnostic Framing</h3>
+							<p class="feature-desc">
+								Built to support, not label. INKIND offers indicators and suggestions, never clinical diagnoses.
+							</p>
+						</article>
+
+						<article class="feature-card">
+							<div class="feature-icon-wrap">
+								<i data-lucide="lock"></i>
+							</div>
+							<h3 class="feature-title">Privacy-First</h3>
+							<p class="feature-desc">
+								No PII collected. Drawings processed securely. Results framed as supportive, never diagnostic.
+							</p>
+						</article>
+					</div>
 				</section>
 
-				<section id="how-it-works" class="landing-section">
-					<h2>How It Works</h2>
-					<p class="text-muted">We will add the full 4-step visual flow in a follow-up step.</p>
+				<!-- How It Works Section -->
+				<section id="how-it-works" class="how-section">
+					<div class="how-section-inner">
+						<h2 class="landing-section-title">How It Works</h2>
+						<p class="landing-section-subtitle">
+							A four-step, teacher-centered workflow that fits into your day.
+						</p>
+
+						<div class="steps-row">
+							<div class="step-item">
+								<div class="step-circle">1</div>
+								<h3 class="step-title">Upload</h3>
+								<p class="step-desc">
+									Teacher uploads a drawing plus optional classroom context notes.
+								</p>
+							</div>
+							<div class="step-connector"></div>
+							<div class="step-item">
+								<div class="step-circle">2</div>
+								<h3 class="step-title">Analyze</h3>
+								<p class="step-desc">
+									AI models evaluate colors, shapes, spatial layout, and textual cues.
+								</p>
+							</div>
+							<div class="step-connector"></div>
+							<div class="step-item">
+								<div class="step-circle">3</div>
+								<h3 class="step-title">Interpret</h3>
+								<p class="step-desc">
+									Insights are translated into teacher-friendly language with clear guardrails.
+								</p>
+							</div>
+							<div class="step-connector"></div>
+							<div class="step-item">
+								<div class="step-circle">4</div>
+								<h3 class="step-title">Report</h3>
+								<p class="step-desc">
+									Integrated report with indicators, mood summary, and recommendations.
+								</p>
+							</div>
+						</div>
+					</div>
 				</section>
 
+				<!-- Team Section -->
 				<section id="team" class="landing-section">
-					<h2>Built by Group 15</h2>
-					<p class="text-muted">
-						Team member cards and supervisor details will be added in detail shortly.
+					<h2 class="landing-section-title">Built by Group 15</h2>
+					<p class="landing-section-subtitle">
+						A Data Science Group Project at IIT in collaboration with Robert Gordon University.
 					</p>
+
+					<div class="team-cards">
+						<article class="team-card">
+							<div class="team-avatar">SV</div>
+							<div class="team-name">Sanida Vidanagama</div>
+							<div class="team-role">Project Manager, AI Engineer & Backend Developer</div>
+						</article>
+
+						<article class="team-card">
+							<div class="team-avatar">RK</div>
+							<div class="team-name">Ravindu Kodikara</div>
+							<div class="team-role">Full Stack Developer & ML Engineer</div>
+						</article>
+
+						<article class="team-card">
+							<div class="team-avatar">MR</div>
+							<div class="team-name">Mihiran Ranasinghe</div>
+							<div class="team-role">Data Engineer & Evaluation Lead</div>
+						</article>
+
+						<article class="team-card">
+							<div class="team-avatar">KR</div>
+							<div class="team-name">Kaviyan Ratneswaran</div>
+							<div class="team-role">QA Engineer, Domain Researcher & ML Engineer</div>
+						</article>
+					</div>
+
+					<p class="team-supervisor">Supervised by Mr. Prashan Rathnayaka</p>
+				</section>
+
+				<!-- CTA Section -->
+				<section class="cta-section">
+					<h2>Ready to see what children's drawings reveal?</h2>
+					<p>
+						Start with a single drawing and build a longitudinal picture of your classroom's emotional world.
+					</p>
+					<a href="#/signup" class="btn-cta">
+						<span>Get Started</span>
+						<i data-lucide="arrow-right"></i>
+					</a>
 				</section>
 			</main>
 
 			<footer class="landing-footer">
-				<span class="text-sm text-muted">
+				<span class="landing-footer-copy">
 					© 2026 INKIND — DSGP 15 | IIT × Robert Gordon University
 				</span>
-				<div class="landing-footer-links text-sm">
+				<div class="landing-footer-links">
 					<a href="#/license">License</a>
 					<a href="https://github.com/sanidavidanagama/DSGP15_Project" target="_blank" rel="noopener noreferrer">GitHub</a>
 				</div>
 			</footer>
 		</div>
 	`;
+
+	// Scroll behavior for navbar background
+	const nav = document.getElementById('landing-nav');
+	const onScroll = () => {
+		if (!nav) return;
+		const threshold = 50;
+		if (window.scrollY > threshold) {
+			nav.classList.add('scrolled');
+		} else {
+			nav.classList.remove('scrolled');
+		}
+	};
+
+	window.addEventListener('scroll', onScroll, { passive: true });
+	onScroll();
+
+	// Smooth scroll for in-page nav links
+	const scrollButtons = root.querySelectorAll('[data-scroll-target]');
+	scrollButtons.forEach((btn) => {
+		btn.addEventListener('click', (event) => {
+			event.preventDefault();
+			const targetId = btn.getAttribute('data-scroll-target');
+			const section = targetId ? document.getElementById(targetId) : null;
+			if (section) {
+				const offset = nav ? nav.offsetHeight + 16 : 80;
+				const rect = section.getBoundingClientRect();
+				const top = rect.top + window.scrollY - offset;
+				window.scrollTo({ top, behavior: 'smooth' });
+			}
+		});
+	});
 }
 

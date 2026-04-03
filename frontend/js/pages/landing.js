@@ -31,9 +31,7 @@ export async function renderPage() {
 								<i data-lucide="scan-eye" class="hero-badge-icon"></i>
 								<span>AI-Powered Drawing Analysis</span>
 							</div>
-							<h1 class="hero-title">
-								See the <span class="hero-title-emphasis">story</span> in every drawing.
-							</h1>
+							<h1 class="hero-title">See what children's drawings quietly reveal.</h1>
 							<p class="hero-subtitle">
 								INKIND helps teachers interpret children's drawings through multimodal AI,
 								surfacing emotional and developmental indicators in minutes.

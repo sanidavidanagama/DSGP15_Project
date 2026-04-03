@@ -1,0 +1,174 @@
+/* ============================================================
+   Students Directory Page Styles
+   ============================================================ */
+
+.students-page {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.students-page-header {
+	margin-bottom: 0;
+}
+
+.students-page-header-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.students-summary-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 20px;
+}
+
+.students-toolbar-card {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.students-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.students-search-wrapper {
+	position: relative;
+	flex: 1;
+	min-width: 260px;
+}
+
+.students-search-wrapper i {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 16px;
+	height: 16px;
+	color: var(--gray-400);
+	pointer-events: none;
+}
+
+.students-search-wrapper .form-input {
+	padding-left: 38px;
+}
+
+.students-filter-select {
+	min-width: 220px;
+}
+
+.students-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 20px;
+}
+
+.student-directory-card {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	text-decoration: none;
+	color: inherit;
+}
+
+.student-directory-top {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.student-directory-avatar {
+	width: 58px;
+	height: 58px;
+	border-radius: var(--radius-full);
+	background: linear-gradient(135deg, rgba(0, 128, 128, 0.12), rgba(0, 128, 128, 0.05));
+	color: var(--teal-700);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: 'Lexend', sans-serif;
+	font-weight: 700;
+	font-size: 1rem;
+	flex-shrink: 0;
+}
+
+.student-directory-info h3 {
+	margin-bottom: 4px;
+	font-size: 1.15rem;
+}
+
+.student-directory-info p {
+	margin: 0;
+}
+
+.student-directory-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.student-directory-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding-top: 14px;
+	border-top: 1px solid var(--gray-100);
+}
+
+.students-empty-state {
+	min-height: 260px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	gap: 10px;
+}
+
+.students-empty-state i {
+	width: 36px;
+	height: 36px;
+	color: var(--gray-400);
+}
+
+.students-help-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+	.students-summary-grid,
+	.students-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 768px) {
+	.students-summary-grid,
+	.students-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.students-toolbar {
+		align-items: stretch;
+	}
+
+	.students-filter-select {
+		min-width: 100%;
+	}
+
+	.students-help-card {
+		align-items: flex-start;
+	}
+}

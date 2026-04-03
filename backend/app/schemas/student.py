@@ -32,5 +32,10 @@ class StudentWithStatsResponse(StudentResponse):
     total_analyses: int = 0
 
 
+class StudentDirectoryResponse(StudentWithStatsResponse):
+    class_name: str
+    grade_age_group: str
+
+
 class StudentDetailResponse(StudentWithStatsResponse):
     history: list[StudentSavedAnalysisResponse] = []

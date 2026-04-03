@@ -1,5 +1,9 @@
 import { apiFetch } from './client.js';
 
+export async function fetchStudents() {
+	return apiFetch('/students', { method: 'GET' });
+}
+
 export async function fetchStudentDetail(classId, studentId) {
 	return apiFetch(`/classes/${classId}/students/${studentId}`, { method: 'GET' });
 }

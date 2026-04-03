@@ -14,6 +14,7 @@ const ROUTES = {
 
 	'/dashboard':           { page: 'dashboard',         auth: true,  shell: true },
 	'/classes':             { page: 'classes',           auth: true,  shell: true },
+	'/students':            { page: 'students',          auth: true,  shell: true },
 	'/classes/new':         { page: 'add-class',         auth: true,  shell: true },
 	'/classes/:id':         { page: 'class-detail',      auth: true,  shell: true },
 	'/classes/:id/edit':    { page: 'edit-class',        auth: true,  shell: true },

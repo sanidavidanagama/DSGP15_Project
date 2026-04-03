@@ -1,5 +1,6 @@
 import { createShell, attachShellHandlers } from '../components/shell.js';
 import { fetchClassById } from '../api/classes.js';
+import { deleteClass } from '../api/classes.js';
 import { showToast } from '../components/toast.js';
 
 export async function renderPage({ params } = {}) {
@@ -145,11 +146,33 @@ function bindDeleteAction(classroom) {
 	const deleteButton = document.getElementById('delete-class-btn');
 	if (!deleteButton) return;
 
-	deleteButton.addEventListener('click', () => {
-		const confirmed = window.confirm(`Are you sure you want to delete ${classroom.class_name}? This action cannot be undone.`);
-		if (!confirmed) return;
-		showToast('info', 'Delete action is not wired yet on the frontend.');
+	deleteButton.addEventListener('click', async () => {
+		openModal(`
+			<div class="modal-confirm-body">
+				<h3>Delete ${safeText(classroom.class_name)}?</h3>
+				<p class="text-muted">This will remove the class and keep its students unavailable in the current teacher workspace.</p>
+				<div class="modal-actions" style="margin-top: 20px;">
+					<button id="cancel-delete-class-btn" class="btn btn-ghost" type="button">Cancel</button>
+					<button id="confirm-delete-class-btn" class="btn btn-danger" type="button">Delete</button>
+				</div>
+			</div>
+		`);
 	});
+		const cancelButton = document.getElementById('cancel-delete-class-btn');
+		const confirmButton = document.getElementById('confirm-delete-class-btn');
+		cancelButton?.addEventListener('click', () => closeModal());
+		confirmButton?.addEventListener('click', async () => {
+			try {
+				confirmButton.disabled = true;
+				await deleteClass(classroom.id);
+				showToast('success', 'Class deleted successfully.');
+				closeModal();
+				window.location.hash = '#/classes';
+			} catch (error) {
+				confirmButton.disabled = false;
+				showToast('error', error.message || 'Failed to delete class.');
+			}
+		});
 }
 
 function renderStudentCards(classId, students) {

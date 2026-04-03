@@ -14,3 +14,16 @@ export async function createClass(payload) {
 		body: JSON.stringify(payload),
 	});
 }
+
+export async function updateClass(classId, payload) {
+	return apiFetch(`/classes/${classId}`, {
+		method: 'PATCH',
+		body: JSON.stringify(payload),
+	});
+}
+
+export async function deleteClass(classId) {
+	return apiFetch(`/classes/${classId}`, {
+		method: 'DELETE',
+	});
+}

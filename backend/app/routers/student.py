@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.crud_class import get_class_by_id
+from app.models.class_model import Classroom
 from app.services.auth_service import get_current_teacher
 from app.database.crud_student import (
     create_student,
@@ -24,6 +25,7 @@ from app.database.database import SessionLocal
 from app.schemas.student import (
     StudentCreate,
     StudentDetailResponse,
+    StudentDirectoryResponse,
     StudentResponse,
     StudentUpdate,
     StudentWithStatsResponse,
@@ -74,6 +76,50 @@ def resolve_student_with_ownership(student_id: int, teacher_id: str, db: Session
         raise HTTPException(status_code=404, detail="Student not found")
     resolve_class(student.class_id, teacher_id, db)
     return student
+
+
+@router.get("/students", response_model=List[StudentDirectoryResponse])
+def list_all_students(
+    teacher_id: str = Depends(get_teacher_id),
+    db: Session = Depends(get_db),
+):
+    classes = (
+        db.query(Classroom)
+        .filter(Classroom.teacher_id == teacher_id, Classroom.is_deleted == False)
+        .order_by(Classroom.id.desc())
+        .all()
+    )
+
+    students_with_stats: list[StudentDirectoryResponse] = []
+    for classroom in classes:
+        students = get_students_by_class(db, classroom.id)
+        for student in students:
+            history = list_saved_analyses_with_job_context(db, student.id)
+            total_analyses = len(history)
+
+            last_mood = None
+            last_saved_at = None
+            if history:
+                latest = history[0]
+                last_mood = latest.get("mood")
+                last_saved_at = latest.get("saved_at")
+
+            students_with_stats.append(
+                StudentDirectoryResponse(
+                    id=student.id,
+                    class_id=student.class_id,
+                    name=student.name,
+                    gender=student.gender,
+                    joined_at=student.joined_at,
+                    last_predicted_mood=last_mood,
+                    last_predicted_at=last_saved_at,
+                    total_analyses=total_analyses,
+                    class_name=classroom.class_name,
+                    grade_age_group=classroom.grade_age_group,
+                )
+            )
+
+    return students_with_stats
 
 
 @router.post("/classes/{class_id}/students", response_model=StudentResponse, status_code=201)

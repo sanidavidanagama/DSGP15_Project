@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 
 class DashboardRecentActivityItem(BaseModel):
+    class_id: int
+    student_id: int
     student_name: str
     emotion: str
     time_ago: str

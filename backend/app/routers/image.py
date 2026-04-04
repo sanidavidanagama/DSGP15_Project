@@ -1,10 +1,16 @@
+from pathlib import Path
+
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 from app.schemas.image import ImageValidationResponse
 from app.ml.image_model.processor import ChildDrawingPreprocessor
 from PIL import Image
 import io
 
 router = APIRouter()
+
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+UPLOADS_DIR = (BACKEND_ROOT / "uploads").resolve()
 
 # Initialised once at module load (SAM model is expensive to load)
 preprocessor = ChildDrawingPreprocessor()
@@ -72,3 +78,19 @@ async def validate_image(image: UploadFile = File(...)):
         valid=True,
         message="Image validated and preprocessed successfully."
     )
+
+
+@router.get("/uploads/{file_path:path}")
+def serve_uploaded_file(file_path: str):
+    requested_path = (UPLOADS_DIR / file_path).resolve()
+
+    # Prevent path traversal outside uploads directory.
+    try:
+        requested_path.relative_to(UPLOADS_DIR)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="File not found") from exc
+
+    if not requested_path.is_file():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return FileResponse(path=requested_path)

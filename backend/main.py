@@ -7,6 +7,7 @@ from app.routers import class_router
 from app.routers import student
 from app.routers import auth
 from app.routers import dashboard
+from app.routers import settings as settings_router
 from app.core.config import settings
 
 from app.database.database import engine, Base
@@ -58,6 +59,7 @@ app.include_router(class_router.router)
 app.include_router(student.router)
 app.include_router(auth.router)
 app.include_router(dashboard.router)
+app.include_router(settings_router.router)
 
 
 if __name__ == "__main__":

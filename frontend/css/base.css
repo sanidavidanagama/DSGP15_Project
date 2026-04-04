@@ -1,0 +1,92 @@
+/* ============================================================
+   Base Styles — Typography & Global Defaults
+   ============================================================ */
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.938rem;
+  color: var(--gray-700);
+  background: var(--bg);
+  line-height: 1.6;
+}
+
+/* ---- Headings ---- */
+h1 {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 2.25rem;
+  color: var(--gray-900);
+  line-height: 1.2;
+}
+
+h2 {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: var(--gray-900);
+  line-height: 1.25;
+}
+
+h3 {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: var(--gray-800);
+  line-height: 1.3;
+}
+
+h4 {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--gray-800);
+  line-height: 1.4;
+}
+
+p, span, label, input, textarea, select, button {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.938rem;
+  color: var(--gray-700);
+  line-height: 1.6;
+}
+
+/* ---- Text utilities ---- */
+.text-xs   { font-size: 0.75rem; }
+.text-sm   { font-size: 0.8125rem; }
+.text-base { font-size: 0.938rem; }
+.text-lg   { font-size: 1.125rem; }
+.text-xl   { font-size: 1.25rem; }
+.text-muted { color: var(--gray-500); }
+.text-teal  { color: var(--teal-500); }
+.text-white { color: #ffffff; }
+.text-danger  { color: var(--danger); }
+.text-success { color: var(--success); }
+
+/* ---- Page fade-in transition ---- */
+.page-enter {
+  animation: pageFadeIn 200ms ease forwards;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Divider ---- */
+.divider {
+  height: 1px;
+  background: var(--gray-200);
+  margin: 24px 0;
+}
+
+/* ---- Section header ---- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.section-header h3 {
+  margin: 0;
+}

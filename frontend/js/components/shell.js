@@ -2,6 +2,16 @@
 import { getAuth, clearAuth } from '../utils/state.js';
 import { showToast } from './toast.js';
 
+function escapeHtml(value) {
+	const text = value == null ? '' : String(value);
+	return text
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+		.replaceAll("'", '&#39;');
+}
+
 export function createShell(pageContent, options = {}) {
 	const auth = getAuth();
 	if (!auth?.token) {
@@ -9,8 +19,8 @@ export function createShell(pageContent, options = {}) {
 		return '';
 	}
 
-	const teacherName = auth.teacherName || 'Teacher';
-	const topbarTitle = options.topbarTitle || 'Dashboard';
+	const teacherName = escapeHtml(auth.teacherName || 'Teacher');
+	const topbarTitle = escapeHtml(options.topbarTitle || 'Dashboard');
 
 	return `
 		<div class="app-shell">

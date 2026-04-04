@@ -10,6 +10,7 @@ const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
 let selectedImageFile = null;
+let currentPreviewUrl = null;
 
 export async function renderPage() {
 	const appElement = document.getElementById('app');
@@ -161,6 +162,11 @@ function renderImagePreview(file) {
 
 	if (!previewCard || !previewThumb || !previewName || !previewSize) return;
 
+	if (currentPreviewUrl) {
+		URL.revokeObjectURL(currentPreviewUrl);
+		currentPreviewUrl = null;
+	}
+
 	if (!file) {
 		previewCard.classList.remove('visible');
 		previewThumb.removeAttribute('src');
@@ -170,10 +176,12 @@ function renderImagePreview(file) {
 	}
 
 	previewCard.classList.add('visible');
-	previewThumb.src = URL.createObjectURL(file);
+	currentPreviewUrl = URL.createObjectURL(file);
+	previewThumb.src = currentPreviewUrl;
 	previewName.textContent = file.name;
 	previewSize.textContent = formatBytes(file.size);
 }
+
 
 async function handleSubmitAnalysis() {
 	if (!selectedImageFile) {

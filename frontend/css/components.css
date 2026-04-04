@@ -1,5 +1,5 @@
 /* ============================================================
-   Reusable Components — Buttons, Cards, Forms, Badges, Modals
+   Reusable Components - Buttons, Cards, Forms, Badges, Modals
    ============================================================ */
 
 /* ====================
@@ -17,7 +17,7 @@
   padding: 24px;
 }
 
-/* Standard card — most content containers */
+/* Standard card - most content containers */
 .card {
   background: var(--surface);
   border: 1px solid var(--gray-200);
@@ -96,7 +96,7 @@
   pointer-events: none;
 }
 
-/* Primary — filled teal */
+/* Primary - filled teal */
 .btn-primary {
   background: var(--teal-500);
   color: #FFFFFF;
@@ -108,7 +108,7 @@
   box-shadow: 0 4px 12px rgba(0, 128, 128, 0.25);
 }
 
-/* Secondary — outlined teal */
+/* Secondary - outlined teal */
 .btn-secondary {
   background: transparent;
   color: var(--teal-500);
@@ -145,7 +145,7 @@
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
 }
 
-/* Danger ghost — outlined red */
+/* Danger ghost - outlined red */
 .btn-danger-ghost {
   background: transparent;
   color: var(--danger);

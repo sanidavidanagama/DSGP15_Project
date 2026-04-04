@@ -54,7 +54,7 @@
 
 .students-search-wrapper:focus-within {
 	border-color: var(--teal-500);
-	background-color: var(--gray-0);
+	background-color: var(--white);
 }
 
 .students-search-wrapper i {
